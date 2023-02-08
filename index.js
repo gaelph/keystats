@@ -21,13 +21,25 @@ function isMod(code, mod) {
   return code & (mod == mod);
 }
 
+/**
+ * @param {number} cols columns in the matrix
+ * @param {number} rows rows in the matrix
+ * @return {Array} the matrix initialized with 0
+ */
+function newMatrix(cols, rows) {
+  const matrix = [];
+  for (let r = 0; r < rows; r++) {
+    const row = [];
+    for (let c = 0; c < cols; c++) {
+      row.push(0);
+    }
+    matrix.push(row);
+  }
+  return matrix;
+}
+
 let storage = {
-  matrix: [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ],
+  layers: [],
   codesPressed: {},
 };
 
@@ -38,11 +50,9 @@ if (fs.existsSync("./log.json")) {
 }
 
 let devices = [];
-let listen = true;
 
 process.on("SIGINT", () => {
   console.log("should abort !!!!");
-  listen = false;
   devices.forEach((device) => {
     device.hid.close();
   });
@@ -60,24 +70,40 @@ function listenToDevice(device) {
 
     hidDevice.on("data", (data) => {
       const bytes = data.slice(0, data.length - 1);
-      const [upperKeycode, lowerKeycode, col, row, pressed8, mods] = bytes;
+      const [upperKeycode, lowerKeycode, col, row, pressed8, modbits, layer] =
+        bytes;
       const keycode = (upperKeycode << 8) | lowerKeycode;
+      const hexcode = keycode.toString(16);
       const pressed = pressed8 == 1;
+      const modifiers = modbits.toString(16);
 
       if (pressed) {
-        if (
-          storage.matrix &&
-          storage.matrix[row] !== undefined &&
-          storage.matrix[row][col] !== undefined
-        ) {
-          storage.matrix[row][col] += 1;
-        } else {
-          console.warn("invalid matrix coordinates", row, col);
+        console.log(
+          `RECEIVED: 0x${hexcode}, ${col}, ${row}, ${modifiers}, ${layer}`
+        );
+        if (storage.layers) {
+          if (!storage.layers[layer]) {
+            storage.layers[layer] = newMatrix(12, 4);
+          }
+          if (
+            row >= storage.layers[layer].length ||
+            col >= storage.layers[layer][row].length
+          ) {
+            console.log("Invalid matrix coordinates", row, col, layer);
+          } else {
+            storage.layers[layer][row][col] += 1;
+          }
         }
-        if (!storage.codesPressed[keycode]) {
-          storage.codesPressed[keycode] = 0;
+        const keycodeKey = `${hexcode}_${modifiers}`;
+        if (!storage.codesPressed[keycodeKey]) {
+          storage.codesPressed[keycodeKey] = {
+            keycode: hexcode,
+            modifiers: modifiers,
+            count: 0,
+            layer: layer,
+          };
         }
-        storage.codesPressed[keycode] = storage.codesPressed[keycode] + 1;
+        storage.codesPressed[keycodeKey].count += 1;
 
         fs.writeFile("./log.json", JSON.stringify(storage), {}, (err) => {
           if (err) console.error(err);
