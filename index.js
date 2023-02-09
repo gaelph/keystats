@@ -124,26 +124,31 @@ function listenToDevice(device) {
   }
 }
 
-async function main() {
-  usbDetect.startMonitoring();
+async function listenPlaid() {
+  let plaids = []
 
-  let plaids = HID.devices(VENDOR_ID, PRODUCT_ID).filter(
+  while (plaids.length === 0) {
+    plaids = HID.devices(VENDOR_ID, PRODUCT_ID).filter(
     (device) => device.usagePage === USAGE_PAGE && device.usage === USAGE
-  );
+    );
+    
+    await new Promise(resolve => setTimeout(resolve, 1000))
+  }
 
   if (plaids) {
     plaids.forEach((plaid) => listenToDevice(plaid));
   }
+}
 
-  usbDetect.on(`add:${VENDOR_ID}:${PRODUCT_ID}`, (device) => {
+async function main() {
+  usbDetect.startMonitoring();
+
+  listenPlaid()
+
+  usbDetect.on(`add:${VENDOR_ID}:${PRODUCT_ID}`, () => {
+    console.log("Plaid connected");
     try {
-      let plaid = HID.devices(device.vendorId, device.productId).find(
-        (device) => device.usagePage === USAGE_PAGE && device.usage === USAGE
-      );
-
-      if (plaid) {
-        listenToDevice(plaid);
-      }
+      listenPlaid()
     } catch (error) {
       console.log(error);
     }
