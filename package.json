@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:server": "cd client && npm run build && cd .. && nodemon server/index.js",
+    "start:client": "cd client && npm run start"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "node-hid": "^2.1.2",
     "node-usb-detection": "^1.0.2",

@@ -1,6 +1,9 @@
 const HID = require("node-hid");
 const usbDetect = require("usb-detection");
 const fs = require("fs");
+const path = require("path");
+
+const DATA_PATH = path.join(__dirname, "data", "log.json");
 
 HID.setDriverType("libusb");
 
@@ -43,8 +46,8 @@ let storage = {
   codesPressed: {},
 };
 
-if (fs.existsSync("./log.json")) {
-  let content = fs.readFileSync("./log.json");
+if (fs.existsSync(DATA_PATH)) {
+  let content = fs.readFileSync(DATA_PATH);
   storage = JSON.parse(content);
   console.log(storage);
 }
@@ -105,7 +108,7 @@ function listenToDevice(device) {
         }
         storage.codesPressed[keycodeKey].count += 1;
 
-        fs.writeFile("./log.json", JSON.stringify(storage), {}, (err) => {
+        fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
           if (err) console.error(err);
         });
       }
@@ -125,14 +128,14 @@ function listenToDevice(device) {
 }
 
 async function listenPlaid() {
-  let plaids = []
+  let plaids = [];
 
   while (plaids.length === 0) {
     plaids = HID.devices(VENDOR_ID, PRODUCT_ID).filter(
-    (device) => device.usagePage === USAGE_PAGE && device.usage === USAGE
+      (device) => device.usagePage === USAGE_PAGE && device.usage === USAGE
     );
-    
-    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   if (plaids) {
@@ -143,12 +146,12 @@ async function listenPlaid() {
 async function main() {
   usbDetect.startMonitoring();
 
-  listenPlaid()
+  listenPlaid();
 
   usbDetect.on(`add:${VENDOR_ID}:${PRODUCT_ID}`, () => {
     console.log("Plaid connected");
     try {
-      listenPlaid()
+      listenPlaid();
     } catch (error) {
       console.log(error);
     }
