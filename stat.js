@@ -1,6 +1,30 @@
 const keycodes = require("./keycodes");
 const data = require("./log.json");
 
+const layerUsage = Object.values(data.codesPressed).reduce(
+  (sums, d) => {
+    const c = parseInt(d.keycode, 16);
+    const m = parseInt(d.modifiers, 16);
+
+    if (keycodes.isLayerTap(c)) {
+      const ll = keycodes.getLayerTap(c);
+    }
+  },
+  {
+    layer0: 0, // key that activates the layer 0
+    layer1: 0, // key that activates the layer 1
+    layer2: 0, // key that activates the layer 2
+    layer3: 0, // key that activates the layer 3
+    layer4: 0, // key that activates the layer 4
+    space: 0,
+    shiftedSpace: 0,
+    enter: 0,
+    shiftedEnter: 0,
+    escape: 0,
+    shiftedEscape: 0,
+  }
+);
+
 const modifierUsage = Object.values(data.codesPressed).reduce(
   (sums, d) => {
     const c = parseInt(d.keycode, 16);
@@ -38,9 +62,9 @@ const modifierUsage = Object.values(data.codesPressed).reduce(
             break;
         }
       }
+      const { lctrl, lalt, lcmd, lshft, rctrl, ralt, rcmd, rshft } =
+        keycodes.getModifiers(m);
       if (keycodes.isShifted(d.modifiers)) {
-        const { lctrl, lalt, lcmd, lshft, rctrl, ralt, rcmd, rshft } =
-          keycodes.getModifiers(m);
         switch (mod) {
           case "lctrl":
             sums.A +=
