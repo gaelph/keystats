@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import * as Heatmap from "heatmap.js";
 
 import Layers from "../layers";
+import { formatKeyCode } from "../lib/keycodes";
 
 const KEY_WIDTH = 59;
 
@@ -46,7 +47,7 @@ function formatData(matrix) {
   };
 }
 
-export default function HeatmapComponent({ data, layerId, matrix }) {
+export default function HeatmapComponent({ data, layerId, matrix, layer }) {
   const canvasRef = useRef();
   const heatmap = useRef();
   useEffect(() => {
@@ -83,11 +84,13 @@ export default function HeatmapComponent({ data, layerId, matrix }) {
             height: "100%",
           }}
         >
-          {Layers[layerId].map((layerRow, r) => (
+          {console.log(layer) || null}
+          {layer.map((layerRow, r) => (
             <div style={rowStyle}>
+              {console.log(layerRow) || null}
               {layerRow.map((char, c) => (
                 <div className="key" title={data.layers[layerId][r][c]}>
-                  <span>{char}</span>
+                  <span>{formatKeyCode(char)}</span>
                 </div>
               ))}
             </div>

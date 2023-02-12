@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "start:server": "cd client && npm run build && cd .. && nodemon server/index.js",
+    "start:server": "cd client && npm run build && cd .. && nodemon --ignore ./data server/index.js",
     "start:client": "cd client && npm run start"
   },
   "author": "",
