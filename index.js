@@ -2,10 +2,24 @@ const HID = require("node-hid");
 const usbDetect = require("usb-detection");
 const fs = require("fs");
 const path = require("path");
+const HIDMessage = require("./hid/message");
+const {
+  HID_CMD_GET_LAYERS,
+  HID_CMD_GET_LAYERS_METADATA,
+  HID_CMD_UNKNOWN,
+  HID_EVENT,
+} = require("./hid/constants");
+const HIDEvent = require("./hid/HIDEvent");
+const {
+  CmdGetLayersMetadata,
+  CmdGetLayersMetadataResponse,
+} = require("./hid/CmdGetLayersMetadata");
+const { CmdGetLayers, CmdGetLayersResponse } = require("./hid/CmdGetLayers");
 
 const DATA_PATH = path.join(__dirname, "data", "log.json");
+const LAYERS_PATH = path.join(__dirname, "data", "layers.json");
 
-HID.setDriverType("libusb");
+// HID.setDriverType("libusb");
 
 const VENDOR_ID = 5824;
 const PRODUCT_ID = 10203;
@@ -64,6 +78,127 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
+function handeHIDEvent(messages) {
+  const { keycode, col, row, mods, layer, pressed } = new HIDEvent(messages);
+  if (pressed) {
+    if (storage.layers) {
+      if (!storage.layers[layer]) {
+        storage.layers[layer] = newMatrix(12, 4);
+      }
+      if (
+        row >= storage.layers[layer].length ||
+        col >= storage.layers[layer][row].length
+      ) {
+        console.log("Invalid matrix coordinates", row, col, layer);
+      } else {
+        storage.layers[layer][row][col] += 1;
+      }
+    }
+    const keycodeKey = `${keycode}_${mods}`;
+    if (!storage.codesPressed[keycodeKey]) {
+      storage.codesPressed[keycodeKey] = {
+        keycode: keycode,
+        modifiers: mods,
+        count: 0,
+        layer: layer,
+      };
+    }
+    storage.codesPressed[keycodeKey].count += 1;
+
+    fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
+      if (err) console.error(err);
+    });
+  }
+}
+
+let numberOfLayers, matrixRows, matrixCols;
+function handleLayerMetadata(hidDevice, messages) {
+  console.log("Received Layer Metadata :", messages.length, "messages");
+  const metadata = new CmdGetLayersMetadataResponse(messages);
+  numberOfLayers = metadata.nLayers;
+  matrixCols = metadata.cols;
+  matrixRows = metadata.rows;
+  console.log(
+    `layers: ${numberOfLayers} | matrix dimensions: ${matrixRows}x${matrixCols}`
+  );
+
+  getLayerData(hidDevice);
+}
+
+function handleLayerData(hidDevice, messages) {
+  console.log("Received Layer Data :", messages.length, "messages");
+  if (!numberOfLayers || !matrixRows || !matrixCols) {
+    throw new Error(
+      "No matrix metadata, make sure you called getLayerMetadata first"
+    );
+  }
+  const layerData = new CmdGetLayersResponse(messages);
+  const layers = layerData.getLayers(numberOfLayers, matrixRows, matrixCols);
+
+  fs.writeFile(LAYERS_PATH, JSON.stringify(layers), (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+}
+
+let currentCallId = 0;
+const MAX_CALL_ID = 0xffff;
+function nextCallId() {
+  if (currentCallId == MAX_CALL_ID) {
+    currentCallId = 0;
+  } else {
+    currentCallId++;
+  }
+
+  return currentCallId;
+}
+
+// an async function that waits for n milliseconds
+function wait(n) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), n);
+  });
+}
+
+async function getLayerMetadata(hidDevice) {
+  console.log("Getting device layer metadata");
+  const command = new CmdGetLayersMetadata(nextCallId());
+  let msgWritten = 0;
+  let bytesWritten = 0;
+  const mess = command.toHIDMessages();
+  for (let message of mess) {
+    await wait(100);
+
+    const msgbytes = Array.from(message.serialize());
+    msgbytes.push(1);
+    bytesWritten += hidDevice.write(msgbytes);
+
+    await wait(100);
+    msgWritten += 1;
+  }
+
+  console.log(msgWritten, "messages sent |", bytesWritten, "bytes written");
+}
+
+async function getLayerData(hidDevice) {
+  console.log("Getting device layer data");
+  const command = new CmdGetLayers(nextCallId());
+  let msgWritten = 0;
+  let bytesWritten = 0;
+
+  for (let message of command.toHIDMessages()) {
+    await wait(100);
+    const msgBytes = Array.from(message.serialize());
+    msgBytes.push(1);
+    bytesWritten += hidDevice.write(msgBytes);
+    msgWritten += 1;
+    await wait(100);
+  }
+
+  console.log(msgWritten, "messages sent |", bytesWritten, "bytes written");
+}
+
 function listenToDevice(device) {
   try {
     let hidDevice = new HID.HID(device.path);
@@ -71,46 +206,34 @@ function listenToDevice(device) {
       console.error(error);
     });
 
+    const messagePool = {};
+
     hidDevice.on("data", (data) => {
-      const bytes = data.slice(0, data.length - 1);
-      const [upperKeycode, lowerKeycode, col, row, pressed8, modbits, layer] =
-        bytes;
-      const keycode = (upperKeycode << 8) | lowerKeycode;
-      const hexcode = keycode.toString(16);
-      const pressed = pressed8 == 1;
-      const modifiers = modbits.toString(16);
-
-      if (pressed) {
-        console.log(
-          `RECEIVED: 0x${hexcode}, ${col}, ${row}, ${modifiers}, ${layer}`
-        );
-        if (storage.layers) {
-          if (!storage.layers[layer]) {
-            storage.layers[layer] = newMatrix(12, 4);
-          }
-          if (
-            row >= storage.layers[layer].length ||
-            col >= storage.layers[layer][row].length
-          ) {
-            console.log("Invalid matrix coordinates", row, col, layer);
-          } else {
-            storage.layers[layer][row][col] += 1;
-          }
+      const message = new HIDMessage(data);
+      const poolKey = `${message.cmd}_${message.callId}`;
+      if (!messagePool[poolKey]) {
+        messagePool[poolKey] = [];
+      }
+      messagePool[poolKey].push(message);
+      if (messagePool[poolKey].length == message.totalPackets) {
+        // handle the message
+        switch (message.cmd) {
+          case HID_EVENT:
+            handeHIDEvent(messagePool[poolKey]);
+            break;
+          case HID_CMD_GET_LAYERS:
+            handleLayerData(hidDevice, messagePool[poolKey]);
+            break;
+          case HID_CMD_GET_LAYERS_METADATA:
+            handleLayerMetadata(hidDevice, messagePool[poolKey]);
+            break;
+          case HID_CMD_UNKNOWN:
+          default:
+            console.log("unknown command", message.cmd, message.callId);
+            break;
         }
-        const keycodeKey = `${hexcode}_${modifiers}`;
-        if (!storage.codesPressed[keycodeKey]) {
-          storage.codesPressed[keycodeKey] = {
-            keycode: hexcode,
-            modifiers: modifiers,
-            count: 0,
-            layer: layer,
-          };
-        }
-        storage.codesPressed[keycodeKey].count += 1;
-
-        fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
-          if (err) console.error(err);
-        });
+        // remove from the pool when done
+        delete messagePool[poolKey];
       }
     });
 
@@ -122,6 +245,7 @@ function listenToDevice(device) {
       hid: hidDevice,
     });
     console.log("Listening to plaid");
+    getLayerMetadata(hidDevice);
   } catch (error) {
     // silence
   }
