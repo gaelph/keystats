@@ -1,3 +1,10 @@
+// @ts-check
+/** @typedef {import('./message')} HIDMessage */
+
+/**
+ * Base class for a Response from a call, or any
+ * output coming from an HID Device
+ */
 class Response {
   /**
    * @param {HIDMessage[]} hidMessages
@@ -7,6 +14,7 @@ class Response {
     hidMessages.sort((a, b) => a.packetNumber - b.packetNumber);
     this._bytes = new Uint8Array(0);
 
+    // Aggregate all the messages
     for (const hidMessage of hidMessages) {
       if (hidMessage.cmd !== cmd) {
         throw new Error("Message is not an HID Event");

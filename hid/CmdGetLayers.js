@@ -1,6 +1,9 @@
+// @ts-check
 const Command = require("./Command");
 const Response = require("./Response");
 const { HID_CMD_GET_LAYERS } = require("./constants");
+
+/** @typedef {import('./message')} HIDMessage */
 
 /*
 typedef struct {
@@ -11,10 +14,7 @@ typedef struct {
 */
 
 /**
- * @class
- * HID Message to get layer data
- * Properties should not be set when sending.
- * They will be set when receiving.
+ * HID Command to get layer data
  * @example
  * const getLayersCommand = new CmdGetLayers(callId)
  *  getLayersCommand.toHIDMessages().forEach(message => {
@@ -29,14 +29,14 @@ class CmdGetLayers extends Command {
 }
 
 /**
- * @class CmdGetLayersResponse
+ * Response from a CmdGetLayers command
  * @example
  * const response = new CmdGetLayersResponse(hidMessages);
  * const layers = response.getLayers(6, 4, 12);
  */
 class CmdGetLayersResponse extends Response {
   /**
-   * @param {HIDMessage[]} messages from HID
+   * @param {HIDMessage[]} hidMessages messages from HID
    */
   constructor(hidMessages) {
     super(hidMessages, HID_CMD_GET_LAYERS);
@@ -50,10 +50,11 @@ class CmdGetLayersResponse extends Response {
    * @param {number} nLayers   Number of layers
    * @param {number} rows      Number of rows
    * @param {number} cols      Number of columns
-   * @return {number[][][]} Layers of matrices
+   * @return {string[][][]} Layers of matrices
    * @throws {Error} if the underlying `Uint8Array` does not contain enough data
    */
   getLayers(nLayers, rows, cols) {
+    /** @type {string[][][]} */
     const layers = [];
     const b = Array.from(this._bytes);
     let currentLayer = 0;

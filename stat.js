@@ -207,8 +207,12 @@ totals.E = modifierUsage.E;
 const ranked = Object.entries(totals).sort((a, b) => b[1] - a[1]);
 
 let total = 0;
-for (let [char, count] of ranked) {
+for (let [_, count] of ranked) {
   total += count;
-  console.log(char, count);
 }
 console.log("TOTAL:", total);
+for (let [char, count] of ranked) {
+  const percent = ((100 * count) / total).toFixed(2);
+
+  console.log(`${char}: ${percent}%`);
+}

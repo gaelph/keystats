@@ -1,3 +1,4 @@
+// @ts-check
 const HID = require("node-hid");
 const usbDetect = require("usb-detection");
 const fs = require("fs");
@@ -16,32 +17,20 @@ const {
 } = require("./hid/CmdGetLayersMetadata");
 const { CmdGetLayers, CmdGetLayersResponse } = require("./hid/CmdGetLayers");
 
+// File where the typing data is stored
 const DATA_PATH = path.join(__dirname, "data", "log.json");
+// File where the keymap information is stored
 const LAYERS_PATH = path.join(__dirname, "data", "layers.json");
-
-// HID.setDriverType("libusb");
 
 const VENDOR_ID = 5824;
 const PRODUCT_ID = 10203;
 const USAGE_PAGE = 0xff60;
 const USAGE = 0x61;
-const LCTRL = 0xe0;
-const LSHFT = 0xe1;
-const LALT = 0xe2;
-const LGUI = 0xe3;
-const RCTRL = 0xe4;
-const RSHFT = 0xe5;
-const RALT = 0xe6;
-const RGUI = 0xe7;
-
-function isMod(code, mod) {
-  return code & (mod == mod);
-}
 
 /**
  * @param {number} cols columns in the matrix
  * @param {number} rows rows in the matrix
- * @return {Array} the matrix initialized with 0
+ * @return {number[][]} the matrix initialized with 0
  */
 function newMatrix(cols, rows) {
   const matrix = [];
@@ -55,33 +44,58 @@ function newMatrix(cols, rows) {
   return matrix;
 }
 
+// Volatile storage for typing data collection
+/** @typedef {Object} Storage
+ * @property {number[][][]} Storage.layers
+ * @property {Object<string, Object>} Storage.codesPressed
+ */
+/** @type {Storage} */
 let storage = {
   layers: [],
   codesPressed: {},
 };
 
+// Create the data collection file if it does not exist
+// or load its content if it does
 if (fs.existsSync(DATA_PATH)) {
-  let content = fs.readFileSync(DATA_PATH);
+  let content = fs.readFileSync(DATA_PATH).toString("utf-8");
   storage = JSON.parse(content);
   console.log(storage);
 }
 
+// List of USB/HID devices
+
+/** @typedef {{hid: HID.HID, usbDevice: {vendorId: number, productId: number}}} Device
+ * The `hid` object comes from `node-hid`
+ * and the `usbDevice` one comes from `usb-detection`
+ */
+/** @type {Device[]} */
 let devices = [];
 
+// Process exist handling
 process.on("SIGINT", () => {
   console.log("should abort !!!!");
+  // All handles to HID devices should be closed
   devices.forEach((device) => {
     device.hid.close();
   });
   devices = [];
+  // allow the process to exit normally
   usbDetect.stopMonitoring();
   process.exit(0);
 });
 
+/**
+ * Handles key event
+ * @param {HIDMessage[]} messages
+ */
 function handeHIDEvent(messages) {
   const { keycode, col, row, mods, layer, pressed } = new HIDEvent(messages);
+  // For the moment, we only care about keypresses
   if (pressed) {
     if (storage.layers) {
+      // Register the key presse in the matrix, regardless of the keycode
+      // to know how many times a key was pressed on the physical device
       if (!storage.layers[layer]) {
         storage.layers[layer] = newMatrix(12, 4);
       }
@@ -94,6 +108,9 @@ function handeHIDEvent(messages) {
         storage.layers[layer][row][col] += 1;
       }
     }
+
+    // Register more complete information about the keypress
+    // to know how many times a given keycode was processed logically
     const keycodeKey = `${keycode}_${mods}`;
     if (!storage.codesPressed[keycodeKey]) {
       storage.codesPressed[keycodeKey] = {
@@ -105,13 +122,29 @@ function handeHIDEvent(messages) {
     }
     storage.codesPressed[keycodeKey].count += 1;
 
+    // Finally write all this to disk
     fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
       if (err) console.error(err);
     });
   }
 }
 
-let numberOfLayers, matrixRows, matrixCols;
+// Layer information handling
+
+/** @type {number} */
+let numberOfLayers;
+/** @type {number} */
+let matrixRows;
+/** @type {number} */
+let matrixCols;
+
+/**
+ * Handles the reception of Layer and matrices metadata,
+ * i.e. number of layers and matrix dimensions.
+ *
+ * @param {HID.HID} hidDevice
+ * @param {HIDMessage[]} messages
+ */
 function handleLayerMetadata(hidDevice, messages) {
   console.log("Received Layer Metadata :", messages.length, "messages");
   const metadata = new CmdGetLayersMetadataResponse(messages);
@@ -122,9 +155,15 @@ function handleLayerMetadata(hidDevice, messages) {
     `layers: ${numberOfLayers} | matrix dimensions: ${matrixRows}x${matrixCols}`
   );
 
+  // Now that we have matrices parameters, let’s get keymapping
   getLayerData(hidDevice);
 }
 
+/**
+ * Handles the reception of keymaps
+ * @param {import("node-hid").HID} hidDevice
+ * @param {HIDMessage[]} messages
+ */
 function handleLayerData(hidDevice, messages) {
   console.log("Received Layer Data :", messages.length, "messages");
   if (!numberOfLayers || !matrixRows || !matrixCols) {
@@ -142,8 +181,18 @@ function handleLayerData(hidDevice, messages) {
   });
 }
 
+/**
+ * Call ids are used to identify responses after writing a command to the device
+ */
 let currentCallId = 0;
 const MAX_CALL_ID = 0xffff;
+
+/**
+ * Returns the next available `callId`. Since call ids are 16-bit integers,
+ * when reaching the highest value, we go back to 0.
+ * This allows for 65536 simultaneous calls. Overkill
+ * @returns {number}
+ */
 function nextCallId() {
   if (currentCallId == MAX_CALL_ID) {
     currentCallId = 0;
@@ -154,13 +203,23 @@ function nextCallId() {
   return currentCallId;
 }
 
-// an async function that waits for n milliseconds
+/**
+ * An async function that waits for n milliseconds
+ * @param {number} n Milliseconds to wait for
+ * @returns {Promise<void>}
+ */
 function wait(n) {
   return new Promise((resolve) => {
     setTimeout(() => resolve(), n);
   });
 }
 
+/**
+ * Sends a command to the device to retrieve the number of layers
+ * and matrix dimensions
+ * @param {HID.HID} hidDevice
+ * @returns {Promise<void>}
+ */
 async function getLayerMetadata(hidDevice) {
   console.log("Getting device layer metadata");
   const command = new CmdGetLayersMetadata(nextCallId());
@@ -170,9 +229,8 @@ async function getLayerMetadata(hidDevice) {
   for (let message of mess) {
     await wait(100);
 
-    const msgbytes = Array.from(message.serialize());
-    msgbytes.push(1);
-    bytesWritten += hidDevice.write(msgbytes);
+    // @ts-ignore | the function does exist
+    bytesWritten += hidDevice.write(message.serialize());
 
     await wait(100);
     msgWritten += 1;
@@ -181,6 +239,11 @@ async function getLayerMetadata(hidDevice) {
   console.log(msgWritten, "messages sent |", bytesWritten, "bytes written");
 }
 
+/**
+ * Sends a command to the device to retrieve the keymap
+ * @param {HID.HID} hidDevice
+ * @returns {Promise<void>}
+ */
 async function getLayerData(hidDevice) {
   console.log("Getting device layer data");
   const command = new CmdGetLayers(nextCallId());
@@ -189,9 +252,8 @@ async function getLayerData(hidDevice) {
 
   for (let message of command.toHIDMessages()) {
     await wait(100);
-    const msgBytes = Array.from(message.serialize());
-    msgBytes.push(1);
-    bytesWritten += hidDevice.write(msgBytes);
+    // @ts-ignore | the function does exist
+    bytesWritten += hidDevice.write(message.serialize());
     msgWritten += 1;
     await wait(100);
   }
@@ -199,6 +261,11 @@ async function getLayerData(hidDevice) {
   console.log(msgWritten, "messages sent |", bytesWritten, "bytes written");
 }
 
+/**
+ * Start listening for events on the device,
+ * and sends commands to retrieve layers and keymap information
+ * @param {Object} device   A device object from `usb-detection`
+ */
 function listenToDevice(device) {
   try {
     let hidDevice = new HID.HID(device.path);
@@ -206,51 +273,66 @@ function listenToDevice(device) {
       console.error(error);
     });
 
+    // The pool is used to store series of messages belonging to the same
+    // call response, identified by the command by and the call_id
+    /** @type {Object<string, HIDMessage[]>} */
     const messagePool = {};
 
-    hidDevice.on("data", (data) => {
-      const message = new HIDMessage(data);
-      const poolKey = `${message.cmd}_${message.callId}`;
-      if (!messagePool[poolKey]) {
-        messagePool[poolKey] = [];
-      }
-      messagePool[poolKey].push(message);
-      if (messagePool[poolKey].length == message.totalPackets) {
-        // handle the message
-        switch (message.cmd) {
-          case HID_EVENT:
-            handeHIDEvent(messagePool[poolKey]);
-            break;
-          case HID_CMD_GET_LAYERS:
-            handleLayerData(hidDevice, messagePool[poolKey]);
-            break;
-          case HID_CMD_GET_LAYERS_METADATA:
-            handleLayerMetadata(hidDevice, messagePool[poolKey]);
-            break;
-          case HID_CMD_UNKNOWN:
-          default:
-            console.log("unknown command", message.cmd, message.callId);
-            break;
+    hidDevice.on(
+      "data",
+      /** @param {Uint8Array} data */
+      (data) => {
+        const message = new HIDMessage(data);
+
+        // store the message in the message pool
+        const poolKey = `${message.cmd}_${message.callId}`;
+        if (!messagePool[poolKey]) {
+          messagePool[poolKey] = [];
         }
-        // remove from the pool when done
-        delete messagePool[poolKey];
+        messagePool[poolKey].push(message);
+
+        // when all messages for the same call response have been received
+        if (messagePool[poolKey].length == message.totalPackets) {
+          // handle the message
+          switch (message.cmd) {
+            case HID_EVENT:
+              handeHIDEvent(messagePool[poolKey]);
+              break;
+            case HID_CMD_GET_LAYERS:
+              handleLayerData(hidDevice, messagePool[poolKey]);
+              break;
+            case HID_CMD_GET_LAYERS_METADATA:
+              handleLayerMetadata(hidDevice, messagePool[poolKey]);
+              break;
+            case HID_CMD_UNKNOWN:
+            default:
+              console.log("unknown command", message.cmd, message.callId);
+              break;
+          }
+          // remove from the pool when done
+          delete messagePool[poolKey];
+        }
       }
-    });
+    );
 
-    // hidDevice.setNonBlocking(1);
-
+    // Ensure the device is being listened to
     hidDevice.resume();
+
+    // Register the device so that we can stop listening to it
     devices.push({
       usbDevice: device,
       hid: hidDevice,
     });
     console.log("Listening to plaid");
+
+    // Get matrix and keymaps
     getLayerMetadata(hidDevice);
   } catch (error) {
     // silence
   }
 }
 
+// Start to listen to a Plaid Keyboard
 async function listenPlaid() {
   let plaids = [];
 

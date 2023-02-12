@@ -1,3 +1,4 @@
+// @ts-check
 const HEADER_SIZE = 6;
 const REPORT_ID = 0;
 const CMD = 1;
@@ -7,10 +8,20 @@ const PACKET_NUMBER = 4;
 const TOTAL_PACKETS = 5;
 const MESSAGE_LENGTH = 32;
 
+const END_OF_MESSAGE = 1;
+
+/**
+ * A generic HID message
+ */
 class HIDMessage {
+  // Header size when serializing
   static headerSize = HEADER_SIZE;
+  // Payload size when serializing
   static payloadSize = MESSAGE_LENGTH - HEADER_SIZE;
 
+  /**
+   * @param {Uint8Array} [bytes]   Raw bytes from HID device
+   */
   constructor(bytes) {
     if (bytes && bytes instanceof Uint8Array) {
       this._bytes = bytes.slice(HEADER_SIZE, MESSAGE_LENGTH);
@@ -28,6 +39,8 @@ class HIDMessage {
         throw new Error("Invalid packet number");
       }
     } else {
+      this.cmd = 0;
+      this.callId = 0;
       this._bytes = new Uint8Array(HIDMessage.payloadSize);
       this._bytes.fill(0);
       this.packetNumber = 0;
@@ -53,8 +66,12 @@ class HIDMessage {
     return;
   }
 
+  /**
+   * Serializes a single message
+   */
   serialize() {
-    const array = new Uint8Array(this._bytes.length + HEADER_SIZE);
+    // The extra byte is to get the proper message length on the device
+    const array = new Uint8Array(this._bytes.length + HEADER_SIZE + 1);
 
     if (array.length != MESSAGE_LENGTH) {
       throw new Error(`invalid message length (${array.length}`);
@@ -71,13 +88,25 @@ class HIDMessage {
       array[i + HEADER_SIZE] = this._bytes[i];
     }
 
+    // This extra byte is necessary for the keyboard
+    // to accept the message as a 32 bytes one.
+    array[array.length - 1] = END_OF_MESSAGE;
+
     return array;
   }
 
+  /**
+   * Splits a command in as many necessary messages required
+   * @param {number} cmd   The command code
+   * @param {number} callId
+   * @param {Uint8Array} bytes The payload
+   * @returns {HIDMessage[]}
+   */
   static package(cmd, callId, bytes) {
     let totalPackets = Math.ceil(bytes.length / HIDMessage.payloadSize);
     if (totalPackets == 0) totalPackets++;
 
+    /** @type {HIDMessage[]} */
     const messages = [];
 
     for (let packetNumber = 0; packetNumber < totalPackets; packetNumber++) {

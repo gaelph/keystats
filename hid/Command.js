@@ -1,6 +1,10 @@
+// @ts-check
 const { HID_CMD_UNKNOWN } = require("./constants");
 const HIDMessage = require("./message");
 
+/**
+ * Base clase for commands to be sent to an HID Device
+ */
 class Command {
   /**
    * @param {number} callId
