@@ -22,7 +22,6 @@ header {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding: 0.5em;
 }
 
 .content-container > div {
@@ -44,6 +43,8 @@ li {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-left: 3em;
+  padding-right: 1em;
 }
 
 #heatmap {
@@ -84,7 +85,8 @@ li {
 }
 
 .stats-container {
-  padding-left: 3em;
+  padding-left: 1em;
+  padding-right: 3em;
 }
 
 .stats-container h4 {

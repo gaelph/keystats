@@ -112,8 +112,12 @@ export default function StatsComponent({
         <>
           <h4>Same hand usage</h4>
           <p>
-            Includes double letters (as in “ll”), and repetively typing on the
-            same key (e.g. “backspace”).
+            Includes double letters (as in “ll”), repetively typing on the same
+            key (e.g. “backspace”), etc.
+            <br />
+            Using modifiers combinations (e.g. Ctrl+Alt+Shift, with all
+            modifiers pressed with the same hand, counts as 3 presses in row for
+            that hand).
             <br />
             Counts below 2% are discarded.
           </p>
