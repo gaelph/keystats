@@ -4,12 +4,8 @@ import {
   getTotalKeyPresses,
   getTotalsByHand,
   getTotalsByFinger,
+  getTotalByRow,
 } from "../lib/sums.js";
-
-const TOP_ROW = 0;
-const HOME_ROW = 1;
-const BOTTOM_ROW = 2;
-const THUMB_ROW = 3;
 
 const numberFormater = new Intl.NumberFormat("en-US", {});
 function formatNumber(n) {
@@ -28,6 +24,8 @@ const FINGER_NAMES = [
   "Right ring",
   "Right pinkie",
 ];
+
+const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 
 export default function StatsComponent({ data: { layers, pressedData } }) {
   const usableLayers = useMemo(() => {
@@ -53,6 +51,7 @@ export default function StatsComponent({ data: { layers, pressedData } }) {
 
   const hand = useMemo(() => getTotalsByHand(usableLayers), [usableLayers]);
   const finger = useMemo(() => getTotalsByFinger(usableLayers), [usableLayers]);
+  const row = useMemo(() => getTotalByRow(usableLayers), [usableLayers]);
 
   return (
     <div>
@@ -60,11 +59,22 @@ export default function StatsComponent({ data: { layers, pressedData } }) {
       <h4>Layer usage</h4>
       <ul>
         {Object.entries(totalKeypresses.byLayer).map(([key, value]) => (
-          <li>
+          <li key={`keypress-layer-${key}`}>
             <span>
               <strong>Layer #{key}:</strong>{" "}
             </span>
             <span>{percent(value)}%</span>
+          </li>
+        ))}
+      </ul>
+      <h4>Row usage</h4>
+      <ul>
+        {ROW_NAMES.map((name, idx) => (
+          <li key={name}>
+            <span>
+              <strong>{name}:</strong>{" "}
+            </span>
+            <span>{percent(row[idx])}%</span>
           </li>
         ))}
       </ul>

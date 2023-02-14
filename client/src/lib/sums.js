@@ -24,6 +24,22 @@ export function getTotalKeyPresses(layers) {
   return totals;
 }
 
+export function getTotalByRow(layers) {
+  const totals = new Array(4).fill(0);
+
+  Object.entries(layers).forEach(([key, layer]) => {
+    if (layer) {
+      layer.forEach((row, rowidx) => {
+        const tr = row.reduce((rowacc, x) => rowacc + x, 0);
+
+        totals[rowidx] += tr;
+      });
+    }
+  });
+
+  return totals;
+}
+
 export function getTotalsByHand(layers) {
   const totals = { left: 0, right: 0, byLayer: {} };
 
