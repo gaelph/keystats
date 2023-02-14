@@ -1,22 +1,26 @@
 // @ts-check
-const HID = require("node-hid");
-const usbDetect = require("usb-detection");
-const fs = require("fs");
-const path = require("path");
-const HIDMessage = require("./hid/message");
-const {
+import HID from "node-hid";
+import usbDetect from "usb-detection";
+import fs from "fs";
+import path from "path";
+import url from "url";
+import { HIDMessage } from "./hid/message.js";
+import {
   HID_CMD_GET_LAYERS,
   HID_CMD_GET_LAYERS_METADATA,
   HID_CMD_UNKNOWN,
   HID_EVENT,
-} = require("./hid/constants");
-const HIDEvent = require("./hid/HIDEvent");
-const {
+} from "./hid/constants.js";
+import { HIDEvent } from "./hid/HIDEvent.js";
+import {
   CmdGetLayersMetadata,
   CmdGetLayersMetadataResponse,
-} = require("./hid/CmdGetLayersMetadata");
-const { CmdGetLayers, CmdGetLayersResponse } = require("./hid/CmdGetLayers");
+} from "./hid/CmdGetLayersMetadata.js";
+import { CmdGetLayers, CmdGetLayersResponse } from "./hid/CmdGetLayers.js";
 
+import * as k from "./client/src/lib/keycodes.js";
+
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 // File where the typing data is stored
 const DATA_PATH = path.join(__dirname, "data", "log.json");
 // File where the keymap information is stored
@@ -85,12 +89,32 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
+/** @typedef {{ modifier: string, tapKeycode: string }} PendingModTap */
+/* @var {PendingModTap[]} modTapsPressed */
+let modTapsPressed = [];
+
+function incrementKeycodeCount(keycode, mods, layer) {
+  // Register more complete information about the keypress
+  // to know how many times a given keycode was processed logically
+  const keycodeKey = `${keycode.toString(16)}_${mods.toString(16)}`;
+  if (!storage.codesPressed[keycodeKey]) {
+    storage.codesPressed[keycodeKey] = {
+      keycode: keycode.toString(16),
+      modifiers: mods.toString(16),
+      count: 0,
+      layer: layer,
+    };
+  }
+  storage.codesPressed[keycodeKey].count += 1;
+}
+
 /**
  * Handles key event
  * @param {HIDMessage[]} messages
  */
 function handeHIDEvent(messages) {
   const { keycode, col, row, mods, layer, pressed } = new HIDEvent(messages);
+
   // For the moment, we only care about keypresses
   if (pressed) {
     if (storage.layers) {
@@ -103,30 +127,63 @@ function handeHIDEvent(messages) {
         row >= storage.layers[layer].length ||
         col >= storage.layers[layer][row].length
       ) {
+        // TODO: these are actually combos, we need a combo lookup
+        // table
         console.log("Invalid matrix coordinates", row, col, layer);
       } else {
         storage.layers[layer][row][col] += 1;
       }
     }
 
-    // Register more complete information about the keypress
-    // to know how many times a given keycode was processed logically
-    const keycodeKey = `${keycode}_${mods}`;
-    if (!storage.codesPressed[keycodeKey]) {
-      storage.codesPressed[keycodeKey] = {
-        keycode: keycode,
-        modifiers: mods,
-        count: 0,
-        layer: layer,
-      };
+    // if it is modTap, we want to wait for its release before counting it
+    if (k.isModTap(keycode)) {
+      const modifier = k.getModifierFromModTap(keycode);
+      const tapKeycode = k.getBasicFromModTap(keycode);
+      modTapsPressed.push({
+        modifier,
+        tapKeycode,
+      });
     }
-    storage.codesPressed[keycodeKey].count += 1;
+    // any other key, we increment
+    else {
+      incrementKeycodeCount(keycode, mods, layer);
+
+      if (mods !== 0) {
+        const pressedModifiers = k.getModifiersFromModsBitfield(mods);
+        // remove mod taps that have been used as modifiers
+        // so that we don't count them twice
+        modTapsPressed = modTapsPressed.filter(
+          ({ modifier }) => !pressedModifiers.includes(modifier)
+        );
+      }
+    }
 
     // Finally write all this to disk
-    fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
-      if (err) console.error(err);
-    });
+  } else {
+    if (k.isModTap(keycode)) {
+      const released = k.getBasicFromModTap(keycode);
+      const tapModifier = k.getModifierFromModTap(keycode);
+
+      // The mod tap key was pressed alone, so it is the basic keycode
+      // we are interested in
+      if (modTapsPressed.some(({ tapKeycode }) => tapKeycode == released)) {
+        incrementKeycodeCount(
+          released,
+          // ensure we don't count it as Mod+letter combination
+          k.removeModifierFromBitfield(mods, tapModifier),
+          layer
+        );
+      }
+
+      // Remove the mod tap key from the list
+      modTapsPressed = modTapsPressed.filter(
+        ({ tapKeycode }) => tapKeycode == released
+      );
+    }
   }
+  fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
+    if (err) console.error(err);
+  });
 }
 
 // Layer information handling
@@ -147,6 +204,7 @@ let matrixCols;
  */
 function handleLayerMetadata(hidDevice, messages) {
   console.log("Received Layer Metadata :", messages.length, "messages");
+  // @ts-ignore
   const metadata = new CmdGetLayersMetadataResponse(messages);
   numberOfLayers = metadata.nLayers;
   matrixCols = metadata.cols;
@@ -267,6 +325,7 @@ async function getLayerData(hidDevice) {
  * @param {Object} device   A device object from `usb-detection`
  */
 function listenToDevice(device) {
+  console.log("Listening to device");
   try {
     let hidDevice = new HID.HID(device.path);
     hidDevice.on("error", (error) => {

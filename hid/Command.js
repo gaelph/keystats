@@ -1,11 +1,11 @@
 // @ts-check
-const { HID_CMD_UNKNOWN } = require("./constants");
-const HIDMessage = require("./message");
+import { HID_CMD_UNKNOWN } from "./constants.js";
+import { HIDMessage } from "./message.js";
 
 /**
  * Base clase for commands to be sent to an HID Device
  */
-class Command {
+export default class Command {
   /**
    * @param {number} callId
    */
@@ -22,5 +22,3 @@ class Command {
     return HIDMessage.package(this.cmd, this.callId, this._bytes);
   }
 }
-
-module.exports = Command;

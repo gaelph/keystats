@@ -1,11 +1,11 @@
 // @ts-check
-/** @typedef {import('./message')} HIDMessage */
+/** @typedef {import('./message').HIDMessage} HIDMessage */
 
 /**
  * Base class for a Response from a call, or any
  * output coming from an HID Device
  */
-class Response {
+export default class Response {
   /**
    * @param {HIDMessage[]} hidMessages
    * @param {number} cmd  Command identifier byte
@@ -29,5 +29,3 @@ class Response {
     }
   }
 }
-
-module.exports = Response;

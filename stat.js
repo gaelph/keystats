@@ -1,5 +1,7 @@
-const keycodes = require("./keycodes");
-const data = require("./log.json");
+import keycodes from "./keycodes.js";
+import fs from "fs";
+
+const data = JSON.parse(fs.readFileSync("./data/log.json"));
 
 const layerUsage = Object.values(data.codesPressed).reduce(
   (sums, d) => {

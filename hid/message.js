@@ -13,7 +13,7 @@ const END_OF_MESSAGE = 1;
 /**
  * A generic HID message
  */
-class HIDMessage {
+export class HIDMessage {
   // Header size when serializing
   static headerSize = HEADER_SIZE;
   // Payload size when serializing
@@ -73,7 +73,7 @@ class HIDMessage {
     // The extra byte is to get the proper message length on the device
     const array = new Uint8Array(this._bytes.length + HEADER_SIZE + 1);
 
-    if (array.length != MESSAGE_LENGTH) {
+    if (array.length != MESSAGE_LENGTH + 1) {
       throw new Error(`invalid message length (${array.length}`);
     }
 
@@ -126,5 +126,3 @@ class HIDMessage {
     return messages;
   }
 }
-
-module.exports = HIDMessage;

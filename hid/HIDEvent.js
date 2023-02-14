@@ -1,11 +1,11 @@
 // @ts-check
-const { HID_EVENT } = require("./constants");
-const Response = require("./Response");
+import { HID_EVENT } from "./constants.js";
+import Response from "./Response.js";
 
-/** @typedef {import('./message')} HIDMessage */
+/** @typedef {import('./message').HIDMessage} HIDMessage */
 
-const KEYCODE_UPPER = 0;
-const KEYCODE_LOWER = 1;
+const KEYCODE_LOWER = 0;
+const KEYCODE_UPPER = 1;
 const COL = 2;
 const ROW = 3;
 const PRESSED = 4;
@@ -31,7 +31,7 @@ const LAYER = 6;
  * @property {number} mods     The modifier keys pressed
  * @property {number} layer    The layer on which the event occurred
  */
-class HIDEvent extends Response {
+export class HIDEvent extends Response {
   /**
    * @param {HIDMessage[]} hidMessages
    */
@@ -47,5 +47,3 @@ class HIDEvent extends Response {
     this.layer = this._bytes[LAYER];
   }
 }
-
-module.exports = HIDEvent;

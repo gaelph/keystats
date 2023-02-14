@@ -516,7 +516,7 @@ function isCmd(modi) {
   return (modi & QK_LGUI) == QK_LGUI || (modi & QK_RGUI) == QK_RGUI;
 }
 
-module.exports = {
+export default {
   keycodes: {
     azerty: codes,
     azertyShift: shiftedCodes,

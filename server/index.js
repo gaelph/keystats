@@ -1,7 +1,7 @@
-const express = require("express");
-const path = require("path");
+import express from "express";
+import path from "path";
+import cors from "cors";
 const app = express();
-const cors = require("cors");
 
 app.use(
   cors({
@@ -12,7 +12,7 @@ app.use(
 app.use(express.static(path.join(__dirname, "..", "client", "build")));
 app.use(express.static(path.join(__dirname, "..", "data")));
 
-app.get("/", (req, res, next) => {
+app.get("/", (req, res /*  next */) => {
   res.send("OK");
 });
 

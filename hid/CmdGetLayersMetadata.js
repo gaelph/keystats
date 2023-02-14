@@ -1,7 +1,7 @@
 // @ts-check
-const Command = require("./Command");
-const Response = require("./Response");
-const { HID_CMD_GET_LAYERS_METADATA } = require("./constants");
+import Command from "./Command.js";
+import Response from "./Response.js";
+import { HID_CMD_GET_LAYERS_METADATA } from "./constants.js";
 
 /** @typedef {import('./message')} HIDMessage */
 
@@ -26,7 +26,7 @@ typedef struct {
  *   HIDDevice.write(message.serialize());
  * });
  */
-class CmdGetLayersMetadata extends Command {
+export class CmdGetLayersMetadata extends Command {
   /**
    * @param {number} callId
    */
@@ -44,7 +44,7 @@ class CmdGetLayersMetadata extends Command {
  * console.log(layersMetadata.rows);
  * console.log(layersMetadata.cols);
  */
-class CmdGetLayersMetadataResponse extends Response {
+export class CmdGetLayersMetadataResponse extends Response {
   /**
    * @param {HIDMessage[]} hidMessages
    */
@@ -56,8 +56,3 @@ class CmdGetLayersMetadataResponse extends Response {
     this.cols = this._bytes[COLS];
   }
 }
-
-module.exports = {
-  CmdGetLayersMetadata,
-  CmdGetLayersMetadataResponse,
-};
