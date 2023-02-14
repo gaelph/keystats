@@ -49,7 +49,6 @@ li {
 #heatmap {
   width: calc(12 * 60px);
   height: calc(4 * 60px + 1px);
-  overflow: hidden;
 }
 
 #heatmap canvas {
