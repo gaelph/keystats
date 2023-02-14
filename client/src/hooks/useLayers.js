@@ -1,8 +1,8 @@
 import { useReducer, useCallback, useEffect } from "react";
-import { setLoading, setError, setData } from "../store/actions";
-import dataReducer from "../store/reducer";
+import { setLoading, setError, setData } from "../store/actions.js";
+import dataReducer from "../store/reducer.js";
 
-import { getLayerData } from "../lib/api";
+import { getLayerData } from "../lib/api.js";
 
 export default function useData() {
   const [state, dispatch] = useReducer(dataReducer, {

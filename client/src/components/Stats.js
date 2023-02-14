@@ -1,0 +1,96 @@
+import { useCallback, useMemo } from "react";
+
+import {
+  getTotalKeyPresses,
+  getTotalsByHand,
+  getTotalsByFinger,
+} from "../lib/sums.js";
+
+const TOP_ROW = 0;
+const HOME_ROW = 1;
+const BOTTOM_ROW = 2;
+const THUMB_ROW = 3;
+
+const numberFormater = new Intl.NumberFormat("en-US", {});
+function formatNumber(n) {
+  return numberFormater.format(n);
+}
+
+const FINGER_NAMES = [
+  "Left pinkie",
+  "Left ring",
+  "Left middle",
+  "Left index",
+  "Left thumb",
+  "Right thumb",
+  "Right index",
+  "Right middle",
+  "Right ring",
+  "Right pinkie",
+];
+
+export default function StatsComponent({ data: { layers, pressedData } }) {
+  const usableLayers = useMemo(() => {
+    return Object.entries(layers)
+      .filter(([key]) => parseInt(key, 10) < 6)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+  }, [layers]);
+
+  const totalKeypresses = useMemo(
+    () => getTotalKeyPresses(usableLayers),
+    [usableLayers]
+  );
+
+  const percent = useCallback(
+    (v) => {
+      return ((100 * v) / totalKeypresses.total).toFixed(2);
+    },
+    [totalKeypresses.total]
+  );
+
+  const hand = useMemo(() => getTotalsByHand(usableLayers), [usableLayers]);
+  const finger = useMemo(() => getTotalsByFinger(usableLayers), [usableLayers]);
+
+  return (
+    <div>
+      <h3>Total keypresses: {formatNumber(totalKeypresses.total)}</h3>
+      <h4>Layer usage</h4>
+      <ul>
+        {Object.entries(totalKeypresses.byLayer).map(([key, value]) => (
+          <li>
+            <span>
+              <strong>Layer #{key}:</strong>{" "}
+            </span>
+            <span>{percent(value)}%</span>
+          </li>
+        ))}
+      </ul>
+      <h4>Hand usage</h4>
+      <ul>
+        <li>
+          <span>
+            <strong>Left:</strong> {percent(hand.left)}%
+          </span>
+        </li>
+        <li>
+          <span>
+            <strong>Right:</strong> {percent(hand.right)}%
+          </span>
+        </li>
+      </ul>
+      <h4>Finger usage</h4>
+      <ul>
+        {FINGER_NAMES.map((name, idx) => (
+          <li key={name}>
+            <span>
+              <strong>{name}:</strong> {percent(finger[idx])}%
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

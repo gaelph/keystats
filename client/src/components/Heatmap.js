@@ -1,30 +1,22 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import * as Heatmap from "heatmap.js";
 
-import Layers from "../layers";
-import { formatKeyCode } from "../lib/keycodes";
+import { formatKeyCode } from "../lib/keycodes.js";
 
-const KEY_WIDTH = 59;
+const KEY_WIDTH = 60;
 
-const rowStyle = {
-  height: KEY_WIDTH,
-  display: "flex",
-  flexDirection: "row",
-  width: "1200",
-};
-
-function formatData(matrix) {
+function formatData(matrix, total) {
   let entries = [];
-  let max = 0;
+  let max = total;
 
   Object.entries(matrix).forEach(([r, row]) => {
     Object.entries(row).forEach(([c, col]) => {
       const entry = {
-        x: (c + 1) * 6 + 40,
-        y: (r + 1) * 6 + 40,
+        x: (c + 1) * 6 + 24,
+        y: (r + 1) * 6 + 24,
         value: col,
       };
-      if (entry.value > max) max = entry.value;
+      // if (entry.value > max) max = entry.value;
 
       entries.push(entry);
     });
@@ -32,10 +24,11 @@ function formatData(matrix) {
 
   entries = entries.map((e) => {
     e.value = e.value > 0 ? e.value / max : 0.001;
-    e.value = 1 + Math.log(e.value / 4 + 0.01);
+    e.value = 1 + Math.log(e.value / 0.5 + 0.01);
     return e;
   });
   max = entries.map((e) => e.value).reduce((m, e) => (e > m ? e : m), 0);
+  // let min = 0;
   let min = entries.map((e) => e.value).reduce((m, e) => (e < m ? e : m), 0);
   // max = 1;
   // console.log(entries);
@@ -47,7 +40,14 @@ function formatData(matrix) {
   };
 }
 
-export default function HeatmapComponent({ data, layerId, matrix, layer }) {
+export default function HeatmapComponent({
+  data,
+  layerId,
+  matrix,
+  layer,
+  total,
+  layerTotal,
+}) {
   const canvasRef = useRef();
   const heatmap = useRef();
   useEffect(() => {
@@ -62,34 +62,35 @@ export default function HeatmapComponent({ data, layerId, matrix, layer }) {
         radius: KEY_WIDTH,
       });
 
-      heatmap.current.setData(formatData(matrix));
+      heatmap.current.setData(formatData(matrix, total));
     }
   }, [matrix]);
+
+  const percent = useCallback((n) => ((100 * n) / total).toFixed(2), [total]);
 
   return (
     <>
       <h3>Layer #{layerId}</h3>
-      <div
-        id="heatmap"
-        style={{ width: "1200px", height: "400px" }}
-        ref={canvasRef}
-      >
+      <div id="heatmap" ref={canvasRef}>
         <div
           style={{
             position: "absolute",
             zIndex: 10,
-            top: 17,
-            left: 17,
+            top: 0,
+            left: 0,
             width: "100%",
             height: "100%",
           }}
         >
           {console.log(layer) || null}
           {layer.map((layerRow, r) => (
-            <div style={rowStyle}>
+            <div className="row">
               {console.log(layerRow) || null}
               {layerRow.map((char, c) => (
-                <div className="key" title={data.layers[layerId][r][c]}>
+                <div
+                  className="key"
+                  title={percent(data.layers[layerId][r][c]) + "%"}
+                >
                   <span>{formatKeyCode(char)}</span>
                 </div>
               ))}

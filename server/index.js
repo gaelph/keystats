@@ -1,7 +1,10 @@
 import express from "express";
 import path from "path";
+import url from "url";
 import cors from "cors";
 const app = express();
+
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 app.use(
   cors({

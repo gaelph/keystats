@@ -287,8 +287,13 @@ async function getLayerMetadata(hidDevice) {
   for (let message of mess) {
     await wait(100);
 
-    // @ts-ignore | the function does exist
-    bytesWritten += hidDevice.write(message.serialize());
+    try {
+      // @ts-ignore | the function does exist
+      bytesWritten += hidDevice.write(message.serialize());
+    } catch (err) {
+      console.error(err);
+      return;
+    }
 
     await wait(100);
     msgWritten += 1;
@@ -310,8 +315,14 @@ async function getLayerData(hidDevice) {
 
   for (let message of command.toHIDMessages()) {
     await wait(100);
-    // @ts-ignore | the function does exist
-    bytesWritten += hidDevice.write(message.serialize());
+
+    try {
+      // @ts-ignore | the function does exist
+      bytesWritten += hidDevice.write(message.serialize());
+    } catch (err) {
+      console.error(err);
+      return;
+    }
     msgWritten += 1;
     await wait(100);
   }
