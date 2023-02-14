@@ -52,11 +52,13 @@ function newMatrix(cols, rows) {
 /** @typedef {Object} Storage
  * @property {number[][][]} Storage.layers
  * @property {Object<string, Object>} Storage.codesPressed
+ * @property {Object<number, number>[]} Storage.handUsage
  */
 /** @type {Storage} */
 let storage = {
   layers: [],
   codesPressed: {},
+  handUsage: [{}, {}],
 };
 
 // Create the data collection file if it does not exist
@@ -64,7 +66,9 @@ let storage = {
 if (fs.existsSync(DATA_PATH)) {
   let content = fs.readFileSync(DATA_PATH).toString("utf-8");
   storage = JSON.parse(content);
-  console.log(storage);
+  if (!storage.handUsage) {
+    storage.handUsage = [{}, {}];
+  }
 }
 
 // List of USB/HID devices
@@ -108,6 +112,11 @@ function incrementKeycodeCount(keycode, mods, layer) {
   storage.codesPressed[keycodeKey].count += 1;
 }
 
+let currentLeftHandCount = 0;
+let currentRightHandCount = 0;
+/** @type {null|"left"|"right"} */
+let lastHandUsed = null;
+
 /**
  * Handles key event
  * @param {HIDMessage[]} messages
@@ -117,6 +126,28 @@ function handeHIDEvent(messages) {
 
   // For the moment, we only care about keypresses
   if (pressed) {
+    if (col < 6) {
+      currentLeftHandCount += 1;
+      if (lastHandUsed === "right") {
+        const previousRightHandCount =
+          storage.handUsage[1][currentRightHandCount] || 0;
+        storage.handUsage[1][currentRightHandCount] =
+          previousRightHandCount + currentRightHandCount;
+      }
+      currentRightHandCount = 0;
+      lastHandUsed = "left";
+    } else {
+      currentRightHandCount += 1;
+      if (lastHandUsed === "left") {
+        const previousLeftHandCount =
+          storage.handUsage[0][currentLeftHandCount] || 0;
+        storage.handUsage[0][currentLeftHandCount] =
+          previousLeftHandCount + currentLeftHandCount;
+      }
+      currentLeftHandCount = 0;
+      lastHandUsed = "right";
+    }
+
     if (storage.layers) {
       // Register the key presse in the matrix, regardless of the keycode
       // to know how many times a key was pressed on the physical device
@@ -143,6 +174,11 @@ function handeHIDEvent(messages) {
         modifier,
         tapKeycode,
       });
+      console.log(
+        "MOD TAP PRESS: ",
+        modifier.toString(16),
+        tapKeycode.toString(16)
+      );
     }
     // any other key, we increment
     else {
@@ -164,6 +200,12 @@ function handeHIDEvent(messages) {
       const released = k.getBasicFromModTap(keycode);
       const tapModifier = k.getModifierFromModTap(keycode);
 
+      console.log(
+        "MOD TAP RELEASE: ",
+        released.toString(16),
+        tapModifier.toString(16)
+      );
+
       // The mod tap key was pressed alone, so it is the basic keycode
       // we are interested in
       if (modTapsPressed.some(({ tapKeycode }) => tapKeycode == released)) {
@@ -173,6 +215,7 @@ function handeHIDEvent(messages) {
           k.removeModifierFromBitfield(mods, tapModifier),
           layer
         );
+        console.log("COUNT A SINGLE KEY: ", released.toString(16));
       }
 
       // Remove the mod tap key from the list

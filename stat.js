@@ -147,7 +147,7 @@ const totals = Object.entries(data.codesPressed).reduce((sums, [code, d]) => {
     sums[keycodes.keycodes.specials[c]] = d.count;
     return sums;
   }
-  if (d.modifiers == 0 && !keycodes.isModTap(c)) {
+  if (d.modifiers == 0) {
     const l = keycodes.keycodes.azerty[c];
     if (l !== undefined) {
       sums[l] = (sums[l] || 0) + d.count;
@@ -192,19 +192,19 @@ const totals = Object.entries(data.codesPressed).reduce((sums, [code, d]) => {
   return sums;
 }, {});
 
-totals.a = modifierUsage.a - modifierUsage.lctrl;
-totals.s = modifierUsage.s - modifierUsage.lalt;
-totals.r = modifierUsage.r - modifierUsage.lcmd;
-totals.u = modifierUsage.u - modifierUsage.rctrl;
-totals.i = modifierUsage.i - modifierUsage.ralt;
-totals.e = modifierUsage.e - modifierUsage.rcmd;
+// totals.a = modifierUsage.a - modifierUsage.lctrl;
+// totals.s = modifierUsage.s - modifierUsage.lalt;
+// totals.r = modifierUsage.r - modifierUsage.lcmd;
+// totals.u = modifierUsage.u - modifierUsage.rctrl;
+// totals.i = modifierUsage.i - modifierUsage.ralt;
+// totals.e = modifierUsage.e - modifierUsage.rcmd;
 
-totals.A = modifierUsage.A;
-totals.S = modifierUsage.S;
-totals.R = modifierUsage.R;
-totals.U = modifierUsage.U;
-totals.I = modifierUsage.I;
-totals.E = modifierUsage.E;
+// totals.A = modifierUsage.A;
+// totals.S = modifierUsage.S;
+// totals.R = modifierUsage.R;
+// totals.U = modifierUsage.U;
+// totals.I = modifierUsage.I;
+// totals.E = modifierUsage.E;
 
 const ranked = Object.entries(totals).sort((a, b) => b[1] - a[1]);
 

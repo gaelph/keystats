@@ -27,7 +27,9 @@ const FINGER_NAMES = [
 
 const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 
-export default function StatsComponent({ data: { layers, pressedData } }) {
+export default function StatsComponent({
+  data: { layers, pressedData, handUsage },
+}) {
   const usableLayers = useMemo(() => {
     return Object.entries(layers)
       .filter(([key]) => parseInt(key, 10) < 6)
@@ -55,7 +57,12 @@ export default function StatsComponent({ data: { layers, pressedData } }) {
 
   return (
     <div>
-      <h3>Total keypresses: {formatNumber(totalKeypresses.total)}</h3>
+      <h3>Total key presses: {formatNumber(totalKeypresses.total)}</h3>
+      <p>
+        All key presses are counted, including keyboard shortcuts (such as
+        Ctrl+Alt+Shift+A, that counts as 4 presses), repetitively typing the
+        same key, etc.
+      </p>
       <h4>Layer usage</h4>
       <ul>
         {Object.entries(totalKeypresses.byLayer).map(([key, value]) => (
@@ -101,6 +108,51 @@ export default function StatsComponent({ data: { layers, pressedData } }) {
           </li>
         ))}
       </ul>
+      {handUsage && (
+        <>
+          <h4>Same hand usage</h4>
+          <p>
+            Includes double letters (as in “ll”), and repetively typing on the
+            same key (e.g. “backspace”).
+            <br />
+            Counts below 2% are discarded.
+          </p>
+          <ul>
+            <li>
+              <h5>Left Hand</h5>
+              <ul>
+                {Object.entries(handUsage[0]).map(
+                  ([ntimes, count], idx) =>
+                    parseFloat(percent(count)) >= 2 && (
+                      <li key={`left_hand_same_use`}>
+                        <span>
+                          <strong>Used {ntimes} times in a row:</strong>
+                        </span>{" "}
+                        <span>{percent(count)}%</span>
+                      </li>
+                    )
+                )}
+              </ul>
+            </li>
+            <li>
+              <h5>Right Hand</h5>
+              <ul>
+                {Object.entries(handUsage[1]).map(
+                  ([ntimes, count], idx) =>
+                    parseFloat(percent(count)) >= 2 && (
+                      <li key={`left_hand_same_use`}>
+                        <span>
+                          <strong>Used {ntimes} times in a row:</strong>
+                        </span>{" "}
+                        <span>{percent(count)}%</span>
+                      </li>
+                    )
+                )}
+              </ul>
+            </li>
+          </ul>
+        </>
+      )}
     </div>
   );
 }

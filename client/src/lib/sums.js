@@ -1,11 +1,6 @@
 const LEFT_COLUMNS = [0, 1, 2, 3, 4, 5];
 const RIGHT_COLUMNS = [6, 7, 8, 9, 10, 11];
 
-const TOP_ROW = 0;
-const HOME_ROW = 1;
-const BOTTOM_ROW = 2;
-const THUMB_ROW = 3;
-
 export function getTotalKeyPresses(layers) {
   const totals = { total: 0, byLayer: {} };
 
