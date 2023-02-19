@@ -1,5 +1,5 @@
 const LEFT_COLUMNS = [0, 1, 2, 3, 4, 5];
-const RIGHT_COLUMNS = [6, 7, 8, 9, 10, 11];
+// const RIGHT_COLUMNS = [6, 7, 8, 9, 10, 11];
 
 export function getTotalKeyPresses(layers) {
   const totals = { total: 0, byLayer: {} };
@@ -22,7 +22,7 @@ export function getTotalKeyPresses(layers) {
 export function getTotalByRow(layers) {
   const totals = new Array(4).fill(0);
 
-  Object.entries(layers).forEach(([key, layer]) => {
+  Object.values(layers).forEach((layer) => {
     if (layer) {
       layer.forEach((row, rowidx) => {
         const tr = row.reduce((rowacc, x) => rowacc + x, 0);
@@ -82,7 +82,7 @@ const RMIDDLE = 7;
 const RRING = 8;
 const RPINKIE = 9;
 
-const FINGER_MATRIX = [
+export const FINGER_MATRIX = [
   [
     LPINKIE,
     LPINKIE,
@@ -140,6 +140,21 @@ const FINGER_MATRIX = [
     RPINKIE,
   ],
 ];
+
+/**
+ * Returns the finger used to press the key at the given row and column
+ * Returns null if the coordinates do not fit the matrix
+ * @param {number} row
+ * @param {number} col
+ * @returns {number|null}
+ */
+export function getFingerForCoordinates(row, col) {
+  if (FINGER_MATRIX[row] && FINGER_MATRIX[row][col] !== undefined) {
+    return FINGER_MATRIX[row][col];
+  }
+
+  return null;
+}
 
 export function getTotalsByFinger(layers) {
   const totals = new Array(10).fill(0);

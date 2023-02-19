@@ -46,7 +46,7 @@ export default function HeatmapComponent({
   matrix,
   layer,
   total,
-  layerTotal,
+  layerTotal: _layerTotal,
 }) {
   const canvasRef = useRef();
   const heatmap = useRef();
@@ -64,7 +64,7 @@ export default function HeatmapComponent({
 
       heatmap.current.setData(formatData(matrix, total));
     }
-  }, [matrix]);
+  }, [matrix, total]);
 
   const percent = useCallback((n) => ((100 * n) / total).toFixed(2), [total]);
 
@@ -91,7 +91,7 @@ export default function HeatmapComponent({
                   className="key"
                   title={percent(data.layers[layerId][r][c]) + "%"}
                 >
-                  <span>{formatKeyCode(char)}</span>
+                  <span>{formatKeyCode(char)?.toLocaleUpperCase()}</span>
                 </div>
               ))}
             </div>

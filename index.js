@@ -19,6 +19,13 @@ import {
 import { CmdGetLayers, CmdGetLayersResponse } from "./hid/CmdGetLayers.js";
 
 import * as k from "./client/src/lib/keycodes.js";
+import { getFingerForCoordinates } from "./client/src/lib/sums.js";
+
+import log from "loglevel";
+import loglevelPrefix from "loglevel-prefix";
+
+loglevelPrefix(log);
+log.setLevel(log.levels.TRACE);
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 // File where the typing data is stored
@@ -53,12 +60,14 @@ function newMatrix(cols, rows) {
  * @property {number[][][]} Storage.layers
  * @property {Object<string, Object>} Storage.codesPressed
  * @property {Object<number, number>[]} Storage.handUsage
+ * @property {Object<number, number>[]} Storage.fingerUsage
  */
 /** @type {Storage} */
 let storage = {
   layers: [],
   codesPressed: {},
   handUsage: [{}, {}],
+  fingerUsage: new Array(10).fill(0),
 };
 
 // Create the data collection file if it does not exist
@@ -68,6 +77,9 @@ if (fs.existsSync(DATA_PATH)) {
   storage = JSON.parse(content);
   if (!storage.handUsage) {
     storage.handUsage = [{}, {}];
+  }
+  if (!storage.fingerUsage) {
+    storage.fingerUsage = new Array(10);
   }
 }
 
@@ -82,7 +94,7 @@ let devices = [];
 
 // Process exist handling
 process.on("SIGINT", () => {
-  console.log("should abort !!!!");
+  log.debug("should abort !!!!");
   // All handles to HID devices should be closed
   devices.forEach((device) => {
     device.hid.close();
@@ -117,6 +129,70 @@ let currentRightHandCount = 0;
 /** @type {null|"left"|"right"} */
 let lastHandUsed = null;
 
+function incrementHandCount(hand) {
+  if (hand == "left") {
+    currentLeftHandCount += 1;
+    if (lastHandUsed === "right") {
+      const previousRightHandCount =
+        storage.handUsage[1][currentRightHandCount] || 0;
+      storage.handUsage[1][currentRightHandCount] =
+        previousRightHandCount + currentRightHandCount;
+    }
+    currentRightHandCount = 0;
+    lastHandUsed = hand;
+  } else {
+    currentRightHandCount += 1;
+    if (lastHandUsed === "left") {
+      const previousLeftHandCount =
+        storage.handUsage[0][currentLeftHandCount] || 0;
+      storage.handUsage[0][currentLeftHandCount] =
+        previousLeftHandCount + currentLeftHandCount;
+    }
+    currentLeftHandCount = 0;
+    lastHandUsed = "right";
+  }
+}
+
+let currentFingerCount = 0;
+let lastFingerUsed = -1;
+
+function incrementFingerCount(row, col) {
+  const finger = getFingerForCoordinates(row, col);
+  log.debug("FINGER", finger, row, col);
+  if (finger === null) return;
+
+  if (
+    !storage.fingerUsage[lastFingerUsed] ||
+    typeof storage.fingerUsage[lastFingerUsed] !== "object"
+  ) {
+    storage.fingerUsage[lastFingerUsed] = {};
+  }
+
+  if (
+    !storage.fingerUsage[finger] ||
+    typeof storage.fingerUsage[lastFingerUsed] !== "object"
+  ) {
+    storage.fingerUsage[finger] = {};
+  }
+
+  if (finger !== lastFingerUsed) {
+    log.debug(`Finger ${finger} used`);
+    const previousFingerCount =
+      storage.fingerUsage[lastFingerUsed][currentFingerCount] || 0;
+    storage.fingerUsage[lastFingerUsed][currentFingerCount] =
+      previousFingerCount + currentFingerCount;
+    log.debug(
+      `-- Previous finger ${lastFingerUsed} was used ${currentFingerCount} times`
+    );
+
+    currentFingerCount = 1;
+    lastFingerUsed = finger;
+  } else {
+    log.debug(`Same finger ${finger} ${currentFingerCount}`);
+    currentFingerCount++;
+  }
+}
+
 /**
  * Handles key event
  * @param {HIDMessage[]} messages
@@ -126,27 +202,8 @@ function handeHIDEvent(messages) {
 
   // For the moment, we only care about keypresses
   if (pressed) {
-    if (col < 6) {
-      currentLeftHandCount += 1;
-      if (lastHandUsed === "right") {
-        const previousRightHandCount =
-          storage.handUsage[1][currentRightHandCount] || 0;
-        storage.handUsage[1][currentRightHandCount] =
-          previousRightHandCount + currentRightHandCount;
-      }
-      currentRightHandCount = 0;
-      lastHandUsed = "left";
-    } else {
-      currentRightHandCount += 1;
-      if (lastHandUsed === "left") {
-        const previousLeftHandCount =
-          storage.handUsage[0][currentLeftHandCount] || 0;
-        storage.handUsage[0][currentLeftHandCount] =
-          previousLeftHandCount + currentLeftHandCount;
-      }
-      currentLeftHandCount = 0;
-      lastHandUsed = "right";
-    }
+    incrementHandCount(col < 6 ? "left" : "right");
+    incrementFingerCount(row, col);
 
     if (storage.layers) {
       // Register the key presse in the matrix, regardless of the keycode
@@ -160,7 +217,7 @@ function handeHIDEvent(messages) {
       ) {
         // TODO: these are actually combos, we need a combo lookup
         // table
-        console.log("Invalid matrix coordinates", row, col, layer);
+        log.warn("Invalid matrix coordinates", row, col, layer);
       } else {
         storage.layers[layer][row][col] += 1;
       }
@@ -174,7 +231,7 @@ function handeHIDEvent(messages) {
         modifier,
         tapKeycode,
       });
-      console.log(
+      log.debug(
         "MOD TAP PRESS: ",
         modifier.toString(16),
         tapKeycode.toString(16)
@@ -200,7 +257,7 @@ function handeHIDEvent(messages) {
       const released = k.getBasicFromModTap(keycode);
       const tapModifier = k.getModifierFromModTap(keycode);
 
-      console.log(
+      log.debug(
         "MOD TAP RELEASE: ",
         released.toString(16),
         tapModifier.toString(16)
@@ -215,7 +272,7 @@ function handeHIDEvent(messages) {
           k.removeModifierFromBitfield(mods, tapModifier),
           layer
         );
-        console.log("COUNT A SINGLE KEY: ", released.toString(16));
+        log.debug("COUNT A SINGLE KEY: ", released.toString(16));
       }
 
       // Remove the mod tap key from the list
@@ -225,7 +282,7 @@ function handeHIDEvent(messages) {
     }
   }
   fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
-    if (err) console.error(err);
+    if (err) log.error(err);
   });
 }
 
@@ -246,13 +303,13 @@ let matrixCols;
  * @param {HIDMessage[]} messages
  */
 function handleLayerMetadata(hidDevice, messages) {
-  console.log("Received Layer Metadata :", messages.length, "messages");
+  log.debug("Received Layer Metadata :", messages.length, "messages");
   // @ts-ignore
   const metadata = new CmdGetLayersMetadataResponse(messages);
   numberOfLayers = metadata.nLayers;
   matrixCols = metadata.cols;
   matrixRows = metadata.rows;
-  console.log(
+  log.debug(
     `layers: ${numberOfLayers} | matrix dimensions: ${matrixRows}x${matrixCols}`
   );
 
@@ -266,7 +323,7 @@ function handleLayerMetadata(hidDevice, messages) {
  * @param {HIDMessage[]} messages
  */
 function handleLayerData(hidDevice, messages) {
-  console.log("Received Layer Data :", messages.length, "messages");
+  log.debug("Received Layer Data :", messages.length, "messages");
   if (!numberOfLayers || !matrixRows || !matrixCols) {
     throw new Error(
       "No matrix metadata, make sure you called getLayerMetadata first"
@@ -277,7 +334,7 @@ function handleLayerData(hidDevice, messages) {
 
   fs.writeFile(LAYERS_PATH, JSON.stringify(layers), (err) => {
     if (err) {
-      console.error(err);
+      log.error(err);
     }
   });
 }
@@ -322,7 +379,7 @@ function wait(n) {
  * @returns {Promise<void>}
  */
 async function getLayerMetadata(hidDevice) {
-  console.log("Getting device layer metadata");
+  log.debug("Getting device layer metadata");
   const command = new CmdGetLayersMetadata(nextCallId());
   let msgWritten = 0;
   let bytesWritten = 0;
@@ -334,7 +391,7 @@ async function getLayerMetadata(hidDevice) {
       // @ts-ignore | the function does exist
       bytesWritten += hidDevice.write(message.serialize());
     } catch (err) {
-      console.error(err);
+      log.error(err);
       return;
     }
 
@@ -342,7 +399,7 @@ async function getLayerMetadata(hidDevice) {
     msgWritten += 1;
   }
 
-  console.log(msgWritten, "messages sent |", bytesWritten, "bytes written");
+  log.debug(msgWritten, "messages sent |", bytesWritten, "bytes written");
 }
 
 /**
@@ -351,7 +408,7 @@ async function getLayerMetadata(hidDevice) {
  * @returns {Promise<void>}
  */
 async function getLayerData(hidDevice) {
-  console.log("Getting device layer data");
+  log.debug("Getting device layer data");
   const command = new CmdGetLayers(nextCallId());
   let msgWritten = 0;
   let bytesWritten = 0;
@@ -363,14 +420,14 @@ async function getLayerData(hidDevice) {
       // @ts-ignore | the function does exist
       bytesWritten += hidDevice.write(message.serialize());
     } catch (err) {
-      console.error(err);
+      log.error(err);
       return;
     }
     msgWritten += 1;
     await wait(100);
   }
 
-  console.log(msgWritten, "messages sent |", bytesWritten, "bytes written");
+  log.debug(msgWritten, "messages sent |", bytesWritten, "bytes written");
 }
 
 /**
@@ -379,11 +436,11 @@ async function getLayerData(hidDevice) {
  * @param {Object} device   A device object from `usb-detection`
  */
 function listenToDevice(device) {
-  console.log("Listening to device");
+  log.log("Listening to device");
   try {
     let hidDevice = new HID.HID(device.path);
     hidDevice.on("error", (error) => {
-      console.error(error);
+      log.error(error);
     });
 
     // The pool is used to store series of messages belonging to the same
@@ -419,7 +476,7 @@ function listenToDevice(device) {
               break;
             case HID_CMD_UNKNOWN:
             default:
-              console.log("unknown command", message.cmd, message.callId);
+              log.warn("unknown command", message.cmd, message.callId);
               break;
           }
           // remove from the pool when done
@@ -436,7 +493,7 @@ function listenToDevice(device) {
       usbDevice: device,
       hid: hidDevice,
     });
-    console.log("Listening to plaid");
+    log.log("Listening to plaid");
 
     // Get matrix and keymaps
     getLayerMetadata(hidDevice);
@@ -460,24 +517,27 @@ async function listenPlaid() {
   if (plaids) {
     plaids.forEach((plaid) => listenToDevice(plaid));
   }
+
+  return plaids.length != 0;
 }
 
 async function main() {
   usbDetect.startMonitoring();
 
+  log.log("Waiting for Plaid Keyboard");
   listenPlaid();
 
   usbDetect.on(`add:${VENDOR_ID}:${PRODUCT_ID}`, () => {
-    console.log("Plaid connected");
+    log.log("Plaid connected");
     try {
       listenPlaid();
     } catch (error) {
-      console.log(error);
+      log.error(error);
     }
   });
 
   usbDetect.on(`remove:${VENDOR_ID}:${PRODUCT_ID}`, (disconnectedDevice) => {
-    console.log("Plaid disconnected");
+    log.log("Plaid disconnected");
     devices.forEach(({ usbDevice, hid }) => {
       if (
         usbDevice.vendorId === disconnectedDevice.vendorId &&

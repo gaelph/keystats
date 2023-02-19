@@ -25,8 +25,12 @@ header {
   padding-bottom: 4em;
 }
 
-.content-container > div {
-  width: 50%;
+.content-container > div:first-child {
+  width: 60%;
+}
+
+.content-container > div:nth-child(2) {
+  width: 40%;
 }
 
 ul {
@@ -93,4 +97,12 @@ li {
 .stats-container h4 {
   margin-top: 3em;
   margin-bottom: 0.5em;
+}
+
+.tab {
+  display: none;
+}
+
+.tab.active {
+  display: block;
 }
