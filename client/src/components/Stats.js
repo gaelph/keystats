@@ -197,7 +197,7 @@ export default function StatsComponent({
       </Tab>
       <Tab title="Character Statistics">
         <div>
-          <h3>Character Frequency</h3>
+          <h3>Total characters entered: {formatNumber(freqTotal)}</h3>
           <table>
             <thead></thead>
             <tbody>
