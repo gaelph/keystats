@@ -21,6 +21,7 @@
     "usb-detection": "^4.14.1"
   },
   "devDependencies": {
-    "eslint": "^8.33.0"
+    "eslint": "^8.33.0",
+    "nodemon": "^3.0.1"
   }
 }
