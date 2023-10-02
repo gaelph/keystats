@@ -182,7 +182,7 @@ function incrementFingerCount(row, col) {
     storage.fingerUsage[lastFingerUsed][currentFingerCount] =
       previousFingerCount + currentFingerCount;
     log.debug(
-      `-- Previous finger ${lastFingerUsed} was used ${currentFingerCount} times`
+      `-- Previous finger ${lastFingerUsed} was used ${currentFingerCount} times`,
     );
 
     currentFingerCount = 1;
@@ -234,7 +234,7 @@ function handeHIDEvent(messages) {
       log.debug(
         "MOD TAP PRESS: ",
         modifier.toString(16),
-        tapKeycode.toString(16)
+        tapKeycode.toString(16),
       );
     }
     // any other key, we increment
@@ -246,7 +246,7 @@ function handeHIDEvent(messages) {
         // remove mod taps that have been used as modifiers
         // so that we don't count them twice
         modTapsPressed = modTapsPressed.filter(
-          ({ modifier }) => !pressedModifiers.includes(modifier)
+          ({ modifier }) => !pressedModifiers.includes(modifier),
         );
       }
     }
@@ -260,7 +260,7 @@ function handeHIDEvent(messages) {
       log.debug(
         "MOD TAP RELEASE: ",
         released.toString(16),
-        tapModifier.toString(16)
+        tapModifier.toString(16),
       );
 
       // The mod tap key was pressed alone, so it is the basic keycode
@@ -270,14 +270,14 @@ function handeHIDEvent(messages) {
           released,
           // ensure we don't count it as Mod+letter combination
           k.removeModifierFromBitfield(mods, tapModifier),
-          layer
+          layer,
         );
         log.debug("COUNT A SINGLE KEY: ", released.toString(16));
       }
 
       // Remove the mod tap key from the list
       modTapsPressed = modTapsPressed.filter(
-        ({ tapKeycode }) => tapKeycode == released
+        ({ tapKeycode }) => tapKeycode == released,
       );
     }
   }
@@ -310,7 +310,7 @@ function handleLayerMetadata(hidDevice, messages) {
   matrixCols = metadata.cols;
   matrixRows = metadata.rows;
   log.debug(
-    `layers: ${numberOfLayers} | matrix dimensions: ${matrixRows}x${matrixCols}`
+    `layers: ${numberOfLayers} | matrix dimensions: ${matrixRows}x${matrixCols}`,
   );
 
   // Now that we have matrices parameters, let’s get keymapping
@@ -326,7 +326,7 @@ function handleLayerData(hidDevice, messages) {
   log.debug("Received Layer Data :", messages.length, "messages");
   if (!numberOfLayers || !matrixRows || !matrixCols) {
     throw new Error(
-      "No matrix metadata, make sure you called getLayerMetadata first"
+      "No matrix metadata, make sure you called getLayerMetadata first",
     );
   }
   const layerData = new CmdGetLayersResponse(messages);
@@ -452,37 +452,41 @@ function listenToDevice(device) {
       "data",
       /** @param {Uint8Array} data */
       (data) => {
-        const message = new HIDMessage(data);
+        try {
+          const message = new HIDMessage(data);
 
-        // store the message in the message pool
-        const poolKey = `${message.cmd}_${message.callId}`;
-        if (!messagePool[poolKey]) {
-          messagePool[poolKey] = [];
-        }
-        messagePool[poolKey].push(message);
-
-        // when all messages for the same call response have been received
-        if (messagePool[poolKey].length == message.totalPackets) {
-          // handle the message
-          switch (message.cmd) {
-            case HID_EVENT:
-              handeHIDEvent(messagePool[poolKey]);
-              break;
-            case HID_CMD_GET_LAYERS:
-              handleLayerData(hidDevice, messagePool[poolKey]);
-              break;
-            case HID_CMD_GET_LAYERS_METADATA:
-              handleLayerMetadata(hidDevice, messagePool[poolKey]);
-              break;
-            case HID_CMD_UNKNOWN:
-            default:
-              log.warn("unknown command", message.cmd, message.callId);
-              break;
+          // store the message in the message pool
+          const poolKey = `${message.cmd}_${message.callId}`;
+          if (!messagePool[poolKey]) {
+            messagePool[poolKey] = [];
           }
-          // remove from the pool when done
-          delete messagePool[poolKey];
+          messagePool[poolKey].push(message);
+
+          // when all messages for the same call response have been received
+          if (messagePool[poolKey].length == message.totalPackets) {
+            // handle the message
+            switch (message.cmd) {
+              case HID_EVENT:
+                handeHIDEvent(messagePool[poolKey]);
+                break;
+              case HID_CMD_GET_LAYERS:
+                handleLayerData(hidDevice, messagePool[poolKey]);
+                break;
+              case HID_CMD_GET_LAYERS_METADATA:
+                handleLayerMetadata(hidDevice, messagePool[poolKey]);
+                break;
+              case HID_CMD_UNKNOWN:
+              default:
+                log.warn("unknown command", message.cmd, message.callId);
+                break;
+            }
+            // remove from the pool when done
+            delete messagePool[poolKey];
+          }
+        } catch (error) {
+          log.error(error);
         }
-      }
+      },
     );
 
     // Ensure the device is being listened to
@@ -508,7 +512,7 @@ async function listenPlaid() {
 
   while (plaids.length === 0) {
     plaids = HID.devices(VENDOR_ID, PRODUCT_ID).filter(
-      (device) => device.usagePage === USAGE_PAGE && device.usage === USAGE
+      (device) => device.usagePage === USAGE_PAGE && device.usage === USAGE,
     );
 
     await new Promise((resolve) => setTimeout(resolve, 1000));

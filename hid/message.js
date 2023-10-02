@@ -1,3 +1,4 @@
+import log from "loglevel";
 // @ts-check
 const HEADER_SIZE = 6;
 const REPORT_ID = 0;
@@ -25,12 +26,22 @@ export class HIDMessage {
   constructor(bytes) {
     if (bytes && bytes instanceof Uint8Array) {
       this._bytes = bytes.slice(HEADER_SIZE, MESSAGE_LENGTH);
+      const b = Array.from(bytes)
+        .map((b) => "0x" + b.toString(16).padStart(2, "0"))
+        .join(", ");
+      log.debug(`HID message: [${b}] `);
 
       this.reportId = bytes[REPORT_ID]; // should be 0
       this.cmd = bytes[CMD];
       this.callId = (bytes[CALLID_UPPER] << 8) | bytes[CALLID_LOWER];
       this.packetNumber = bytes[PACKET_NUMBER];
       this.totalPackets = bytes[TOTAL_PACKETS];
+
+      log.debug(`reportId: 0x${this.reportId.toString(16).padStart(2, "0")}`);
+      log.debug(`cmd: 0x${this.cmd.toString(16).padStart(2, "0")}`);
+      log.debug(`callId: 0x${this.callId.toString(16).padStart(4, "0")}`);
+      log.debug(`packetNumber: ${this.packetNumber}`);
+      log.debug(`totalPackets: ${this.totalPackets}`);
 
       if (this.totalPackets < 1) {
         throw new Error("Invalid total packets");
@@ -72,9 +83,14 @@ export class HIDMessage {
   serialize() {
     // The extra byte is to get the proper message length on the device
     const array = new Uint8Array(this._bytes.length + HEADER_SIZE + 1);
+    log.debug(
+      `HIDMessage.serialize: ${array.length} bytes (expecting ${
+        MESSAGE_LENGTH + 1
+      } bytes)`,
+    );
 
     if (array.length != MESSAGE_LENGTH + 1) {
-      throw new Error(`invalid message length (${array.length}`);
+      throw new Error(`invalid message length (${array.length})`);
     }
 
     array[REPORT_ID] = 0;
@@ -117,7 +133,7 @@ export class HIDMessage {
       message.totalPackets = totalPackets;
       message.bytes = bytes.slice(
         packetNumber * HIDMessage.payloadSize,
-        (packetNumber + 1) * HIDMessage.payloadSize
+        (packetNumber + 1) * HIDMessage.payloadSize,
       );
 
       messages.push(message);
