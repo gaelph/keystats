@@ -1,6 +1,7 @@
 // @ts-check
 import HID from "node-hid";
 import usbDetect from "usb-detection";
+import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import url from "url";
@@ -37,6 +38,36 @@ const VENDOR_ID = 5824;
 const PRODUCT_ID = 10203;
 const USAGE_PAGE = 0xff60;
 const USAGE = 0x61;
+
+function getAppName() {
+  return new Promise((resolve, reject) => {
+    const appleScriptProcess = spawn("osascript", [`AppName.scpt`]);
+
+    appleScriptProcess.stdout.on("data", (output) => {
+      const data = output.toString().trim();
+      try {
+        const response = JSON.parse(data);
+        if (response.applicationName) {
+          resolve(response.applicationName);
+        } else {
+          reject(new Error(response.error));
+        }
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    appleScriptProcess.stderr.on("data", (output) => {
+      reject(new Error(output.toString()));
+    });
+
+    appleScriptProcess.on("close", (code) => {
+      if (code !== 0) {
+        log.debug("AppleScript process exited with code " + code);
+      }
+    });
+  });
+}
 
 /**
  * @param {number} cols columns in the matrix
@@ -199,6 +230,10 @@ function incrementFingerCount(row, col) {
  */
 function handeHIDEvent(messages) {
   const { keycode, col, row, mods, layer, pressed } = new HIDEvent(messages);
+
+  getAppName()
+    .then((appName) => log.debug("Application: " + appName))
+    .catch((error) => log.error(error));
 
   // For the moment, we only care about keypresses
   if (pressed) {
