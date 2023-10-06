@@ -15,6 +15,7 @@ import HIDMessage from "./hid/HIDMessage.js";
 import HIDEvent from "./hid/HIDEvent.js";
 import HIDManager from "./hid/HIDManager.js";
 import type HIDKeyboard from "./hid/HIDKeyboard.js";
+import Config from "./config/Config.js";
 
 loglevelPrefix(log);
 log.setLevel(log.levels.TRACE);
@@ -24,11 +25,6 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const DATA_PATH = path.join(__dirname, "data", "log.json");
 // File where the keymap information is stored
 const LAYERS_PATH = path.join(__dirname, "data", "layers.json");
-
-const VENDOR_ID = 5824;
-const PRODUCT_ID = 10203;
-const USAGE_PAGE = 0xff60;
-const USAGE = 0x61;
 
 function getAppName(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -303,14 +299,8 @@ function handleHIDEvent(messages: HIDMessage[]) {
 }
 
 async function main() {
-  const manager = new HIDManager([
-    {
-      vendorId: VENDOR_ID,
-      productId: PRODUCT_ID,
-      usagePage: USAGE_PAGE,
-      usage: USAGE,
-    },
-  ]);
+  const config = await new Config().load();
+  const manager = new HIDManager(config.devices);
 
   process.on("SIGINT", () => {
     manager.disconnect();

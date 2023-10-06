@@ -10,6 +10,7 @@ import {
 } from "./CmdGetLayersMetadata.js";
 import { CmdGetLayers, CmdGetLayersResponse } from "./CmdGetLayers.js";
 import { HID_EVENT, HID_CMD_UNKNOWN } from "./constants.js";
+import { DeviceConfig } from "../config/Config.js";
 
 export type HIDCallback = (_messages: HIDMessage[]) => void;
 
@@ -51,14 +52,16 @@ function nextCallId(): number {
  */
 export default class HIDKeyboard extends EventEmitter {
   hidDevice: HID.HID;
+  deviceConfig: DeviceConfig;
   logger = log.getLogger("HIDKeyboard");
   messagePool: Map<string, HIDMessage[]> = new Map();
   callbacks: Map<number, HIDCallback> = new Map();
 
-  constructor(hidDevice: HID.HID) {
+  constructor(hidDevice: HID.HID, deviceConfig: DeviceConfig) {
     super();
 
     this.hidDevice = hidDevice;
+    this.deviceConfig = deviceConfig;
     this._setupHandler();
     this.hidDevice.resume();
   }
@@ -94,7 +97,12 @@ export default class HIDKeyboard extends EventEmitter {
               break;
 
             case HID_CMD_UNKNOWN:
-              this.logger.warn("unknown command", message.cmd, message.callId);
+              this.logger.warn(
+                "unknown command",
+                this.deviceConfig.name,
+                message.cmd,
+                message.callId,
+              );
               break;
 
             default:
@@ -104,6 +112,7 @@ export default class HIDKeyboard extends EventEmitter {
               } else {
                 this.logger.warn(
                   "unknown command",
+                  this.deviceConfig.name,
                   message.cmd,
                   message.callId,
                 );
@@ -150,7 +159,13 @@ export default class HIDKeyboard extends EventEmitter {
       msgWritten += 1;
     }
 
-    log.debug(msgWritten, "messages sent |", bytesWritten, "bytes written");
+    log.debug(
+      this.deviceConfig.name,
+      msgWritten,
+      "messages sent |",
+      bytesWritten,
+      "bytes written",
+    );
   }
 
   /**
@@ -168,7 +183,7 @@ export default class HIDKeyboard extends EventEmitter {
    * Sends a command to retrieive layer metatdata
    */
   private async _getLayerMetadata(): Promise<LayerMetadata> {
-    this.logger.info("Getting layer metadata");
+    this.logger.info(this.deviceConfig.name, "Getting layer metadata");
 
     const messages = await this._sendCommand(
       new CmdGetLayersMetadata(nextCallId()),
@@ -176,6 +191,7 @@ export default class HIDKeyboard extends EventEmitter {
     const metadata = new CmdGetLayersMetadataResponse(messages);
 
     this.logger.debug(
+      this.deviceConfig.name,
       `layers: ${metadata.nLayers} | matrix dimensions: ${metadata.cols}x${metadata.rows}`,
     );
 
@@ -190,7 +206,7 @@ export default class HIDKeyboard extends EventEmitter {
    * Sends a command to retrieve layer data
    */
   private async _getLayerData(): Promise<CmdGetLayersResponse> {
-    this.logger.debug("Getting device layer data");
+    this.logger.debug(this.deviceConfig.name, "Getting device layer data");
 
     const messages = await this._sendCommand(new CmdGetLayers(nextCallId()));
     const layerData = new CmdGetLayersResponse(messages);

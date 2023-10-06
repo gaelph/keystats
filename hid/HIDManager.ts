@@ -3,6 +3,7 @@ import HID from "node-hid";
 import usbDetect from "usb-detection";
 import log from "loglevel";
 
+import type { DeviceConfig } from "../config/Config.js";
 import HIDKeyboard from "./HIDKeyboard.js";
 
 /**
@@ -29,13 +30,13 @@ interface HIDManagerInit {
  * Writes commands, emits events.
  */
 export default class HIDManager extends EventEmitter {
-  confs: HIDManagerInit[];
+  confs: DeviceConfig[];
   devices: Device[] = [];
   logger = log.getLogger("HIDManager");
   /** @type {(keyboard: HIDKeyboard) => void} */
   onListen: (_keyboard: HIDKeyboard) => void = (_keyboard: HIDKeyboard) => {};
 
-  constructor(init: HIDManagerInit[]) {
+  constructor(init: DeviceConfig[]) {
     super();
 
     this.confs = init;
@@ -45,12 +46,12 @@ export default class HIDManager extends EventEmitter {
    * @private
    * Sets up listners to receive messages from the HID device.
    */
-  private _listen(device: HID.Device) {
-    this.logger.info("Attaching device", device.path);
+  private _listen(device: HID.Device, deviceConfig: DeviceConfig) {
+    this.logger.info("Attaching device", deviceConfig.name);
     try {
       // @ts-expect-error | device.path might be undefined
       const hidDevice = new HID.HID(device.path) as HID.HID;
-      const keyboard = new HIDKeyboard(hidDevice);
+      const keyboard = new HIDKeyboard(hidDevice, deviceConfig);
 
       // Register the device so that we can stop listening to it
       this.devices.push({
@@ -58,7 +59,7 @@ export default class HIDManager extends EventEmitter {
         hid: hidDevice,
       });
 
-      this.logger.info("Device attached");
+      this.logger.info(`Device ${deviceConfig.name} attached`);
 
       this.emit("keyboard", keyboard);
     } catch (error) {
@@ -69,7 +70,7 @@ export default class HIDManager extends EventEmitter {
   /**
    * Waits for a device to be attached, and starts listening to it
    */
-  private async _attach(conf: HIDManagerInit): Promise<boolean> {
+  private async _attach(conf: DeviceConfig): Promise<boolean> {
     let hidDevices: HID.Device[] = [];
 
     while (hidDevices.length === 0) {
@@ -82,7 +83,7 @@ export default class HIDManager extends EventEmitter {
     }
 
     if (hidDevices) {
-      hidDevices.forEach((hidDevice) => this._listen(hidDevice));
+      hidDevices.forEach((hidDevice) => this._listen(hidDevice, conf));
     }
 
     return hidDevices.length != 0;
