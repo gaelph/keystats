@@ -1,25 +1,15 @@
-// @ts-check
+import type HIDMessage from "./HIDMessage.js";
 import Command from "./Command.js";
 import Response from "./Response.js";
 import { HID_CMD_GET_LAYERS_METADATA } from "./constants.js";
 
-/** @typedef {import('./message')} HIDMessage */
-
 const N_LAYERS = 0;
 const ROWS = 1;
 const COLS = 2;
-/*
-typedef struct {
-  uint8_t n_layers;
-  uint8_t rows;
-  uint8_t cols;
-} hid_layer_metadata_t;
-*/
 
 /**
  * HID Command to get layer metadata,
  * that is number of layers, and matrix dimensions
- * @property {number} callId
  * @example
  * const getLayersMetadataCommand = new CmdGetLayersMetadata(13);
  * getLayersMetadataCommand.toHIDMessages().forEach(message => {
@@ -27,10 +17,7 @@ typedef struct {
  * });
  */
 export class CmdGetLayersMetadata extends Command {
-  /**
-   * @param {number} callId
-   */
-  constructor(callId) {
+  constructor(callId: number) {
     super(callId);
     this.cmd = HID_CMD_GET_LAYERS_METADATA;
   }
@@ -45,10 +32,11 @@ export class CmdGetLayersMetadata extends Command {
  * console.log(layersMetadata.cols);
  */
 export class CmdGetLayersMetadataResponse extends Response {
-  /**
-   * @param {HIDMessage[]} hidMessages
-   */
-  constructor(hidMessages) {
+  nLayers: number;
+  rows: number;
+  cols: number;
+
+  constructor(hidMessages: HIDMessage[]) {
     super(hidMessages, HID_CMD_GET_LAYERS_METADATA);
 
     this.nLayers = this._bytes[N_LAYERS];

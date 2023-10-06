@@ -1,14 +1,30 @@
+// @ts-check
 import Record from "./models/record";
+
 const KEYMAPS = "keymaps";
 const RECORDS = "records";
 
 export default class RecordRepo {
+  /** @type {import("knex").Knex} */
   #db;
 
+  /**
+   * @param {import("knex").Knex} db
+   */
   constructor(db) {
     this.#db = db;
   }
 
+  /**
+   * @param {number} keycode
+   * @param {Object} opts
+   * @param {number} opts.modifiers
+   * @param {number} opts.row
+   * @param {number} opts.column
+   * @param {number} opts.layer
+   * @param {string} [opts.application]
+   * @returns {Promise<Record>}
+   */
   async addRecord(keycode, { modifiers, row, column, layer, application }) {
     const date = new Date();
     const record = new Record({
@@ -20,6 +36,7 @@ export default class RecordRepo {
       record.application = application;
     }
 
+    // Find keymap by coordinates in layer
     const keymap = await this.#db
       .select("keymaps.id")
       .from(KEYMAPS)
@@ -41,6 +58,9 @@ export default class RecordRepo {
 
     record.keymapId = keymap.id;
 
+    // If there is already a record for this keycode and modifiers
+    // and application on that same day;
+    // increment the count
     const exists = await this.#db
       .select("id", "counts")
       .from(RECORDS)
@@ -53,14 +73,19 @@ export default class RecordRepo {
       })
       .first();
 
+    // Create a new record if it is the first one today
     if (!exists) {
       record.counts = 1;
-      const [id] = await this.#db.insert(RECORDS, record);
+      const [id] = await this.#db.insert(
+        RECORDS,
+        /** @type {Object} */ (record),
+      );
       record.id = id;
 
       return record;
     }
 
+    // Otherwise, increment the count
     await this.#db(RECORDS).where("id", exists.id).increment("counts", 1);
 
     record.id = exists.id;
@@ -69,6 +94,16 @@ export default class RecordRepo {
     return record;
   }
 
+  /**
+   * @param {Object} opts
+   * @param {string} [opts.application]
+   * @param {number|number[]} [opts.layer]
+   * @param {Date} [opts.date]
+   * @param {Date[]} [opts.period]
+   * @param {Date} [opts.after]
+   * @param {Date} [opts.before]
+   * @returns {Promise<Record[]>}
+   */
   async getRecordsBy({ date, period, after, before, application, layer }) {
     let where = (builder) => {
       if (period) {

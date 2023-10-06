@@ -1,17 +1,7 @@
-// @ts-check
+import type HIDMessage from "./HIDMessage.js";
 import Command from "./Command.js";
 import Response from "./Response.js";
 import { HID_CMD_GET_LAYERS } from "./constants.js";
-
-/** @typedef {import('./message').HIDMessage} HIDMessage */
-
-/*
-typedef struct {
-  uint8_t n_layers;
-  uint8_t rows;
-  uint8_t cols;
-} hid_layer_metadata_t;
-*/
 
 /**
  * HID Command to get layer data
@@ -22,7 +12,7 @@ typedef struct {
  * });
  */
 export class CmdGetLayers extends Command {
-  constructor(callId) {
+  constructor(callId: number) {
     super(callId);
     this.cmd = HID_CMD_GET_LAYERS;
   }
@@ -36,9 +26,9 @@ export class CmdGetLayers extends Command {
  */
 export class CmdGetLayersResponse extends Response {
   /**
-   * @param {HIDMessage[]} hidMessages messages from HID
+   * @param  hidMessages messages from HID
    */
-  constructor(hidMessages) {
+  constructor(hidMessages: HIDMessage[]) {
     super(hidMessages, HID_CMD_GET_LAYERS);
   }
 
@@ -47,22 +37,23 @@ export class CmdGetLayersResponse extends Response {
    * where `nLayers` is the number matrices (i.e. the length of the returned array)
    * `rows` is the number rows in each matrix
    * and `cols` is the number columns in each matrix
-   * @param {number} nLayers   Number of layers
-   * @param {number} rows      Number of rows
-   * @param {number} cols      Number of columns
-   * @return {string[][][]} Layers of matrices
+   * @param  nLayers   Number of layers
+   * @param  rows      Number of rows
+   * @param  cols      Number of columns
+   * @return  Layers of matrices
    * @throws {Error} if the underlying `Uint8Array` does not contain enough data
    */
-  getLayers(nLayers, rows, cols) {
-    /** @type {string[][][]} */
-    const layers = [];
-    const b = Array.from(this._bytes);
+  getLayers(nLayers: number, rows: number, cols: number): string[][][] {
+    const layers: string[][][] = [];
+    const b: number[] = Array.from(this._bytes);
     let currentLayer = 0;
     let currentRow = 0;
 
     while (b.length !== 0) {
+      const lower = b.shift() || 0;
+      const upper = b.shift() || 0;
       // look like we are receiving big endian from EEPROM
-      const keycode = b.shift() | (b.shift() << 8);
+      const keycode = lower | (upper << 8);
 
       if (!layers[currentLayer]) {
         layers[currentLayer] = [];

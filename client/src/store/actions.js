@@ -1,4 +1,4 @@
-import { SET_LOADING, SET_ERROR, SET_DATA } from "./constants.js";
+import { SET_LOADING, SET_ERROR, SET_DATA } from "./constants";
 
 export function setLoading(value) {
   return { type: SET_LOADING, payload: value };

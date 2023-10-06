@@ -14,22 +14,30 @@ const END_OF_MESSAGE = 1;
 /**
  * A generic HID message
  */
-export class HIDMessage {
+export default class HIDMessage {
   // Header size when serializing
   static headerSize = HEADER_SIZE;
   // Payload size when serializing
   static payloadSize = MESSAGE_LENGTH - HEADER_SIZE;
 
+  protected _bytes: Uint8Array;
+  reportId: number = 0;
+  cmd: number;
+  callId: number;
+  packetNumber: number;
+  totalPackets: number;
+  logger = log.getLogger("HIDMessage");
+
   /**
-   * @param {Uint8Array} [bytes]   Raw bytes from HID device
+   * @param  [bytes]   Raw bytes from HID device
    */
-  constructor(bytes) {
+  constructor(bytes?: Uint8Array) {
     if (bytes && bytes instanceof Uint8Array) {
       this._bytes = bytes.slice(HEADER_SIZE, MESSAGE_LENGTH);
       const b = Array.from(bytes)
         .map((b) => "0x" + b.toString(16).padStart(2, "0"))
         .join(", ");
-      log.debug(`HID message: [${b}] `);
+      this.logger.debug(`HID message: [${b}] `);
 
       this.reportId = bytes[REPORT_ID]; // should be 0
       this.cmd = bytes[CMD];
@@ -37,11 +45,15 @@ export class HIDMessage {
       this.packetNumber = bytes[PACKET_NUMBER];
       this.totalPackets = bytes[TOTAL_PACKETS];
 
-      log.debug(`reportId: 0x${this.reportId.toString(16).padStart(2, "0")}`);
-      log.debug(`cmd: 0x${this.cmd.toString(16).padStart(2, "0")}`);
-      log.debug(`callId: 0x${this.callId.toString(16).padStart(4, "0")}`);
-      log.debug(`packetNumber: ${this.packetNumber}`);
-      log.debug(`totalPackets: ${this.totalPackets}`);
+      this.logger.debug(
+        `reportId: 0x${this.reportId.toString(16).padStart(2, "0")}`,
+      );
+      this.logger.debug(`cmd: 0x${this.cmd.toString(16).padStart(2, "0")}`);
+      this.logger.debug(
+        `callId: 0x${this.callId.toString(16).padStart(4, "0")}`,
+      );
+      this.logger.debug(`packetNumber: ${this.packetNumber}`);
+      this.logger.debug(`totalPackets: ${this.totalPackets}`);
 
       if (this.totalPackets < 1) {
         throw new Error("Invalid total packets");
@@ -83,7 +95,7 @@ export class HIDMessage {
   serialize() {
     // The extra byte is to get the proper message length on the device
     const array = new Uint8Array(this._bytes.length + HEADER_SIZE + 1);
-    log.debug(
+    this.logger.debug(
       `HIDMessage.serialize: ${array.length} bytes (expecting ${
         MESSAGE_LENGTH + 1
       } bytes)`,
@@ -100,8 +112,9 @@ export class HIDMessage {
     array[PACKET_NUMBER] = this.packetNumber & 0xff;
     array[TOTAL_PACKETS] = this.packetNumber & 0xff;
 
-    for (let i in this._bytes) {
-      array[i + HEADER_SIZE] = this._bytes[i];
+    for (const i in this._bytes) {
+      const index = parseInt(i, 10);
+      array[index + HEADER_SIZE] = this._bytes[i];
     }
 
     // This extra byte is necessary for the keyboard
@@ -113,17 +126,12 @@ export class HIDMessage {
 
   /**
    * Splits a command in as many necessary messages required
-   * @param {number} cmd   The command code
-   * @param {number} callId
-   * @param {Uint8Array} bytes The payload
-   * @returns {HIDMessage[]}
    */
-  static package(cmd, callId, bytes) {
+  static package(cmd: number, callId: number, bytes: Uint8Array): HIDMessage[] {
     let totalPackets = Math.ceil(bytes.length / HIDMessage.payloadSize);
     if (totalPackets == 0) totalPackets++;
 
-    /** @type {HIDMessage[]} */
-    const messages = [];
+    const messages: HIDMessage[] = [];
 
     for (let packetNumber = 0; packetNumber < totalPackets; packetNumber++) {
       const message = new HIDMessage();

@@ -1,4 +1,4 @@
-import { SET_LOADING, SET_ERROR, SET_DATA } from "./constants.js";
+import { SET_LOADING, SET_ERROR, SET_DATA } from "./constants";
 
 export default function dataReducer(state, action) {
   switch (action.type) {
