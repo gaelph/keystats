@@ -7,7 +7,7 @@ export function getTotalKeyPresses(layers) {
   Object.entries(layers).forEach(([key, layer]) => {
     if (layer) {
       const t = layer.reduce((acc, row) => {
-        const tr = row.reduce((rowacc, x) => rowacc + x, 0);
+        const tr = (row || []).reduce((rowacc, x) => rowacc + (x || 0), 0);
         return acc + tr;
       }, 0);
 
@@ -25,7 +25,7 @@ export function getTotalByRow(layers) {
   Object.values(layers).forEach((layer) => {
     if (layer) {
       layer.forEach((row, rowidx) => {
-        const tr = row.reduce((rowacc, x) => rowacc + x, 0);
+        const tr = (row || []).reduce((rowacc, x) => rowacc + x, 0);
 
         totals[rowidx] += tr;
       });
@@ -42,7 +42,7 @@ export function getTotalsByHand(layers) {
     if (layer) {
       const t = layer.reduce(
         (acc, row) => {
-          const tr = row.reduce(
+          const tr = (row || []).reduce(
             (rowacc, x, colidx) => {
               if (LEFT_COLUMNS.includes(colidx)) {
                 rowacc.left += x;
@@ -51,7 +51,7 @@ export function getTotalsByHand(layers) {
               }
               return rowacc;
             },
-            { left: 0, right: 0 }
+            { left: 0, right: 0 },
           );
 
           acc.left += tr.left;
@@ -59,7 +59,7 @@ export function getTotalsByHand(layers) {
 
           return acc;
         },
-        { left: 0, right: 0 }
+        { left: 0, right: 0 },
       );
 
       totals.left += t.left;
@@ -162,11 +162,13 @@ export function getTotalsByFinger(layers) {
   Object.entries(layers).forEach(([_, layer]) => {
     if (layer) {
       for (let r = 0; r < layer.length; r++) {
-        for (let c = 0; c < layer[r].length; c++) {
-          const finger = FINGER_MATRIX[r][c];
-          const count = layer[r][c];
+        if (layer[r]) {
+          for (let c = 0; c < layer[r].length; c++) {
+            const finger = FINGER_MATRIX[r][c];
+            const count = layer[r][c];
 
-          totals[finger] += count;
+            totals[finger] += count;
+          }
         }
       }
     }

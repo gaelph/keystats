@@ -12,5 +12,6 @@ export default {
     migrations: {
       tableName: "knex_migrations",
     },
+    useNullAsDefault: true,
   },
 };

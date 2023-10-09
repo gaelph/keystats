@@ -6,9 +6,10 @@ function sortTotals(totals) {
 
 export function computeTotals(data) {
   const totals = Object.entries(data).reduce((sums, [_code, d]) => {
-    const modsToAdd = keycodes.modifierBitfieldToMaskedModifiers(
-      parseInt(d.modifiers, 16)
-    );
+    const modsToAdd = keycodes.modifierBitfieldToMaskedModifiers(d.modifiers);
+    if (d.keycode === "2a") {
+      console.log(d);
+    }
     // d.modifiers =
     //   parseInt(d.modifiers, 16) | ((parseInt(d.keycode, 16) & 0x1fff) >> 8);
     // d.modifiers = d.modifiers.toString(16);
@@ -22,7 +23,10 @@ export function computeTotals(data) {
 
     const l = keycodes.formatKeyCode(c.toString(16));
     if (l !== undefined) {
-      sums[l] = (sums[l] || 0) + d.count;
+      sums[l] = (sums[l] || 0) + d.counts;
+    }
+    if (d.keycode === "2a") {
+      console.log(l, sums[l]);
     }
     return sums;
   }, {});

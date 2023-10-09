@@ -11,18 +11,10 @@ import HIDKeyboard from "./HIDKeyboard.js";
  * and the `usbDevice` one comes from `usb-detection`
  */
 interface Device {
-  hid: HID.HID;
   usbDevice: {
     vendorId: number;
     productId: number;
   };
-}
-
-interface HIDManagerInit {
-  vendorId: number;
-  productId: number;
-  usagePage: number;
-  usage: number;
 }
 
 /**
@@ -32,9 +24,8 @@ interface HIDManagerInit {
 export default class HIDManager extends EventEmitter {
   confs: DeviceConfig[];
   devices: Device[] = [];
+  keyboards: HIDKeyboard[] = [];
   logger = log.getLogger("HIDManager");
-  /** @type {(keyboard: HIDKeyboard) => void} */
-  onListen: (_keyboard: HIDKeyboard) => void = (_keyboard: HIDKeyboard) => {};
 
   constructor(init: DeviceConfig[]) {
     super();
@@ -56,13 +47,15 @@ export default class HIDManager extends EventEmitter {
       // Register the device so that we can stop listening to it
       this.devices.push({
         usbDevice: device,
-        hid: hidDevice,
       });
+
+      this.keyboards.push(keyboard);
 
       this.logger.info(`Device ${deviceConfig.name} attached`);
 
       this.emit("keyboard", keyboard);
     } catch (error) {
+      this.logger.error(`Error attaching device ${deviceConfig.name}:`, error);
       // silence
     }
   }
@@ -95,8 +88,9 @@ export default class HIDManager extends EventEmitter {
    */
   disconnect() {
     this.logger.info("Disconnecting Devices");
-    this.devices.forEach((device) => {
-      device.hid.close();
+    this.keyboards.forEach((device) => {
+      this.emit("disconnect", device);
+      device.close();
     });
     this.devices = [];
 
@@ -134,16 +128,15 @@ export default class HIDManager extends EventEmitter {
             conf.vendorId,
             conf.productId,
           );
-          this.devices.forEach(({ usbDevice, hid }) => {
-            if (
-              usbDevice.vendorId === disconnectedDevice.vendorId &&
-              usbDevice.productId === disconnectedDevice.productId
-            ) {
-              hid.close();
+          this.keyboards.forEach((keyboard) => {
+            this.emit("disconnect", keyboard);
+            if (keyboard.is(disconnectedDevice)) {
+              keyboard.close();
             }
           });
 
           this.devices = [];
+          this.keyboards = [];
         },
       );
     }

@@ -15,15 +15,8 @@ export async function seed(knex) {
   const layerRepo = new LayerRepo(knex);
 
   for (const layerIndex in data) {
-    console.log("LAYER: " + layerIndex.toString());
     const layerData = data[layerIndex];
     await layerRepo.deleteLayer(layerIndex);
     await layerRepo.createLayer(layerData, layerIndex);
-  }
-
-  for (const layerIndex in data) {
-    const layerData = await layerRepo.getLayer(layerIndex);
-    console.log("LAYER: ", layerData);
-    console.log(layerData);
   }
 }

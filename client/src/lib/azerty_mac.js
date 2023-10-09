@@ -41,7 +41,7 @@ export const normal = [
   "à",
   "⏎",
   "ESC",
-  "←",
+  "BKSP",
   "⇥",
   "⎵",
   ")",

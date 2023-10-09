@@ -30,28 +30,33 @@ const FINGER_NAMES = [
 const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 
 export default function StatsComponent({
-  data: { layers, codesPressed, handUsage, fingerUsage },
+  counts: layers,
+  data: { handUsage, fingerUsage },
+  characters,
 }) {
-  const [freqTotal, freqTotals] = computeTotals(codesPressed);
+  const [freqTotal, freqTotals] = computeTotals(characters || {});
   const usableLayers = useMemo(() => {
+    if (!layers) {
+      return {};
+    }
     return Object.entries(layers)
-      .filter(([key]) => parseInt(key, 10) < 6)
+      .filter(([key]) => parseInt(key || 0, 10) < 6)
       .reduce((acc, [key, value]) => {
-        acc[key] = value;
+        acc[key] = value || 0;
         return acc;
       }, {});
   }, [layers]);
 
   const totalKeypresses = useMemo(
     () => getTotalKeyPresses(usableLayers),
-    [usableLayers]
+    [usableLayers],
   );
 
   const percent = useCallback(
     (v) => {
       return ((100 * v) / totalKeypresses.total).toFixed(2);
     },
-    [totalKeypresses.total]
+    [totalKeypresses.total],
   );
 
   const hand = useMemo(() => getTotalsByHand(usableLayers), [usableLayers]);
@@ -136,7 +141,7 @@ export default function StatsComponent({
                               </span>{" "}
                               <span>{percent(count)}%</span>
                             </li>
-                          )
+                          ),
                       )}
                     </ul>
                   </li>
@@ -170,7 +175,7 @@ export default function StatsComponent({
                             </span>{" "}
                             <span>{percent(count)}%</span>
                           </li>
-                        )
+                        ),
                     )}
                   </ul>
                 </li>
@@ -186,7 +191,7 @@ export default function StatsComponent({
                             </span>{" "}
                             <span>{percent(count)}%</span>
                           </li>
-                        )
+                        ),
                     )}
                   </ul>
                 </li>

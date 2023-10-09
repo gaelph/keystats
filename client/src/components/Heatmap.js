@@ -10,7 +10,7 @@ function formatData(matrix, total) {
   let max = total;
 
   Object.entries(matrix).forEach(([r, row]) => {
-    Object.entries(row).forEach(([c, col]) => {
+    Object.entries(row || {}).forEach(([c, col]) => {
       const entry = {
         x: (c + 1) * 6 + 24,
         y: (r + 1) * 6 + 24,
@@ -82,16 +82,20 @@ export default function HeatmapComponent({
             height: "100%",
           }}
         >
-          {console.log(layer) || null}
           {layer.map((layerRow, r) => (
             <div className="row">
-              {console.log(layerRow) || null}
               {layerRow.map((char, c) => (
                 <div
                   className="key"
-                  title={percent(data.layers[layerId][r][c]) + "%"}
+                  title={percent(data.layers?.[layerId]?.[r]?.[c] || 0) + "%"}
                 >
-                  <span>{formatKeyCode(char)?.toLocaleUpperCase()}</span>
+                  <span>
+                    {char[0].keycode !== ""
+                      ? formatKeyCode(char[0].keycode)?.toLocaleUpperCase()
+                      : char[1] && char[1].keycode !== ""
+                      ? formatKeyCode(char[1].keycode)?.toLocaleUpperCase()
+                      : ""}
+                  </span>
                 </div>
               ))}
             </div>

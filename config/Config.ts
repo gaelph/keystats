@@ -1,17 +1,25 @@
 import Path from "path";
 import fs from "fs/promises";
 
-export interface DeviceConfig {
-  vendorId: number;
-  productId: number;
-  usagePage: number;
-  usage: number;
-  name: string;
-}
+import { object, array, string, number, InferType } from "yup";
 
-interface ConfigObject {
-  devices: DeviceConfig[];
-}
+const deviceConfigSchema = object({
+  vendorId: number().required().transform(coerceHexStringToNumber),
+  productId: number().required().transform(coerceHexStringToNumber),
+  usagePage: number().required().transform(coerceHexStringToNumber),
+  usage: number().required().transform(coerceHexStringToNumber),
+  name: string().required().min(1),
+  fingerMap: array()
+    .of(array().of(number().min(0).max(9).required()).min(1).required())
+    .min(1)
+    .required(),
+});
+export type DeviceConfig = InferType<typeof deviceConfigSchema>;
+
+const configSchema = object({
+  devices: array().of(deviceConfigSchema).required().min(1),
+});
+export type ConfigObject = InferType<typeof configSchema>;
 
 function getHomedir(): string | undefined {
   return process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
@@ -31,73 +39,6 @@ function coerceHexStringToNumber(hexString: string | number): number {
     }
   }
   throw new Error("Invalid hex string or integer");
-}
-
-function coerceString(candidate: any): string {
-  if (!candidate) {
-    throw new Error("Invalid string");
-  }
-  const str = candidate.toString();
-  if (str.length == 0) {
-    throw new Error("Invalid string");
-  }
-
-  return str;
-}
-
-function coerceProperty<I, O>(
-  object: Record<string, I>,
-  key: string,
-  coercion: (_value: any) => O,
-): O {
-  if (Object.prototype.hasOwnProperty.call(object, key)) {
-    return coercion(object[key]);
-  }
-
-  throw new Error(`Property ${key} not found in object`);
-}
-
-type Schema<O> = {
-  [key in keyof O]?: (_value: any) => O[key];
-};
-
-function coerceObject<I extends Record<string, any>, O extends Object>(
-  object: I,
-  coercion: Schema<O>,
-): O {
-  return Object.entries(coercion)
-    .map(([key, coercionFunction]) => {
-      try {
-        const value = object[key];
-        return [key, coercionFunction(value)];
-      } catch (e: any) {
-        throw new Error(`${key}: ${e.message}`);
-      }
-    })
-    .reduce(
-      (acc, [key, value]) => ({ ...acc, [key]: value }),
-      {},
-    ) as unknown as O;
-}
-
-function coerceArray<I, O>(coercion: (_value: I) => O): (_object: I[]) => O[] {
-  return (object: I[]) => object.map(coercion);
-}
-
-function coerceDeviceConfig(object: Record<string, any>): DeviceConfig {
-  return coerceObject(object, {
-    name: coerceString,
-    vendorId: coerceHexStringToNumber,
-    productId: coerceHexStringToNumber,
-    usagePage: coerceHexStringToNumber,
-    usage: coerceHexStringToNumber,
-  });
-}
-
-function coerceConfigObject(object: Record<string, any>): ConfigObject {
-  return coerceObject(object, {
-    devices: coerceArray(coerceDeviceConfig),
-  });
 }
 
 export default class Config {
@@ -120,8 +61,22 @@ export default class Config {
     this.configPath = actualPath;
   }
 
-  private validateConfig(config: any): ConfigObject {
-    return coerceConfigObject(config);
+  #validateConfig(config: any): ConfigObject {
+    configSchema.validateSync(config);
+    const validConfig = configSchema.cast(config);
+
+    for (const deviceConfig of validConfig.devices) {
+      const rowLengths = new Set(
+        deviceConfig.fingerMap.map((row) => row.length),
+      );
+      if (rowLengths.size != 1) {
+        throw new Error(
+          "Each row of finger map must have the same number of columns",
+        );
+      }
+    }
+
+    return validConfig;
   }
 
   async load(): Promise<Config> {
@@ -130,7 +85,7 @@ export default class Config {
     }
 
     const json = await fs.readFile(this.configPath, "utf8");
-    const config = this.validateConfig(JSON.parse(json));
+    const config = this.#validateConfig(JSON.parse(json));
     this.devices = config.devices;
 
     return this;

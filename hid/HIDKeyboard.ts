@@ -11,6 +11,7 @@ import {
 import { CmdGetLayers, CmdGetLayersResponse } from "./CmdGetLayers.js";
 import { HID_EVENT, HID_CMD_UNKNOWN } from "./constants.js";
 import { DeviceConfig } from "../config/Config.js";
+import HIDEvent from "./HIDEvent.js";
 
 export type HIDCallback = (_messages: HIDMessage[]) => void;
 
@@ -53,7 +54,7 @@ function nextCallId(): number {
 export default class HIDKeyboard extends EventEmitter {
   hidDevice: HID.HID;
   deviceConfig: DeviceConfig;
-  logger = log.getLogger("HIDKeyboard");
+  #logger = log.getLogger("HIDKeyboard");
   messagePool: Map<string, HIDMessage[]> = new Map();
   callbacks: Map<number, HIDCallback> = new Map();
 
@@ -66,9 +67,31 @@ export default class HIDKeyboard extends EventEmitter {
     this.hidDevice.resume();
   }
 
+  is({
+    vendorId,
+    productId,
+  }: {
+    vendorId: number;
+    productId: number;
+  }): boolean {
+    return (
+      vendorId == this.deviceConfig.vendorId &&
+      productId == this.deviceConfig.productId
+    );
+  }
+
+  close() {
+    this.#logger.info("Closing HID keyboard");
+    this.removeAllListeners("event");
+    this.removeAllListeners();
+    this.hidDevice.close();
+    // @ts-ignore
+    this.hidDevice = null;
+  }
+
   private _setupHandler() {
     this.hidDevice.on("error", (error) => {
-      this.logger.error(error);
+      this.#logger.error(error);
     });
 
     this.hidDevice.on("data", (data) => {
@@ -93,11 +116,11 @@ export default class HIDKeyboard extends EventEmitter {
           switch (message.cmd) {
             case HID_EVENT:
               // handle the message
-              this.emit("event", messages);
+              this.emit("event", new HIDEvent(messages));
               break;
 
             case HID_CMD_UNKNOWN:
-              this.logger.warn(
+              this.#logger.warn(
                 "unknown command",
                 this.deviceConfig.name,
                 message.cmd,
@@ -110,7 +133,7 @@ export default class HIDKeyboard extends EventEmitter {
                 callback(messages);
                 this.callbacks.delete(message.callId);
               } else {
-                this.logger.warn(
+                this.#logger.warn(
                   "unknown command",
                   this.deviceConfig.name,
                   message.cmd,
@@ -125,7 +148,7 @@ export default class HIDKeyboard extends EventEmitter {
           this.messagePool.set(poolKey, messages);
         }
       } catch (error) {
-        this.logger.error(error);
+        this.#logger.error(error);
       }
     });
   }
@@ -183,14 +206,14 @@ export default class HIDKeyboard extends EventEmitter {
    * Sends a command to retrieive layer metatdata
    */
   private async _getLayerMetadata(): Promise<LayerMetadata> {
-    this.logger.info(this.deviceConfig.name, "Getting layer metadata");
+    this.#logger.info(this.deviceConfig.name, "Getting layer metadata");
 
     const messages = await this._sendCommand(
       new CmdGetLayersMetadata(nextCallId()),
     );
     const metadata = new CmdGetLayersMetadataResponse(messages);
 
-    this.logger.debug(
+    this.#logger.debug(
       this.deviceConfig.name,
       `layers: ${metadata.nLayers} | matrix dimensions: ${metadata.cols}x${metadata.rows}`,
     );
@@ -206,7 +229,7 @@ export default class HIDKeyboard extends EventEmitter {
    * Sends a command to retrieve layer data
    */
   private async _getLayerData(): Promise<CmdGetLayersResponse> {
-    this.logger.debug(this.deviceConfig.name, "Getting device layer data");
+    this.#logger.debug(this.deviceConfig.name, "Getting device layer data");
 
     const messages = await this._sendCommand(new CmdGetLayers(nextCallId()));
     const layerData = new CmdGetLayersResponse(messages);

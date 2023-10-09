@@ -32,6 +32,7 @@ export default class HIDMessage {
    * @param  [bytes]   Raw bytes from HID device
    */
   constructor(bytes?: Uint8Array) {
+    this.logger.disableAll();
     if (bytes && bytes instanceof Uint8Array) {
       this._bytes = bytes.slice(HEADER_SIZE, MESSAGE_LENGTH);
       const b = Array.from(bytes)

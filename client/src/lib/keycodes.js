@@ -172,15 +172,15 @@ const _normalKeycode = [
 
 const modifiers = ["CTRL", "⇧", "⌥", "CMD", "CTRL", "⇧", "⌥", "CMD"];
 
-function isModifier(kc) {
+export function isModifier(kc) {
   return (kc & 0xef) - 0xe0 >= 0;
 }
 
-function isLayerMod(kc) {
+export function isLayerMod(kc) {
   return (kc & QK.QK_LAYER_MOD) !== 0 && kc <= QK.QK_LAYER_MOD_MAX;
 }
 
-function isLayerTap(kc) {
+export function isLayerTap(kc) {
   return (kc & QK.QK_LAYER_TAP) !== 0 && kc <= QK.QK_LAYER_TAP_MAX;
 }
 
@@ -218,6 +218,13 @@ export function getModifierFromModTap(kc) {
   }
 
   return 0;
+}
+
+export function getLayerFromLayerTap(kc) {
+  const upper = kc & ~QK.QK_BASIC_MAX;
+  const layer = (upper & ~QK.QK_LAYER_TAP) >> 8;
+
+  return layer;
 }
 
 export function modifierBitfieldToMaskedModifiers(mods) {
@@ -297,7 +304,7 @@ function formatModifier(kc) {
   return modifiers[(kc & 0xef) - 0xe0];
 }
 
-function hasModifier(kc) {
+export function hasModifier(kc) {
   return (
     (kc &
       (QK.QK_LALT |
@@ -376,7 +383,7 @@ function formatLayerTap(kc) {
 }
 
 export function isCustomKeycode(kc) {
-  return Object.keys(custom_keycodes).includes(kc);
+  return Object.keys(custom_keycodes).includes(kc.toString(10));
 }
 
 export function formatKeyCode(k) {
@@ -396,10 +403,6 @@ export function formatKeyCode(k) {
 
   if (custom_keycodes[kc]) {
     return custom_keycodes[kc];
-  }
-
-  if (base >= 0xe0 && base <= 0xef) {
-    console.log("modifier", k);
   }
 
   if (isModifier(base)) {

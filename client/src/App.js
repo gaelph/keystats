@@ -1,9 +1,12 @@
 import "./App.css";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 
 import useData from "./hooks/useData.js";
-import useLayers from "./hooks/useLayers.js";
+import useCounts from "./hooks/useCounts.js";
+import useKeyboards from "./hooks/useKeyboards.js";
+import useKeymaps from "./hooks/useKeymaps.js";
+import useCharacters from "./hooks/useCharacters.js";
 import HeatmapComponent from "./components/Heatmap.js";
 import StatsComponent from "./components/Stats.js";
 import { getTotalKeyPresses } from "./lib/sums.js";
@@ -14,19 +17,29 @@ function getUsableLayers(layers) {
 
 function App() {
   const [data, loading, error, refresh] = useData();
-  const [layers, loadingLayers, errorLayers, refreshLayers] = useLayers();
+  const [keyboard, setKeyboard] = useState(null);
+  const [keyboards, loadingKeyboards, errorKeyboards /*, refreshKeyboards*/] =
+    useKeyboards();
+  const [keymaps, loadingKeymaps, errorKeymaps, refreshKeymaps] =
+    useKeymaps(keyboard);
+  const [characters, loadingCharacters, errorCharacters, refreshCharacters] =
+    useCharacters(keyboard);
+  const [counts, loadingCounts, errorCounts, refreshCounts] =
+    useCounts(keyboard);
 
   const refreshAllData = useCallback(() => {
     refresh();
-    refreshLayers();
-  }, [refresh, refreshLayers]);
+    refreshKeymaps();
+    refreshCounts();
+    refreshCharacters();
+  }, [refresh, refreshCharacters, refreshCounts, refreshKeymaps]);
 
   const usableLayers = useMemo(() => {
-    if (data && data.layers) {
-      return getUsableLayers(data.layers);
+    if (counts) {
+      return getUsableLayers(counts);
     }
     return null;
-  }, [data]);
+  }, [counts]);
 
   const totalKeyPresses = useMemo(() => {
     if (usableLayers) {
@@ -35,39 +48,67 @@ function App() {
     return null;
   }, [usableLayers]);
 
+  useEffect(() => {
+    if (keyboards && Array.isArray(keyboards) && keyboards.length > 0) {
+      setKeyboard(keyboards[0]);
+    }
+  }, [keyboards]);
+
   return (
     <div className="App">
       <header>
-        {(loading || loadingLayers) && <div>Loading...</div>}
-        {(error || errorLayers) && <div>{error || errorLayers}</div>}
+        {keyboard && keyboard.name && <h1>{keyboard.name}</h1>}
+        {(loading ||
+          loadingKeyboards ||
+          loadingKeymaps ||
+          loadingCounts ||
+          loadingCharacters) && <div>Loading...</div>}
+        {(error ||
+          errorKeyboards ||
+          errorKeymaps ||
+          errorCounts ||
+          errorCharacters) && (
+          <div>
+            {error ||
+              errorKeyboards ||
+              errorKeymaps ||
+              errorCounts ||
+              errorCharacters}
+          </div>
+        )}
         {data && !loading && <button onClick={refreshAllData}>Refresh</button>}
       </header>
       <div class="content-container">
         <div class="layer-container">
-          {data && layers && (
+          {data && keymaps && (
             <ul>
-              {usableLayers.map((matrix, layerId) => {
-                if (matrix === null || matrix === undefined) return null;
-                if (!layers[layerId]) return null;
-                return (
-                  <li key={layerId}>
-                    <HeatmapComponent
-                      data={data}
-                      matrix={matrix}
-                      layerId={layerId}
-                      layer={layers[layerId]}
-                      layerTotal={totalKeyPresses.byLayer[layerId]}
-                      total={totalKeyPresses.total}
-                    />
-                  </li>
-                );
-              })}
+              {usableLayers &&
+                usableLayers.map((matrix, layerId) => {
+                  if (matrix === null || matrix === undefined) return null;
+                  if (!keymaps[layerId]) return null;
+                  return (
+                    <li key={layerId}>
+                      <HeatmapComponent
+                        data={data}
+                        matrix={matrix}
+                        layerId={layerId}
+                        layer={keymaps[layerId]}
+                        layerTotal={totalKeyPresses.byLayer[layerId]}
+                        total={totalKeyPresses.total}
+                      />
+                    </li>
+                  );
+                })}
             </ul>
           )}
         </div>
         {data && (
           <div class="stats-container">
-            <StatsComponent data={data} />
+            <StatsComponent
+              data={data}
+              counts={counts}
+              characters={characters}
+            />
           </div>
         )}
       </div>

@@ -2,9 +2,9 @@ import { useReducer, useCallback, useEffect } from "react";
 import { setLoading, setError, setData } from "../store/actions.js";
 import dataReducer from "../store/reducer.js";
 
-import { getLayerData } from "../lib/api.js";
+import { getKeyboardKeymaps } from "../lib/api.js";
 
-export default function useData() {
+export default function useData(keyboard) {
   const [state, dispatch] = useReducer(dataReducer, {
     loading: false,
     error: null,
@@ -12,9 +12,12 @@ export default function useData() {
   });
 
   const fetchData = useCallback(async () => {
+    if (!keyboard) {
+      return;
+    }
     dispatch(setLoading(true));
     try {
-      const data = await getLayerData();
+      const data = await getKeyboardKeymaps(keyboard.id);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
@@ -22,7 +25,7 @@ export default function useData() {
     } finally {
       dispatch(setLoading(false));
     }
-  }, []);
+  }, [keyboard]);
 
   useEffect(() => {
     fetchData();
