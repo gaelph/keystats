@@ -5,6 +5,8 @@ import Url from "url";
 import KeyboardRepo from "./repository/keyboardRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
 import LayerRepo from "./repository/layerRepo.js";
+import HandService from "./handService.js";
+import FingerService from "./fingerService.js";
 
 import Keyboard from "./models/keyboard.js";
 
@@ -30,6 +32,8 @@ export default class KeyboardService {
   #layerRepo: LayerRepo;
   #keysRepo: KeysRepo;
   #recordService: RecordService;
+  #handService: HandService;
+  #fingerService: FingerService;
   #keyHandler: KeyHandler;
   #keyboardId: number = 0;
 
@@ -40,12 +44,16 @@ export default class KeyboardService {
     layerRepo: LayerRepo,
     keysRepo: KeysRepo,
     recordService: RecordService,
+    handService: HandService,
+    fingerService: FingerService,
     keyHandler: KeyHandler,
   ) {
     this.#keyboardRepo = keyboardRepo;
     this.#layerRepo = layerRepo;
     this.#keysRepo = keysRepo;
     this.#recordService = recordService;
+    this.#handService = handService;
+    this.#fingerService = fingerService;
     this.#keyHandler = keyHandler;
   }
 
@@ -139,6 +147,8 @@ export default class KeyboardService {
     layer: number;
     modifiers?: number;
   }) {
+    this.#logger.debug("Adding keyboard record", params);
+    console.debug("Adding keyboard record", params);
     try {
       this.#recordService.addRecord(
         this.#keyboardId,
@@ -152,6 +162,18 @@ export default class KeyboardService {
     } catch (error) {
       this.#logger.error("Failed to add keyboard record", error);
     }
+
+    this.#handService.incrementHandUsage(
+      this.#keyboardId,
+      params.col,
+      params.row,
+    );
+
+    this.#fingerService.incrementFingerUsage(
+      this.#keyboardId,
+      params.col,
+      params.row,
+    );
   }
 
   async handleKeyboard(hidKeyboard: HIDKeyboard) {
@@ -160,8 +182,8 @@ export default class KeyboardService {
       this.#keyHandler.handleHIDEvent.bind(this.#keyHandler),
     );
 
-    this.#keyHandler.on("plainKey", (event) => {
-      this.#logger.info("plain", event);
+    this.#keyHandler.on("key", (event) => {
+      this.#logger.info("key", event);
 
       this.addKeyboardRecord({
         keycode: event.keycode,
@@ -170,28 +192,6 @@ export default class KeyboardService {
         row: event.row,
         layer: event.layer,
         type: KeymapType.Plain,
-      });
-    });
-
-    this.#keyHandler.on("modifierKey", (event) => {
-      this.#logger.info("modifier", event);
-      this.addKeyboardRecord({
-        keycode: event.keycode,
-        col: event.col,
-        row: event.row,
-        layer: event.layer,
-        type: event.type,
-      });
-    });
-
-    this.#keyHandler.on("layerKey", (event) => {
-      this.#logger.info("layer", event);
-      this.addKeyboardRecord({
-        keycode: event.keycode,
-        col: event.col,
-        row: event.row,
-        layer: event.layer,
-        type: event.type,
       });
     });
 

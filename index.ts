@@ -15,6 +15,10 @@ import KeyHandler from "./lib/eventHandler.js";
 
 import type HIDKeyboard from "./hid/HIDKeyboard.js";
 import RecordService from "./service/recordService.js";
+import HandService from "./service/handService.js";
+import HandUsageRepo from "./service/repository/handUsagerRepo.js";
+import FingerService from "./service/fingerService.js";
+import FingerUsageRepo from "./service/repository/fingerUsageRepo.js";
 
 logPrefix.reg(log);
 logPrefix.apply(log, {
@@ -31,6 +35,8 @@ async function main() {
     new LayerRepo(db),
     new KeysRepo(db),
     new RecordService(new RecordRepo(db)),
+    new HandService(new HandUsageRepo(db), new KeysRepo(db)),
+    new FingerService(new FingerUsageRepo(db), new KeysRepo(db)),
     new KeyHandler(),
   );
 

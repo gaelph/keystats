@@ -57,3 +57,15 @@ export async function getCharacterCounts(keyboardId) {
   const responseJson = await response.json();
   return responseJson.records;
 }
+
+export async function getHandAndFingerUsage(keyboardId) {
+  const response = await fetch(
+    API_URL + "/api/keyboards/" + keyboardId + "/handAndFingerUsage",
+  );
+  if (response.status !== 200) {
+    throw new Error(`Error fetching data: ${response.status}`);
+  }
+
+  const responseJson = await response.json();
+  return responseJson;
+}

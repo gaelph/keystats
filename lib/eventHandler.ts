@@ -153,6 +153,67 @@ export default class KeyHandler extends EventEmitter {
     // this.#logger.disableAll();
   }
 
+  incrementHandCount(hand: "left" | "right") {
+    if (hand == "left") {
+      currentLeftHandCount += 1;
+      if (this.#lastHandUsed === "right") {
+        const previousRightHandCount =
+          storage.handUsage[1][currentRightHandCount] || 0;
+        storage.handUsage[1][currentRightHandCount] =
+          previousRightHandCount + currentRightHandCount;
+      }
+      currentRightHandCount = 0;
+      this.#lastHandUsed = hand;
+    } else {
+      currentRightHandCount += 1;
+      if (lastHandUsed === "left") {
+        const previousLeftHandCount =
+          storage.handUsage[0][currentLeftHandCount] || 0;
+        storage.handUsage[0][currentLeftHandCount] =
+          previousLeftHandCount + currentLeftHandCount;
+      }
+      currentLeftHandCount = 0;
+      lastHandUsed = "right";
+    }
+  }
+
+  incrementFingerCount(row: number, col: number) {
+    const finger = getFingerForCoordinates(row, col);
+    // log.debug("FINGER", finger, row, col);
+    if (finger === null) return;
+
+    if (
+      !storage.fingerUsage[lastFingerUsed] ||
+      typeof storage.fingerUsage[lastFingerUsed] !== "object"
+    ) {
+      storage.fingerUsage[lastFingerUsed] = {};
+    }
+
+    if (
+      !storage.fingerUsage[finger] ||
+      typeof storage.fingerUsage[lastFingerUsed] !== "object"
+    ) {
+      storage.fingerUsage[finger] = {};
+    }
+
+    if (finger !== lastFingerUsed) {
+      // log.debug(`Finger ${finger} used`);
+      const previousFingerCount =
+        storage.fingerUsage[lastFingerUsed][currentFingerCount] || 0;
+      storage.fingerUsage[lastFingerUsed][currentFingerCount] =
+        previousFingerCount + currentFingerCount;
+      // log.debug(
+      //   `-- Previous finger ${lastFingerUsed} was used ${currentFingerCount} times`,
+      // );
+
+      currentFingerCount = 1;
+      lastFingerUsed = finger;
+    } else {
+      // log.debug(`Same finger ${finger} ${currentFingerCount}`);
+      currentFingerCount++;
+    }
+  }
+
   emitPlain(
     keycode: number,
     mods: number,

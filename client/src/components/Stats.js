@@ -31,7 +31,7 @@ const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 
 export default function StatsComponent({
   counts: layers,
-  data: { handUsage, fingerUsage },
+  handAndFingerUsage,
   characters,
 }) {
   const [freqTotal, freqTotals] = computeTotals(characters || {});
@@ -62,6 +62,9 @@ export default function StatsComponent({
   const hand = useMemo(() => getTotalsByHand(usableLayers), [usableLayers]);
   const finger = useMemo(() => getTotalsByFinger(usableLayers), [usableLayers]);
   const row = useMemo(() => getTotalByRow(usableLayers), [usableLayers]);
+
+  const fingerUsage = handAndFingerUsage?.fingerUsage;
+  const handUsage = handAndFingerUsage?.handUsage;
 
   return (
     <Tabs>
@@ -132,9 +135,9 @@ export default function StatsComponent({
                   <li key={`same-finger-use-${idx}`}>
                     <h5>{FINGER_NAMES[idx]}</h5>
                     <ul>
-                      {Object.entries(finger).map(
-                        ([ntimes, count], idx) =>
-                          parseFloat(percent(count)) >= 1 && (
+                      {finger.map(
+                        (count, ntimes) =>
+                          parseFloat(percent(count || 0)) >= 1 && (
                             <li key={`same-finger-use-${idx}-${ntimes}`}>
                               <span>
                                 <strong>Used {ntimes} times in a row:</strong>
@@ -166,10 +169,10 @@ export default function StatsComponent({
                 <li>
                   <h5>Left Hand</h5>
                   <ul>
-                    {Object.entries(handUsage[0]).map(
-                      ([ntimes, count], idx) =>
-                        parseFloat(percent(count)) >= 2 && (
-                          <li key={`left_hand_same_use_${idx}`}>
+                    {handUsage[0].map(
+                      (count, ntimes) =>
+                        parseFloat(percent(count || 0)) >= 2 && (
+                          <li key={`left_hand_same_use_${ntimes}_${count}`}>
                             <span>
                               <strong>Used {ntimes} times in a row:</strong>
                             </span>{" "}

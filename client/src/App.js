@@ -7,6 +7,7 @@ import useCounts from "./hooks/useCounts.js";
 import useKeyboards from "./hooks/useKeyboards.js";
 import useKeymaps from "./hooks/useKeymaps.js";
 import useCharacters from "./hooks/useCharacters.js";
+import useHandAndFingerUsage from "./hooks/useHandAndFingerUsage.js";
 import HeatmapComponent from "./components/Heatmap.js";
 import StatsComponent from "./components/Stats.js";
 import { getTotalKeyPresses } from "./lib/sums.js";
@@ -26,13 +27,26 @@ function App() {
     useCharacters(keyboard);
   const [counts, loadingCounts, errorCounts, refreshCounts] =
     useCounts(keyboard);
+  const [
+    handAndFingerUsage,
+    loadingHandAndFingerUsage,
+    errorHandAndFingerUsage,
+    refreshHandAndFingerUsage,
+  ] = useHandAndFingerUsage(keyboard);
 
   const refreshAllData = useCallback(() => {
     refresh();
     refreshKeymaps();
     refreshCounts();
     refreshCharacters();
-  }, [refresh, refreshCharacters, refreshCounts, refreshKeymaps]);
+    refreshHandAndFingerUsage();
+  }, [
+    refresh,
+    refreshCharacters,
+    refreshCounts,
+    refreshHandAndFingerUsage,
+    refreshKeymaps,
+  ]);
 
   const usableLayers = useMemo(() => {
     if (counts) {
@@ -62,11 +76,13 @@ function App() {
           loadingKeyboards ||
           loadingKeymaps ||
           loadingCounts ||
+          loadingHandAndFingerUsage ||
           loadingCharacters) && <div>Loading...</div>}
         {(error ||
           errorKeyboards ||
           errorKeymaps ||
           errorCounts ||
+          errorHandAndFingerUsage ||
           errorCharacters) && (
           <div>
             {error ||
@@ -106,6 +122,7 @@ function App() {
           <div class="stats-container">
             <StatsComponent
               data={data}
+              handAndFingerUsage={handAndFingerUsage}
               counts={counts}
               characters={characters}
             />

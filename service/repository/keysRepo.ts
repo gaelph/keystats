@@ -76,6 +76,26 @@ export default class KeysRepo implements Repository<Key> {
     return new Key(row);
   }
 
+  async getAtCoordinates(
+    keyboardId: number,
+    column: number,
+    row: number,
+  ): Promise<Key | null> {
+    const query = this.#db(Key.table).where({
+      keyboardId,
+      column,
+      row,
+    });
+
+    const result = await query.first();
+    if (!result) {
+      console.log(`Key not found: ${keyboardId}, ${column}, ${row}`);
+      return null;
+    }
+
+    return new Key(result);
+  }
+
   async getAll(): Promise<Key[]> {
     const rows = await this.#db(Key.table).select("*");
     return rows.map((row) => new Key(row));
