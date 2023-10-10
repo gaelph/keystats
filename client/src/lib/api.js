@@ -16,7 +16,6 @@ export async function listKeyboards() {
   }
 
   const responseJson = await response.json();
-  console.log("LS -> src/lib/api.js:18 -> responseJson: ", responseJson);
   return responseJson.keyboards;
 }
 

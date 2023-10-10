@@ -127,7 +127,6 @@ export default class RecordRepo implements Repository<Record> {
       console.log(sql.sql, sql.bindings);
       return null;
     }
-    console.log("found keymap", keymap);
 
     const record = new Record({
       modifiers,
@@ -157,7 +156,6 @@ export default class RecordRepo implements Repository<Record> {
       .first();
 
     const exists = await query;
-    console.log("exists", exists);
 
     // Create a new record if it is the first one today
     if (!exists) {
@@ -177,17 +175,13 @@ export default class RecordRepo implements Repository<Record> {
       record.id = rec.id;
     } else {
       // Otherwise, increment the count
-      const result = await this.#db(Record.table)
+      const [result] = await this.#db(Record.table)
         .where("id", exists.id)
         .increment("counts", 1)
-        .returning(["counts"]);
-      console.log(
-        "LS -> service/repository/recordRepo.ts:177 -> result: ",
-        result,
-      );
+        .returning(["id", "counts"]);
 
-      record.id = exists.id;
-      record.counts = exists.counts + 1;
+      record.id = result.id;
+      record.counts = result.counts + 1;
     }
 
     console.log(record);

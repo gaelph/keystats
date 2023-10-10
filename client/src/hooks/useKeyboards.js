@@ -15,7 +15,6 @@ export default function useData() {
     dispatch(setLoading(true));
     try {
       const data = await listKeyboards();
-      console.log("LS -> src/hooks/useKeyboards.js:17 -> data: ", data);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);

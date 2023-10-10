@@ -28,10 +28,7 @@ function formatData(matrix, total) {
     return e;
   });
   max = entries.map((e) => e.value).reduce((m, e) => (e > m ? e : m), 0);
-  // let min = 0;
   let min = entries.map((e) => e.value).reduce((m, e) => (e < m ? e : m), 0);
-  // max = 1;
-  // console.log(entries);
 
   return {
     max,

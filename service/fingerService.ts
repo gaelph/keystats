@@ -79,15 +79,7 @@ export default class FingerService {
     if (this.currentFinger !== key.finger) {
       const otherFinger = this.currentFinger;
       this.currentFinger = key.finger;
-      console.log(
-        "LS -> service/fingerService.ts:82 -> otherFinger: ",
-        otherFinger,
-      );
       const otherCount = this.currentCount[otherFinger];
-      console.log(
-        "LS -> service/fingerService.ts:87 -> otherCount: ",
-        otherCount,
-      );
 
       if (otherCount > 0) {
         this.#logger.debug(

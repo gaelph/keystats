@@ -7,19 +7,8 @@ function sortTotals(totals) {
 export function computeTotals(data) {
   const totals = Object.entries(data).reduce((sums, [_code, d]) => {
     const modsToAdd = keycodes.modifierBitfieldToMaskedModifiers(d.modifiers);
-    if (d.keycode === "2a") {
-      console.log(d);
-    }
-    // d.modifiers =
-    //   parseInt(d.modifiers, 16) | ((parseInt(d.keycode, 16) & 0x1fff) >> 8);
-    // d.modifiers = d.modifiers.toString(16);
     let c = parseInt(d.keycode, 16);
     c |= modsToAdd;
-
-    // if (keycodes.isCustomKeycode(c)) {
-    //   sums[keycodes.formatKeycode(d.keycode)] = d.count;
-    //   return sums;
-    // }
 
     const l = keycodes.formatKeyCode(c.toString(16));
     if (l !== undefined) {

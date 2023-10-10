@@ -138,18 +138,7 @@ export default class LayerRepo implements Repository<Layer> {
         layerMapping,
         async (row, rowIndex) =>
           await parallelMap(row, async (keycode, colIndex) => {
-            console.log(
-              "keycode: " +
-                keycode +
-                " colIndex: " +
-                colIndex +
-                " rowIndex: " +
-                rowIndex,
-            );
             const [base, type, alter] = Keycodes.getEncodedKeycode(keycode);
-            console.log(
-              "base: " + base + " type: " + type + " alter: " + alter,
-            );
 
             const key = await this.getKey(colIndex, rowIndex);
             const plains = await this.createKeymap(

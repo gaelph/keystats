@@ -18,7 +18,6 @@ export default function useCharacters(keyboard) {
     dispatch(setLoading(true));
     try {
       const data = await getCharacterCounts(keyboard.id);
-      console.log("LS -> client/src/hooks/useCharacters.js:20 -> data: ", data);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);

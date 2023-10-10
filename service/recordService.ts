@@ -57,7 +57,6 @@ export default class RecordService {
 
   async getTotalCounts(keyboardId: number): Promise<number[][][]> {
     const counts = await this.#recordRepo.getTotalCounts(keyboardId);
-    console.log("LS -> service/recordService.ts:59 -> counts: ", counts);
     const groupedCounts: number[][][] = [];
     for (const countRow of counts) {
       const { layer, row, column } = countRow;
