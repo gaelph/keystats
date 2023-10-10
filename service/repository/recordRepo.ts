@@ -184,8 +184,6 @@ export default class RecordRepo implements Repository<Record> {
       record.counts = result.counts + 1;
     }
 
-    console.log(record);
-
     return record;
   }
 

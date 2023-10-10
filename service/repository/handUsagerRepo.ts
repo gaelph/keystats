@@ -88,10 +88,16 @@ export default class HandUsageRepo implements Repository<HandUsage> {
     hand: number,
     repeats: number,
   ): Promise<HandUsage> {
+    const date = new Date();
+    const today = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+
     const exists = await this.#db(HandUsage.table)
       .where({
         keyboardId: keyboardId,
         hand: hand,
+        date: today,
         repeats: repeats,
       })
       .first();
@@ -101,6 +107,7 @@ export default class HandUsageRepo implements Repository<HandUsage> {
         keyboardId: keyboardId,
         hand: hand,
         repeats: repeats,
+        date: today,
         count: 1,
       });
 

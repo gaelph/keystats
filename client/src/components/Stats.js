@@ -29,6 +29,8 @@ const FINGER_NAMES = [
 
 const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 
+const p = (v, total) => ((100 * v) / total).toFixed(2);
+
 export default function StatsComponent({
   counts: layers,
   handAndFingerUsage,
@@ -64,7 +66,17 @@ export default function StatsComponent({
   const row = useMemo(() => getTotalByRow(usableLayers), [usableLayers]);
 
   const fingerUsage = handAndFingerUsage?.fingerUsage;
+  const fingerUsageSumPerFinger = useMemo(() => {
+    return fingerUsage?.map((counts) => {
+      return counts.reduce((acc, usage) => acc + usage, 0);
+    });
+  }, [fingerUsage]);
   const handUsage = handAndFingerUsage?.handUsage;
+  const handUsageSumPerHand = useMemo(() => {
+    return handUsage?.map((counts) => {
+      return counts.reduce((acc, usage) => acc + usage, 0);
+    });
+  }, [handUsage]);
 
   return (
     <Tabs>
@@ -131,18 +143,23 @@ export default function StatsComponent({
                 Counts below 1% are discarded.
               </p>
               <ul>
-                {fingerUsage.map((finger, idx) => (
+                {fingerUsage.map((f, idx) => (
                   <li key={`same-finger-use-${idx}`}>
                     <h5>{FINGER_NAMES[idx]}</h5>
                     <ul>
-                      {finger.map(
+                      {f.map(
                         (count, ntimes) =>
-                          parseFloat(percent(count || 0)) >= 1 && (
+                          parseFloat(
+                            p(count || 0, fingerUsageSumPerFinger[idx]),
+                          ) >= 1 &&
+                          ntimes >= 2 && (
                             <li key={`same-finger-use-${idx}-${ntimes}`}>
                               <span>
                                 <strong>Used {ntimes} times in a row:</strong>
                               </span>{" "}
-                              <span>{percent(count)}%</span>
+                              <span>
+                                {p(count, fingerUsageSumPerFinger[idx])}%
+                              </span>
                             </li>
                           ),
                       )}
@@ -171,12 +188,16 @@ export default function StatsComponent({
                   <ul>
                     {handUsage[0].map(
                       (count, ntimes) =>
-                        parseFloat(percent(count || 0)) >= 2 && (
+                        parseFloat(p(count || 0, handUsageSumPerHand[0])) >=
+                          2 &&
+                        ntimes >= 2 && (
                           <li key={`left_hand_same_use_${ntimes}_${count}`}>
                             <span>
                               <strong>Used {ntimes} times in a row:</strong>
                             </span>{" "}
-                            <span>{percent(count)}%</span>
+                            <span>
+                              {p(count || 0, handUsageSumPerHand[0])}%
+                            </span>
                           </li>
                         ),
                     )}
@@ -187,12 +208,17 @@ export default function StatsComponent({
                   <ul>
                     {Object.entries(handUsage[1]).map(
                       ([ntimes, count], idx) =>
-                        parseFloat(percent(count)) >= 2 && (
+                        parseFloat(
+                          percent(count || 0, handUsageSumPerHand[1]),
+                        ) >= 2 &&
+                        ntimes >= 2 && (
                           <li key={`right_hand_same_use_${idx}`}>
                             <span>
                               <strong>Used {ntimes} times in a row:</strong>
                             </span>{" "}
-                            <span>{percent(count)}%</span>
+                            <span>
+                              {p(count || 0, handUsageSumPerHand[1])}%
+                            </span>
                           </li>
                         ),
                     )}

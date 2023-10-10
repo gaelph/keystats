@@ -109,11 +109,17 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
     finger: number,
     repeats: number,
   ): Promise<FingerUsage> {
+    const date = new Date();
+    const today = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+
     const exists = await this.#db(FingerUsage.table)
       .where({
         keyboardId: keyboardId,
         finger: finger,
         repeats: repeats,
+        date: today,
       })
       .first();
 
@@ -121,6 +127,7 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
       const data = this.build({
         keyboardId: keyboardId,
         finger: finger,
+        date: today,
         repeats: repeats,
         count: 1,
       });
