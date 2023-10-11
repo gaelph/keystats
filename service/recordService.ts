@@ -5,8 +5,8 @@ import RecordRepo from "./repository/recordRepo.js";
 export default class RecordService {
   #recordRepo: RecordRepo;
 
-  constructor(recordRepo: RecordRepo) {
-    this.#recordRepo = recordRepo;
+  constructor() {
+    this.#recordRepo = new RecordRepo();
   }
 
   async addRecord(

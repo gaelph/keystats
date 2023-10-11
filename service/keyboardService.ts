@@ -1,9 +1,6 @@
-import Fs from "fs/promises";
-import Path from "path";
-import Url from "url";
-
 import KeyboardRepo from "./repository/keyboardRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
+import KeymapRepo from "./repository/keymapRepo.js";
 import LayerRepo from "./repository/layerRepo.js";
 import HandService from "./handService.js";
 import FingerService from "./fingerService.js";
@@ -13,12 +10,10 @@ import Keyboard from "./models/keyboard.js";
 import type HIDKeyboard from "../hid/HIDKeyboard.js";
 import KeyHandler from "../lib/eventHandler.js";
 
-const __dirname = Url.fileURLToPath(new URL("..", import.meta.url));
-const LAYERS_PATH = Path.join(__dirname, "data", "layers.json");
-
 import log from "loglevel";
 import RecordService from "./recordService.js";
 import { KeymapType } from "./models/keymap.js";
+import LayerService from "./layerService.js";
 
 interface CreateKeyboardPayload {
   name: string;
@@ -31,30 +26,32 @@ export default class KeyboardService {
   #keyboardRepo: KeyboardRepo;
   #layerRepo: LayerRepo;
   #keysRepo: KeysRepo;
-  #recordService: RecordService;
-  #handService: HandService;
+  #keymapRepo: KeymapRepo;
   #fingerService: FingerService;
+  #handService: HandService;
+  #layerService: LayerService;
+  #recordService: RecordService;
   #keyHandler: KeyHandler;
   #keyboardId: number = 0;
 
   #logger = log.getLogger("KeyboardService");
 
   constructor(
-    keyboardRepo: KeyboardRepo,
-    layerRepo: LayerRepo,
-    keysRepo: KeysRepo,
-    recordService: RecordService,
-    handService: HandService,
-    fingerService: FingerService,
-    keyHandler: KeyHandler,
+    recordService?: RecordService,
+    handService?: HandService,
+    fingerService?: FingerService,
+    layerService?: LayerService,
+    keyHandler?: KeyHandler,
   ) {
-    this.#keyboardRepo = keyboardRepo;
-    this.#layerRepo = layerRepo;
-    this.#keysRepo = keysRepo;
-    this.#recordService = recordService;
-    this.#handService = handService;
-    this.#fingerService = fingerService;
-    this.#keyHandler = keyHandler;
+    this.#keyboardRepo = new KeyboardRepo();
+    this.#layerRepo = new LayerRepo();
+    this.#keysRepo = new KeysRepo();
+    this.#keymapRepo = new KeymapRepo();
+    this.#recordService = recordService || new RecordService();
+    this.#handService = handService || new HandService();
+    this.#fingerService = fingerService || new FingerService();
+    this.#layerService = layerService || new LayerService();
+    this.#keyHandler = keyHandler || new KeyHandler();
   }
 
   async createKeyboard({
@@ -62,56 +59,73 @@ export default class KeyboardService {
     vendorId,
     productId,
     fingerMap,
-  }: CreateKeyboardPayload): Promise<Keyboard> {
-    const keyboard = await this.#keyboardRepo.create({
-      name,
-      vendorId,
-      productId,
-    });
+  }: CreateKeyboardPayload): Promise<Keyboard | null> {
+    try {
+      const keyboard = await this.#keyboardRepo.create({
+        name,
+        vendorId,
+        productId,
+      });
 
-    keyboard.keys = await this.#keysRepo.createKeysWithLayout(
-      keyboard.id,
-      fingerMap,
-    );
+      keyboard.keys = await this.#keysRepo.createKeysWithLayout(
+        keyboard.id!,
+        fingerMap,
+      );
 
-    return keyboard;
+      return keyboard;
+    } catch (err) {
+      this.#logger.error(err);
+      return null;
+    }
   }
 
   async listKeyboards(): Promise<Keyboard[]> {
-    return this.#keyboardRepo.getAll();
+    try {
+      return this.#keyboardRepo.getAll();
+    } catch (err) {
+      this.#logger.error(err);
+    }
+
+    return [];
   }
 
   async getKeymap(
     keyboardId: number,
   ): Promise<{ keycode: string; type: string }[][][][]> {
-    const layerMap = await this.#layerRepo.getKeyboardKeymaps(keyboardId);
-    const layers: { keycode: string; type: string }[][][][] = [[[[]]]];
+    try {
+      const layerMap = await this.#keymapRepo.getKeyboardKeymaps(keyboardId);
+      const layers: { keycode: string; type: string }[][][][] = [[[[]]]];
 
-    for (const [layerId, keymaps] of layerMap.entries()) {
-      if (!layers[layerId]) {
-        layers[layerId] = [];
-      }
-      for (const keymap of keymaps) {
-        if (!layers[layerId][keymap.key!.row]) {
-          layers[layerId][keymap.key!.row] = [];
+      for (const [layerId, keymaps] of layerMap.entries()) {
+        if (!layers[layerId]) {
+          layers[layerId] = [];
         }
-        if (!layers[layerId][keymap.key!.row][keymap.key!.column]) {
-          layers[layerId][keymap.key!.row][keymap.key!.column] = [];
+        for (const keymap of keymaps) {
+          if (!layers[layerId][keymap.key!.row]) {
+            layers[layerId][keymap.key!.row] = [];
+          }
+          if (!layers[layerId][keymap.key!.row][keymap.key!.column]) {
+            layers[layerId][keymap.key!.row][keymap.key!.column] = [];
+          }
+          layers[layerId][keymap.key!.row][keymap.key!.column].push({
+            keycode: keymap.keycode,
+            type: keymap.type,
+          });
         }
-        layers[layerId][keymap.key!.row][keymap.key!.column].push({
-          keycode: keymap.keycode,
-          type: keymap.type,
-        });
       }
+
+      return layers;
+    } catch (err) {
+      this.#logger.error(err);
     }
 
-    return layers;
+    return [];
   }
 
   async saveKeyboardKeymap(
     keyboard: Keyboard,
     keymap: string[][][],
-  ): Promise<Keyboard> {
+  ): Promise<Keyboard | null> {
     let keyboardId = 0;
     if (keyboard instanceof Keyboard && keyboard.id) {
       keyboardId = keyboard.id;
@@ -119,24 +133,30 @@ export default class KeyboardService {
       throw new Error("Invalid keyboard id");
     }
 
-    const layers = await Promise.all(
-      keymap.map(async (layout, index) => {
-        let layer = this.#layerRepo.build({ keyboardId, index });
-        layer = await this.#layerRepo.create(layer);
-        this.#logger.debug(`Created layer ${layer.id}`);
-        const keymaps = await this.#layerRepo.createLayerMapping(
-          layer.index,
-          layout,
-        );
-        layer.keymaps = keymaps;
+    try {
+      const layers = await Promise.all(
+        keymap.map(async (layout, index) => {
+          let layer = this.#layerRepo.build({ keyboardId, index });
+          layer = await this.#layerRepo.create(layer);
+          this.#logger.debug(`Created layer ${layer.id}`);
+          const keymaps = await this.#layerService.createLayerMapping(
+            keyboard.id!,
+            layer.index,
+            layout,
+          );
+          layer.keymaps = keymaps;
 
-        return layer;
-      }),
-    );
+          return layer;
+        }),
+      );
 
-    keyboard.layers = layers;
+      keyboard.layers = layers;
 
-    return keyboard;
+      return keyboard;
+    } catch (err) {
+      this.#logger.error(err);
+      return null;
+    }
   }
 
   async addKeyboardRecord(params: {
@@ -148,7 +168,6 @@ export default class KeyboardService {
     modifiers?: number;
   }) {
     this.#logger.debug("Adding keyboard record", params);
-    console.debug("Adding keyboard record", params);
     try {
       this.#recordService.addRecord(
         this.#keyboardId,
@@ -163,17 +182,25 @@ export default class KeyboardService {
       this.#logger.error("Failed to add keyboard record", error);
     }
 
-    this.#handService.incrementHandUsage(
-      this.#keyboardId,
-      params.col,
-      params.row,
-    );
+    try {
+      this.#handService.incrementHandUsage(
+        this.#keyboardId,
+        params.col,
+        params.row,
+      );
+    } catch (error) {
+      this.#logger.error("Failed to increment hand usage", error);
+    }
 
-    this.#fingerService.incrementFingerUsage(
-      this.#keyboardId,
-      params.col,
-      params.row,
-    );
+    try {
+      this.#fingerService.incrementFingerUsage(
+        this.#keyboardId,
+        params.col,
+        params.row,
+      );
+    } catch (error) {
+      this.#logger.error("Failed to increment finger usage", error);
+    }
   }
 
   async handleKeyboard(hidKeyboard: HIDKeyboard) {
@@ -191,28 +218,28 @@ export default class KeyboardService {
         col: event.col,
         row: event.row,
         layer: event.layer,
-        type: KeymapType.Plain,
+        type: event.type || KeymapType.Plain,
       });
     });
 
-    let keyboard = await this.#keyboardRepo.create(hidKeyboard.deviceConfig);
-    this.#keyboardId = keyboard.id!;
-    const keys = await this.#keysRepo.createKeysWithLayout(
-      keyboard.id,
-      hidKeyboard.deviceConfig.fingerMap,
-    );
-    keyboard.keys = keys;
-
-    // Read the layers from the keyboard
-    const keyboardLayers = await hidKeyboard.getLayers();
-
-    keyboard = await this.saveKeyboardKeymap(keyboard, keyboardLayers);
-
-    // Save them
     try {
-      await Fs.writeFile(LAYERS_PATH, JSON.stringify(keyboardLayers));
-    } catch (error: unknown) {
-      this.#logger.error(error);
+      let keyboard: Keyboard | null = await this.#keyboardRepo.create(
+        hidKeyboard.deviceConfig,
+      );
+      this.#keyboardId = keyboard.id!;
+
+      const keys = await this.#keysRepo.createKeysWithLayout(
+        this.#keyboardId,
+        hidKeyboard.deviceConfig.fingerMap,
+      );
+      keyboard.keys = keys;
+
+      // Read the layers from the keyboard
+      const keyboardLayers = await hidKeyboard.getLayers();
+
+      keyboard = await this.saveKeyboardKeymap(keyboard, keyboardLayers);
+    } catch (err) {
+      this.#logger.error(err);
     }
   }
 

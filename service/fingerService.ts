@@ -1,18 +1,18 @@
 import log from "loglevel";
-import FingerUsage from "./models/fingerUsage.js";
 import FingerUsageRepo from "./repository/fingerUsageRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
+import Key from "./models/key.js";
 
-const LPKY = 0;
-const LRNG = 1;
-const LMID = 2;
-const LIND = 3;
-const LTHB = 4;
-const RTHB = 5;
-const RIND = 6;
-const RMID = 7;
-const RRNG = 8;
-const RPKY = 9;
+// const LPKY = 0;
+// const LRNG = 1;
+// const LMID = 2;
+// const LIND = 3;
+// const LTHB = 4;
+// const RTHB = 5;
+// const RIND = 6;
+// const RMID = 7;
+// const RRNG = 8;
+// const RPKY = 9;
 
 export default class FingerService {
   #fingerUsageRepo: FingerUsageRepo;
@@ -33,18 +33,9 @@ export default class FingerService {
 
   #logger = log.getLogger("FingerService");
 
-  constructor(fingerUsageRepo: FingerUsageRepo, keysRepo: KeysRepo) {
-    this.#fingerUsageRepo = fingerUsageRepo;
-    this.#keysRepo = keysRepo;
-  }
-
-  async getLatest(keyboardId: number): Promise<FingerUsage | null> {
-    try {
-      return await this.#fingerUsageRepo.getLatest(keyboardId);
-    } catch (err: unknown) {
-      this.#logger.error(err);
-      return null;
-    }
+  constructor() {
+    this.#fingerUsageRepo = new FingerUsageRepo();
+    this.#keysRepo = new KeysRepo();
   }
 
   async incrementFingerUsage(
@@ -52,11 +43,12 @@ export default class FingerService {
     column: number,
     row: number,
   ): Promise<void> {
-    const key = await this.#keysRepo.getAtCoordinates(keyboardId, column, row);
-    if (!key) {
-      this.#logger.warn(
-        `Could not find key at column ${column} and row ${row}`,
-      );
+    let key: Key;
+
+    try {
+      key = await this.#keysRepo.getAtCoordinates(keyboardId, column, row);
+    } catch (err: unknown) {
+      this.#logger.error(err);
       return;
     }
 
@@ -65,12 +57,16 @@ export default class FingerService {
     // If we changed fingers, increment the finger usage for the previously
     // used finger, my the amount stored in the current count
     if (this.currentFinger === -1) {
-      await this.#fingerUsageRepo.incrementFingerUsage(
-        keyboardId,
-        key.finger,
-        1,
-      );
-      this.currentFinger = key.finger;
+      try {
+        await this.#fingerUsageRepo.incrementFingerUsage(
+          keyboardId,
+          key.finger,
+          1,
+        );
+        this.currentFinger = key.finger;
+      } catch (err: unknown) {
+        this.#logger.error(err);
+      }
       return;
     }
 
@@ -90,29 +86,38 @@ export default class FingerService {
             "repeats",
         );
 
-        await this.#fingerUsageRepo.incrementFingerUsage(
-          keyboardId,
-          otherFinger,
-          otherCount,
-        );
-        this.currentCount[otherFinger] = 0;
+        try {
+          await this.#fingerUsageRepo.incrementFingerUsage(
+            keyboardId,
+            otherFinger,
+            otherCount,
+          );
+          this.currentCount[otherFinger] = 0;
+        } catch (err: unknown) {
+          this.#logger.error(err);
+        }
       }
     }
   }
 
-  async getFingerUsage(keyboardId: number): Promise<FingerCount> {
-    const data = await this.#fingerUsageRepo.getForKeyboard(keyboardId);
-    const result: FingerCount = [[], [], [], [], [], [], [], [], [], []];
+  async getFingerUsage(keyboardId: number): Promise<FingerCount | null> {
+    try {
+      const data = await this.#fingerUsageRepo.getForKeyboard(keyboardId);
+      const result: FingerCount = [[], [], [], [], [], [], [], [], [], []];
 
-    for (const datum of data) {
-      const { finger, repeats, count } = datum;
-      if (!result[finger][repeats]) {
-        result[finger][repeats] = 0;
+      for (const datum of data) {
+        const { finger, repeats, count } = datum;
+        if (!result[finger][repeats]) {
+          result[finger][repeats] = 0;
+        }
+        result[finger][repeats] += count;
       }
-      result[finger][repeats] += count;
-    }
 
-    return result;
+      return result;
+    } catch (err: unknown) {
+      this.#logger.error(err);
+      return null;
+    }
   }
 }
 

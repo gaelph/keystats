@@ -1,12 +1,12 @@
 import { Knex } from "knex";
 import HandUsage, { HandUsageOptions } from "../models/handUsage.js";
 import Repository from "./Repository.js";
-import { DatabaseError, DatabaseRecordNotFoundError } from "../database.js";
+import db, { DatabaseError, NotFoundError } from "../database.js";
 
 export default class HandUsageRepo implements Repository<HandUsage> {
   #db: Knex;
 
-  constructor(db: Knex) {
+  constructor() {
     this.#db = db;
   }
 
@@ -15,31 +15,92 @@ export default class HandUsageRepo implements Repository<HandUsage> {
   }
 
   async create(data: HandUsage): Promise<HandUsage> {
-    const query = this.#db(HandUsage.table).insert(data).returning("*");
+    let result: any;
+    let query: Knex.QueryBuilder;
 
-    const [result] = await query;
-    if (!result) {
-      console.log(query.toSQL().toNative());
-      throw new DatabaseRecordNotFoundError(HandUsage);
+    try {
+      const exists = await this.getOne({
+        keyboardId: data.keyboardId,
+        hand: data.hand,
+        repeats: data.repeats,
+        date: data.date,
+      });
+
+      query = this.#db(HandUsage.table)
+        .update({
+          keyboardId: data.keyboardId,
+          hand: data.hand,
+          repeats: data.repeats,
+          date: data.date,
+          count: data.count || exists.count + 1,
+        })
+        .where({ id: exists.id })
+        .returning("*");
+    } catch (error: unknown) {
+      if (error instanceof NotFoundError) {
+        query = this.#db(HandUsage.table).insert({
+          keyboardId: data.keyboardId,
+          hand: data.hand,
+          repeats: data.repeats,
+          date: data.date,
+          count: data.count || 1,
+        });
+      } else {
+        throw new DatabaseError(
+          "Failed to create hand usage",
+          query!,
+          error as Error,
+        );
+      }
     }
 
-    data.id = result.id;
-    data.createdAt = result.createdAt;
-    data.updatedAt = result.updatedAt;
-
-    return data;
-  }
-
-  async getById(id: number): Promise<HandUsage> {
-    const query = this.#db(HandUsage.table).where("id", id).first();
-    const result = await query;
-
-    if (!result) {
-      console.log(query.toSQL().toNative());
-      throw new DatabaseRecordNotFoundError(HandUsage);
+    try {
+      [result] = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to create hand usage",
+        query!,
+        error as Error,
+      );
     }
 
     return new HandUsage(result);
+  }
+
+  async getById(_id: number): Promise<HandUsage> {
+    throw new Error("Not Implemented");
+  }
+  async getOne({
+    keyboardId,
+    hand,
+    repeats,
+    date,
+  }: Omit<HandUsageOptions, "count">): Promise<HandUsage> {
+    let result: any = null;
+    const query = this.#db(HandUsage.table)
+      .where({
+        keyboardId,
+        hand,
+        repeats,
+        date,
+      })
+      .first();
+
+    try {
+      result = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
+    }
+
+    if (result) {
+      return new HandUsage(result);
+    }
+
+    throw new NotFoundError(query);
   }
 
   async getByHand(keyboardId: number, hand: number): Promise<HandUsage[]> {
@@ -67,60 +128,57 @@ export default class HandUsageRepo implements Repository<HandUsage> {
     return results.map((r) => new HandUsage(r));
   }
 
-  async getLatest(keyboardId: number): Promise<HandUsage> {
-    const query = this.#db(HandUsage.table)
-      .where({
-        keyboardId: keyboardId,
-      })
-      .orderBy("updatedAt", "desc")
-      .first();
-
-    const result = await query;
-    if (!result) {
-      throw new DatabaseRecordNotFoundError(HandUsage);
-    }
-
-    return new HandUsage(result);
-  }
-
   async incrementHandUsage(
     keyboardId: number,
     hand: number,
     repeats: number,
-  ): Promise<HandUsage> {
+  ): Promise<void> {
+    if (repeats === 0) {
+      return;
+    }
+
     const date = new Date();
     const today = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
+    let query: Knex.QueryBuilder | undefined = undefined;
 
-    const exists = await this.#db(HandUsage.table)
-      .where({
+    try {
+      const exists = await this.getOne({
         keyboardId: keyboardId,
         hand: hand,
         date: today,
         repeats: repeats,
-      })
-      .first();
-
-    if (!exists) {
-      const data = this.build({
-        keyboardId: keyboardId,
-        hand: hand,
-        repeats: repeats,
-        date: today,
-        count: 1,
       });
 
-      const result = await this.create(data);
-      return result;
+      query = this.#db(HandUsage.table)
+        .update({ count: exists.count + 1, updatedAt: new Date() })
+        .where({ id: exists.id })
+        .returning("*");
+
+      await query;
+
+      return;
+    } catch (error: unknown) {
+      if (error instanceof NotFoundError) {
+        const data = this.build({
+          keyboardId: keyboardId,
+          hand: hand,
+          repeats: repeats,
+          date: today,
+          count: 1,
+        });
+
+        await this.create(data);
+        return;
+      }
+
+      throw new DatabaseError(
+        "Failed to increment hand usage",
+        query!,
+        error as Error,
+      );
     }
-
-    const [result] = await this.#db(HandUsage.table)
-      .update({ count: exists.count + 1, updatedAt: new Date() })
-      .where({ id: exists.id })
-      .returning("*");
-
-    return new HandUsage(result);
   }
 
   async getAll(): Promise<HandUsage[]> {
@@ -144,32 +202,42 @@ export default class HandUsageRepo implements Repository<HandUsage> {
   }
 
   async update(data: HandUsage): Promise<HandUsage> {
-    const exists = await this.getById(data.id!);
-    if (!exists) {
-      throw new DatabaseRecordNotFoundError(HandUsage);
-    }
+    await this.getById(data.id!);
 
+    let result: any;
     const query = this.#db(HandUsage.table)
       .where("id", data.id)
       .update({ count: data.count, updatedAt: data.updatedAt })
-      .returning(["count", "updatedAt"]);
-    const [result] = await query;
+      .returning("*");
 
-    if (!result) {
-      console.log(query.toSQL().toNative());
-      throw new DatabaseError("Could not update hand usage", null);
+    try {
+      [result] = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to update hand usage",
+        query,
+        error as Error,
+      );
+    }
+    if (result) {
+      return new HandUsage(result);
     }
 
-    data.count = result.count;
-    data.updatedAt = result.updatedAt;
-    return data;
+    throw new NotFoundError(query);
   }
 
   async delete(id: number): Promise<void> {
-    const exists = await this.getById(id);
-    if (!exists) {
-      throw new DatabaseRecordNotFoundError(HandUsage);
+    await this.getById(id);
+    const query = this.#db(HandUsage.table).where("id", id).del();
+
+    try {
+      await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to delete hand usage",
+        query,
+        error as Error,
+      );
     }
-    await this.#db(HandUsage.table).where("id", id).del();
   }
 }

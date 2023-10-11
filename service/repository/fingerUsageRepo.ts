@@ -1,12 +1,12 @@
 import { Knex } from "knex";
 import FingerUsage, { FingerUsageOptions } from "../models/fingerUsage.js";
 import Repository from "./Repository.js";
-import { DatabaseError, DatabaseRecordNotFoundError } from "../database.js";
+import db, { DatabaseError, NotFoundError } from "../database.js";
 
 export default class FingerUsageRepo implements Repository<FingerUsage> {
   #db: Knex;
 
-  constructor(db: Knex) {
+  constructor() {
     this.#db = db;
   }
 
@@ -15,29 +15,82 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
   }
 
   async create(data: FingerUsage): Promise<FingerUsage> {
-    const query = this.#db(FingerUsage.table).insert(data).returning("id");
+    let result: any;
+    let query: Knex.QueryBuilder;
+    try {
+      const exists = await this.getOne({
+        keyboardId: data.keyboardId,
+        finger: data.finger,
+        repeats: data.repeats,
+        date: data.date,
+      });
 
-    const [result] = await query;
-    if (!result) {
-      console.log(query.toSQL().toNative());
-      throw new DatabaseRecordNotFoundError(FingerUsage);
+      query = this.#db(FingerUsage.table)
+        .update({
+          keyboardId: data.keyboardId,
+          finger: data.finger,
+          repeats: data.repeats,
+          date: data.date,
+          count: data.count,
+        })
+        .where({ id: exists.id })
+        .returning("*");
+    } catch (error: unknown) {
+      if (error instanceof NotFoundError) {
+        query = this.#db(FingerUsage.table)
+          .insert({
+            keyboardId: data.keyboardId,
+            finger: data.finger,
+            repeats: data.repeats,
+            date: data.date,
+            count: data.count || 1,
+          })
+          .returning("*");
+      } else {
+        throw new DatabaseError(
+          "Failed to create finger usage",
+          query!,
+          error as Error,
+        );
+      }
     }
 
-    data.id = result.id;
+    try {
+      [result] = await query;
 
-    return data;
+      if (!result) {
+        throw new DatabaseError("Insert did not return a result", query);
+      }
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to create finger usage",
+        query,
+        error as Error,
+      );
+    }
+
+    return new FingerUsage(result);
   }
 
   async getById(id: number): Promise<FingerUsage> {
     const query = this.#db(FingerUsage.table).where("id", id).first();
-    const result = await query;
+    let result: any;
 
-    if (!result) {
-      console.log(query.toSQL().toNative());
-      throw new DatabaseRecordNotFoundError(FingerUsage);
+    try {
+      result = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
     }
 
-    return new FingerUsage(result);
+    if (result) {
+      return new FingerUsage(result);
+    }
+
+    throw new NotFoundError(query);
   }
 
   async getByFinger(
@@ -49,8 +102,16 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
       finger: finger,
     });
 
-    const results = await query;
-    return results.map((r) => new FingerUsage(r));
+    try {
+      const results = await query;
+      return results.map((r) => new FingerUsage(r));
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
+    }
   }
 
   async getByFingerWithRepeats(
@@ -64,30 +125,64 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
       repeats: repeats,
     });
 
-    const results = await query;
-    return results.map((r) => new FingerUsage(r));
+    try {
+      const results = await query;
+      return results.map((r) => new FingerUsage(r));
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
+    }
+  }
+
+  async getOne({
+    keyboardId,
+    finger,
+    repeats,
+    date,
+  }: Omit<FingerUsageOptions, "count">): Promise<FingerUsage> {
+    let result: any = null;
+    const query = this.#db(FingerUsage.table)
+      .where({
+        keyboardId,
+        finger,
+        repeats,
+        date,
+      })
+      .first();
+
+    try {
+      result = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
+    }
+
+    if (result) {
+      return new FingerUsage(result);
+    }
+
+    throw new NotFoundError(query);
   }
 
   async getAll(): Promise<FingerUsage[]> {
     const query = this.#db(FingerUsage.table).select();
-    const result = await query;
-    return result.map((item) => new FingerUsage(item));
-  }
 
-  async getLatest(keyboardId: number): Promise<FingerUsage> {
-    const query = this.#db(FingerUsage.table)
-      .where({
-        keyboardId: keyboardId,
-      })
-      .orderBy("updatedAt", "desc")
-      .first();
-
-    const result = await query;
-    if (!result) {
-      throw new DatabaseRecordNotFoundError(FingerUsage);
+    try {
+      const result = await query;
+      return result.map((item) => new FingerUsage(item));
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
     }
-
-    return new FingerUsage(result);
   }
 
   async getForKeyboard(keyboardId: number): Promise<FingerUsage[]> {
@@ -98,9 +193,12 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
     try {
       const result = await query;
       return result.map((item) => new FingerUsage(item));
-    } catch (e) {
-      console.log(query.toSQL().toNative());
-      return [];
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get finger usage",
+        query,
+        error as Error,
+      );
     }
   }
 
@@ -108,68 +206,88 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
     keyboardId: number,
     finger: number,
     repeats: number,
-  ): Promise<FingerUsage> {
+  ): Promise<void> {
+    if (repeats < 1) {
+      return;
+    }
+
     const date = new Date();
     const today = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
+    let query: Knex.QueryBuilder | undefined = undefined;
 
-    const exists = await this.#db(FingerUsage.table)
-      .where({
-        keyboardId: keyboardId,
-        finger: finger,
-        repeats: repeats,
+    try {
+      const exists = await this.getOne({
+        keyboardId,
+        finger,
+        repeats,
         date: today,
-      })
-      .first();
-
-    if (!exists) {
-      const data = this.build({
-        keyboardId: keyboardId,
-        finger: finger,
-        date: today,
-        repeats: repeats,
-        count: 1,
       });
 
-      const result = await this.create(data);
-      return result;
+      query = this.#db(FingerUsage.table)
+        .update({ count: exists.count + 1, updatedAt: new Date() })
+        .where({ id: exists.id })
+        .returning("*");
+
+      await query;
+
+      return;
+    } catch (error: unknown) {
+      if (error instanceof NotFoundError) {
+        const data = this.build({
+          keyboardId: keyboardId,
+          finger: finger,
+          date: today,
+          repeats: repeats,
+          count: 1,
+        });
+
+        await this.create(data);
+        return;
+      }
+
+      throw new DatabaseError(
+        "Failed to increment finger usage",
+        query!,
+        error as Error,
+      );
     }
-
-    const [result] = await this.#db(FingerUsage.table)
-      .update({ count: exists.count + 1, updatedAt: new Date() })
-      .where({ id: exists.id })
-      .returning("*");
-
-    return new FingerUsage(result);
   }
 
   async update(data: FingerUsage): Promise<FingerUsage> {
-    const exists = await this.getById(data.id!);
-    if (!exists) {
-      throw new DatabaseRecordNotFoundError(FingerUsage);
-    }
-
+    let result: any = null;
     const query = this.#db(FingerUsage.table)
       .where("id", data.id)
       .update({ count: data.count })
       .returning("count");
-    const [result] = await query;
 
-    if (!result) {
-      console.log(query.toSQL().toNative());
-      throw new DatabaseError("Could not update finger usage", null);
+    try {
+      await this.getById(data.id!);
+      [result] = await query;
+
+      data.count = result.count;
+      return data;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to update finger usage",
+        query,
+        error as Error,
+      );
     }
-
-    data.count = result.count;
-    return data;
   }
 
   async delete(id: number): Promise<void> {
-    const exists = await this.getById(id);
-    if (!exists) {
-      throw new DatabaseRecordNotFoundError(FingerUsage);
+    const query = this.#db(FingerUsage.table).where("id", id).del();
+    try {
+      await this.getById(id);
+      await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to delete finger usage",
+        query,
+        error as Error,
+      );
     }
-    await this.#db(FingerUsage.table).where("id", id).del();
   }
 }

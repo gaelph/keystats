@@ -8,6 +8,14 @@ import keyboardController from "./controllers/keyboard.js";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
+process
+  .on("uncaughtException", (err: unknown) => {
+    console.error(err);
+  })
+  .on("unhandledRejection", (err: unknown) => {
+    console.error(err);
+  });
+
 app.use(
   cors({
     origin: "*",

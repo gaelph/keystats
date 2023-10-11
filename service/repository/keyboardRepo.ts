@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import Repository from "./Repository.js";
 
-import { DatabaseError, DatabaseRecordNotFoundError } from "./../database.js";
+import db, { DatabaseError, NotFoundError } from "./../database.js";
 import Keyboard from "./../models/keyboard.js";
 import type { KeyboardOptions } from "./../models/keyboard.js";
 
@@ -15,7 +15,7 @@ interface CreateKeyboardParams {
 export default class KeyboardRepo implements Repository<Keyboard> {
   #db: Knex;
 
-  constructor(db: Knex) {
+  constructor() {
     this.#db = db;
   }
 
@@ -28,54 +28,88 @@ export default class KeyboardRepo implements Repository<Keyboard> {
     productId,
     name,
   }: CreateKeyboardParams): Promise<Keyboard> {
-    const existing = await this.getByVendorAndProductId({
-      vendorId,
-      productId,
-    });
-    if (existing) {
-      const [updated] = await this.#db(Keyboard.table)
-        .update({ name })
-        .where({ id: existing.id })
-        .returning(["id", "name", "vendorId", "productId"]);
-      return new Keyboard(updated);
+    let result: any;
+    let query: Knex.QueryBuilder;
+
+    try {
+      const exists = await this.getByVendorAndProductId({
+        vendorId,
+        productId,
+      });
+
+      query = this.#db(Keyboard.table)
+        .update({ vendorId: vendorId, productId: productId, name: name })
+        .where({ id: exists.id })
+        .returning("*");
+    } catch (error: unknown) {
+      if (error instanceof NotFoundError) {
+        query = this.#db(Keyboard.table)
+          .insert({ vendorId: vendorId, productId: productId, name: name })
+          .returning("*");
+      } else {
+        throw new DatabaseError(
+          "Failed to create keyboard",
+          query!,
+          error as Error,
+        );
+      }
     }
 
-    const [inserted] = await this.#db(Keyboard.table).insert(
-      [{ vendorId, productId, name }],
-      ["id", "vendorId", "productId", "name"],
-    );
-
-    if (inserted) {
-      return new Keyboard(inserted);
+    try {
+      [result] = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to create keyboard",
+        query!,
+        error as Error,
+      );
     }
 
-    throw new DatabaseError("Failed to create keyboard", null);
+    return new Keyboard(result);
   }
 
   async getAll(): Promise<Keyboard[]> {
-    const rows = await this.#db(Keyboard.table).select();
+    const query = this.#db(Keyboard.table).select();
 
-    return rows.map((row) => new Keyboard(row));
+    try {
+      const rows = await query;
+      return rows.map((row) => this.build(row));
+    } catch (error: unknown) {
+      throw new DatabaseError("Failed to get keyboards", query, error as Error);
+    }
   }
 
   async getById(id: number): Promise<Keyboard> {
-    const data = await this.#db(Keyboard.table).where({ id }).first();
+    const query = this.#db(Keyboard.table).where({ id }).first();
 
-    if (data) {
-      return new Keyboard(data);
+    let data: any = null;
+    try {
+      data = await query;
+
+      if (data) {
+        return new Keyboard(data);
+      }
+    } catch (error: unknown) {
+      throw new DatabaseError("Failed to get keyboard", query, error as Error);
     }
 
-    throw new DatabaseRecordNotFoundError(Keyboard);
+    throw new NotFoundError(query);
   }
 
   async getByName(name: string): Promise<Keyboard> {
-    const data = await this.#db(Keyboard.table).where({ name }).first();
+    const query = this.#db(Keyboard.table).where({ name }).first();
+    let data: any = null;
 
-    if (data) {
-      return new Keyboard(data);
+    try {
+      data = await query;
+      if (data) {
+        return new Keyboard(data);
+      }
+    } catch (error: unknown) {
+      throw new DatabaseError("Failed to get keyboard", query, error as Error);
     }
 
-    throw new DatabaseRecordNotFoundError(Keyboard);
+    throw new NotFoundError(query);
   }
 
   /**
@@ -84,19 +118,21 @@ export default class KeyboardRepo implements Repository<Keyboard> {
   async getByVendorAndProductId({
     vendorId,
     productId,
-  }: {
-    vendorId: number;
-    productId: number;
-  }): Promise<Keyboard> {
-    const data = await this.#db(Keyboard.table)
+  }: Pick<Keyboard, "vendorId" | "productId">): Promise<Keyboard> {
+    const query = this.#db(Keyboard.table)
       .where({ vendorId, productId })
       .first();
+    let data: any = null;
 
-    if (data) {
-      return new Keyboard(data);
+    try {
+      data = await query;
+      if (data) {
+        return new Keyboard(data);
+      }
+    } catch (error: unknown) {
+      throw new DatabaseError("Failed to get keyboard", query, error as Error);
     }
-
-    throw new DatabaseRecordNotFoundError(Keyboard);
+    throw new NotFoundError(query);
   }
 
   async update(keyboard: Keyboard): Promise<Keyboard> {
@@ -104,28 +140,42 @@ export default class KeyboardRepo implements Repository<Keyboard> {
       throw new Error("Cannot update a keyboard without an id");
     }
 
-    const exits = await this.getById(keyboard.id);
-    if (!exits) {
-      throw new DatabaseRecordNotFoundError(Keyboard);
-    }
-
-    const nUpdated = await this.#db(Keyboard.table)
+    let update: any = null;
+    let error: Error | null = null;
+    const query = this.#db(Keyboard.table)
       .update({ name: keyboard.name })
-      .where({ id: keyboard.id });
+      .where({ id: keyboard.id })
+      .returning(["id", "name"]);
 
-    if (nUpdated > 0) {
+    try {
+      const exists = await this.getById(keyboard.id);
+
+      if (exists) {
+        [update] = await query;
+      }
+    } catch (err: unknown) {
+      error = err as Error;
+    }
+    if (update) {
+      keyboard.id = update.id;
+      keyboard.name = update.name;
       return keyboard;
     }
 
-    throw new DatabaseError("Failed to update keyboard", null);
+    throw new DatabaseError("Failed to update keyboard", query, error);
   }
 
   async delete(keyboardId: number): Promise<void> {
-    const exits = await this.getById(keyboardId);
-    if (!exits) {
-      throw new DatabaseRecordNotFoundError(Keyboard);
+    const query = this.#db(Keyboard.table).where({ id: keyboardId }).del();
+    try {
+      await this.getById(keyboardId);
+      await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to delete keyboard",
+        query,
+        error as Error,
+      );
     }
-
-    await this.#db(Keyboard.table).where({ id: keyboardId }).del();
   }
 }

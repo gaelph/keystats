@@ -1,36 +1,17 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import db from "../../service/database.js";
-import LayerRepo from "../../service/repository/layerRepo.js";
-import KeysRepo from "../../service/repository/keysRepo.js";
-import KeyboardRepo from "../../service/repository/keyboardRepo.js";
-import KeyboardService from "../../service/keyboardService.js";
-import RecordRepo from "../../service/repository/recordRepo.js";
+
 import RecordService from "../../service/recordService.js";
-import KeyHandler from "../../lib/eventHandler.js";
 import HandService from "../../service/handService.js";
-import HandUsageRepo from "../../service/repository/handUsagerRepo.js";
 import FingerService from "../../service/fingerService.js";
-import FingerUsageRepo from "../../service/repository/fingerUsageRepo.js";
+import KeyboardService from "../../service/keyboardService.js";
 
 const router = Router();
 
-const layerRepo = new LayerRepo(db);
-const keyboardRepo = new KeyboardRepo(db);
-const keysRepo = new KeysRepo(db);
-const recordRepo = new RecordRepo(db);
-const recordService = new RecordService(recordRepo);
-const handService = new HandService(new HandUsageRepo(db), keysRepo);
-const fingerService = new FingerService(new FingerUsageRepo(db), keysRepo);
-const keyboardService = new KeyboardService(
-  keyboardRepo,
-  layerRepo,
-  keysRepo,
-  recordService,
-  handService,
-  fingerService,
-  new KeyHandler(),
-);
+const recordService = new RecordService();
+const handService = new HandService();
+const fingerService = new FingerService();
+const keyboardService = new KeyboardService();
 
 async function listKeyboards(req: Request, res: Response) {
   const keyboards = await keyboardService.listKeyboards();

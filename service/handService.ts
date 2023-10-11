@@ -1,7 +1,7 @@
 import log from "loglevel";
-import HandUsage from "./models/handUsage.js";
 import HandUsageRepo from "./repository/handUsagerRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
+import Key from "./models/key.js";
 
 const LEFT = 0;
 const RIGHT = 1;
@@ -14,18 +14,9 @@ export default class HandService {
 
   #logger = log.getLogger("HandService");
 
-  constructor(handUsageRepo: HandUsageRepo, keysRepo: KeysRepo) {
-    this.#handUsageRepo = handUsageRepo;
-    this.#keysRepo = keysRepo;
-  }
-
-  async getLatest(keyboardId: number): Promise<HandUsage | null> {
-    try {
-      return await this.#handUsageRepo.getLatest(keyboardId);
-    } catch (err: unknown) {
-      this.#logger.error(err);
-      return null;
-    }
+  constructor() {
+    this.#handUsageRepo = new HandUsageRepo();
+    this.#keysRepo = new KeysRepo();
   }
 
   async incrementHandUsage(
@@ -33,11 +24,11 @@ export default class HandService {
     column: number,
     row: number,
   ): Promise<void> {
-    const key = await this.#keysRepo.getAtCoordinates(keyboardId, column, row);
-    if (!key) {
-      this.#logger.warn(
-        `Could not find key at column ${column} and row ${row}`,
-      );
+    let key: Key;
+    try {
+      key = await this.#keysRepo.getAtCoordinates(keyboardId, column, row);
+    } catch (error: unknown) {
+      this.#logger.error(error);
       return;
     }
 
@@ -46,8 +37,12 @@ export default class HandService {
     // If we changed hands, increment the hand usage for the previously
     // used hand, my the amount stored in the current count
     if (this.currentHand === -1) {
-      await this.#handUsageRepo.incrementHandUsage(keyboardId, key.hand, 1);
-      this.currentHand = key.hand;
+      try {
+        await this.#handUsageRepo.incrementHandUsage(keyboardId, key.hand, 1);
+        this.currentHand = key.hand;
+      } catch (error: unknown) {
+        this.#logger.error(error);
+      }
       return;
     }
 
@@ -58,6 +53,7 @@ export default class HandService {
       const otherHand = this.currentHand;
       this.currentHand = key.hand;
       const otherCount = this.currentCount[otherHand];
+
       if (otherCount > 0) {
         this.#logger.debug(
           "incrementing hand usage for " +
@@ -67,28 +63,37 @@ export default class HandService {
             "repeats",
         );
 
-        await this.#handUsageRepo.incrementHandUsage(
-          keyboardId,
-          otherHand,
-          otherCount,
-        );
-        this.currentCount[otherHand] = 0;
+        try {
+          await this.#handUsageRepo.incrementHandUsage(
+            keyboardId,
+            otherHand,
+            otherCount,
+          );
+          this.currentCount[otherHand] = 0;
+        } catch (error: unknown) {
+          this.#logger.error(error);
+        }
       }
     }
   }
 
-  async getHandUsage(keyboardId: number): Promise<[number[], number[]]> {
-    const data = await this.#handUsageRepo.getForKeyboard(keyboardId);
-    const result: [number[], number[]] = [[], []];
+  async getHandUsage(keyboardId: number): Promise<[number[], number[]] | null> {
+    try {
+      const data = await this.#handUsageRepo.getForKeyboard(keyboardId);
+      const result: [number[], number[]] = [[], []];
 
-    for (const datum of data) {
-      const { hand, repeats, count } = datum;
-      if (!result[hand][repeats]) {
-        result[hand][repeats] = 0;
+      for (const datum of data) {
+        const { hand, repeats, count } = datum;
+        if (!result[hand][repeats]) {
+          result[hand][repeats] = 0;
+        }
+        result[hand][repeats] += count;
       }
-      result[hand][repeats] += count;
-    }
 
-    return result;
+      return result;
+    } catch (error: unknown) {
+      this.#logger.error(error);
+      return null;
+    }
   }
 }

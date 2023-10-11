@@ -1,12 +1,12 @@
 import type { Knex } from "knex";
 import Key, { KeyOptions } from "../models/key.js";
 import Repository from "./Repository.js";
-import { DatabaseRecordNotFoundError } from "../database.js";
+import db, { DatabaseError, NotFoundError } from "../database.js";
 
 export default class KeysRepo implements Repository<Key> {
   #db: Knex;
 
-  constructor(db: Knex) {
+  constructor() {
     this.#db = db;
   }
 
@@ -15,114 +15,137 @@ export default class KeysRepo implements Repository<Key> {
   }
 
   async create(data: Key): Promise<Key> {
-    const [row] = await this.#db(Key.table).insert(data).returning("id");
-    if (!row) {
-      throw new Error("Could not create key");
+    let query: Knex.QueryBuilder;
+    let result;
+
+    try {
+      const exists = await this.getAtCoordinates(
+        data.keyboardId,
+        data.column,
+        data.row,
+      );
+
+      query = this.#db(Key.table)
+        .update({
+          keyboardId: data.keyboardId,
+          column: data.column,
+          row: data.row,
+          hand: data.hand,
+          finger: data.finger,
+        })
+        .where({ id: exists.id })
+        .returning("*");
+    } catch (error: unknown) {
+      if (error instanceof NotFoundError) {
+        query = this.#db(Key.table)
+          .insert({
+            keyboardId: data.keyboardId,
+            column: data.column,
+            row: data.row,
+            hand: data.hand,
+            finger: data.finger,
+          })
+          .returning("*");
+      } else {
+        throw new DatabaseError("Failed to create key", query!, error as Error);
+      }
     }
 
-    data.id = row.id;
-    return data;
+    try {
+      [result] = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError("Failed to create key", query!, error as Error);
+    }
+
+    return new Key(result);
   }
 
   async createKeysWithLayout(
-    keyboardId: number | undefined,
+    keyboardId: number,
     layout: number[][],
   ): Promise<Key[]> {
-    if (keyboardId === undefined) {
-      throw new Error("keyboardId is undefined");
+    try {
+      const keys = await Promise.all(
+        layout
+          .flatMap((rowData, row) => {
+            return rowData.map((finger, column) => {
+              const hand = finger < 5 ? 0 : 1;
+              return {
+                column,
+                row,
+                finger,
+                hand,
+                keyboardId,
+              };
+            });
+          })
+          .map(async (value) => {
+            return await this.create(this.build(value));
+          }),
+      );
+
+      return keys;
+    } catch (error: unknown) {
+      throw new DatabaseError("Could not create keys", null, error as Error);
     }
-
-    const keys = await Promise.all(
-      layout
-        .flatMap((rowData, row) => {
-          return rowData.map((finger, column) => {
-            const hand = finger < 5 ? 0 : 1;
-            return {
-              column,
-              row,
-              finger,
-              hand,
-              keyboardId,
-            };
-          });
-        })
-        .map(async (value) => {
-          const key = await this.#db(Key.table)
-            .select("id")
-            .where({ keyboardId, column: value.column, row: value.row })
-            .first();
-
-          if (key) {
-            return (await this.#db(Key.table)
-              .where({ id: key.id })
-              .update({ finger: value.finger, hand: value.hand })
-              .returning("*")) as Key[];
-          }
-
-          return (await this.#db(Key.table)
-            .insert(value)
-            .returning("*")) as Key[];
-        }),
-    );
-
-    return keys.flat().map((key) => new Key(key));
   }
 
-  async getById(id: number): Promise<Key> {
-    const row = await this.#db(Key.table).where({ id }).first();
-    if (!row) {
-      throw new DatabaseRecordNotFoundError(Key);
-    }
-    return new Key(row);
+  async getById(_id: number): Promise<Key> {
+    throw new Error("Method not implemented.");
   }
 
   async getAtCoordinates(
     keyboardId: number,
     column: number,
     row: number,
-  ): Promise<Key | null> {
-    const query = this.#db(Key.table).where({
+  ): Promise<Key> {
+    let result: Key | undefined;
+    const query = this.#db<Key>(Key.table).where({
       keyboardId,
       column,
       row,
     });
 
-    const result = await query.first();
-    if (!result) {
-      console.log(`Key not found: ${keyboardId}, ${column}, ${row}`);
-      return null;
+    try {
+      result = await query.first();
+    } catch (error: unknown) {
+      throw new DatabaseError("Could not find key", query, error as Error);
     }
 
-    return new Key(result);
+    if (result) {
+      return new Key(result);
+    }
+
+    throw new NotFoundError(query);
   }
 
   async getAll(): Promise<Key[]> {
-    const rows = await this.#db(Key.table).select("*");
-    return rows.map((row) => new Key(row));
+    throw new Error("Method not implemented.");
   }
 
   async update(data: Key): Promise<Key> {
-    if (data.id === undefined) {
-      throw new Error("Key.id is undefined");
-    }
-    const existing = await this.getById(data.id);
-    if (!existing) {
-      throw new DatabaseRecordNotFoundError(Key);
-    }
-
-    await this.#db(Key.table)
+    let result: any;
+    const query = this.#db<Key>(Key.table)
       .where({ id: data.id })
       .update({ hand: data.hand, finger: data.finger });
 
-    return data;
+    try {
+      await this.getById(data.id!);
+      result = await query;
+      return new Key(result);
+    } catch (error: unknown) {
+      throw new DatabaseError("Could not update key", query, error as Error);
+    }
   }
 
   async delete(id: number): Promise<void> {
-    const existing = await this.getById(id);
-    if (!existing) {
-      throw new DatabaseRecordNotFoundError(Key);
-    }
+    const query = this.#db(Key.table).where({ id: id }).del();
+    await this.getById(id);
 
-    await this.#db(Key.table).where({ id: id }).del();
+    try {
+      await query;
+    } catch (error: unknown) {
+      throw new DatabaseError("Could not delete key", query, error as Error);
+    }
   }
 }
