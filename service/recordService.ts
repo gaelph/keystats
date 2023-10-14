@@ -1,29 +1,43 @@
+import KeymapService from "./keymapService.js";
 import { KeymapType } from "./models/keymap.js";
 import Record from "./models/record.js";
-import RecordRepo from "./repository/recordRepo.js";
+import RecordRepo, { RecordCount } from "./repository/recordRepo.js";
+import { Coordinates, FilterOptions } from "./types.js";
 
 export default class RecordService {
   #recordRepo: RecordRepo;
+  #keymapService: KeymapService;
 
-  constructor() {
+  constructor(keymapService?: KeymapService) {
     this.#recordRepo = new RecordRepo();
+    this.#keymapService = keymapService || new KeymapService();
   }
 
   async addRecord(
     keyboardId: number,
-    layerIndex: number,
+    coordinates: Coordinates,
     keycode: string,
     modifiers: number,
-    row: number,
-    column: number,
     type: KeymapType,
   ): Promise<Record | null> {
     try {
-      return this.#recordRepo.addRecord(keyboardId, layerIndex, keycode, {
+      // FIXME: There should be a better way to do this.
+      const keymap = await this.#keymapService.getKeymap(
+        keyboardId,
+        coordinates,
+        keycode,
+        type,
+      );
+
+      if (!keymap) {
+        return null;
+      }
+
+      return this.#recordRepo.addRecord(keymap, {
         type,
         modifiers,
-        row,
-        column,
+        row: coordinates.row,
+        column: coordinates.column,
         counts: 1,
       });
     } catch (error) {
@@ -32,14 +46,17 @@ export default class RecordService {
     return null;
   }
 
-  async getRecords(keyboardId: number): Promise<Record[][][][]> {
-    const records = await this.#recordRepo.getRecords(keyboardId);
+  async getRecords(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<Record[][][][]> {
+    const records = await this.#recordRepo.getRecords(keyboardId, filter);
     const groupedRecords: Record[][][][] = [];
 
     for (const record of records) {
-      const row = record.keymap!.key!.row;
-      const column = record.keymap!.key!.column;
-      const layer = record.keymap!.layer!.index;
+      const row = record.keymap!.row;
+      const column = record.keymap!.column;
+      const layer = record.keymap!.layer;
       if (!groupedRecords[layer]) {
         groupedRecords[layer] = [];
       }
@@ -55,9 +72,13 @@ export default class RecordService {
     return groupedRecords;
   }
 
-  async getTotalCounts(keyboardId: number): Promise<number[][][]> {
-    const counts = await this.#recordRepo.getTotalCounts(keyboardId);
+  async getKeymapUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<number[][][]> {
+    const counts = await this.#recordRepo.getKeymapUsage(keyboardId, filter);
     const groupedCounts: number[][][] = [];
+
     for (const countRow of counts) {
       const { layer, row, column } = countRow;
 
@@ -82,9 +103,80 @@ export default class RecordService {
     return groupedCounts;
   }
 
-  async getPlainRecords(keyboardId: number): Promise<any[]> {
-    const records = await this.#recordRepo.getPlainRecords(keyboardId);
+  async getCharacterCount(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<RecordCount[]> {
+    const records = await this.#recordRepo.getCharacterCount(
+      keyboardId,
+      filter,
+    );
 
     return records;
+  }
+
+  async getTotalKeypresses(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<number> {
+    const total = await this.#recordRepo.getTotalKeypresses(keyboardId, filter);
+    return total;
+  }
+
+  async getLayerUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<{ [key: number]: number }> {
+    const counts = await this.#recordRepo.getLayerUsage(keyboardId, filter);
+
+    const layerUsage: Map<number, number> = new Map();
+
+    for (const count of counts) {
+      layerUsage.set(count.layer, count.count);
+    }
+
+    return Object.fromEntries(layerUsage);
+  }
+
+  async getRowUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<{ [key: number]: number }> {
+    const counts = await this.#recordRepo.getRowUsage(keyboardId, filter);
+    const rowUsage: Map<number, number> = new Map();
+
+    for (const count of counts) {
+      rowUsage.set(count.row, count.count);
+    }
+
+    return Object.fromEntries(rowUsage);
+  }
+
+  async getHandUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<{ [key: number]: number }> {
+    const counts = await this.#recordRepo.getHandUsage(keyboardId, filter);
+    const handUsage: Map<number, number> = new Map();
+
+    for (const count of counts) {
+      handUsage.set(count.hand, count.count);
+    }
+
+    return Object.fromEntries(handUsage);
+  }
+
+  async getFingerUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<{ [key: number]: number }> {
+    const counts = await this.#recordRepo.getFingerUsage(keyboardId, filter);
+    const fingerUsage: Map<number, number> = new Map();
+
+    for (const count of counts) {
+      fingerUsage.set(count.finger, count.count);
+    }
+
+    return Object.fromEntries(fingerUsage);
   }
 }

@@ -19,43 +19,17 @@ export default class HandUsageRepo implements Repository<HandUsage> {
     let query: Knex.QueryBuilder;
 
     try {
-      const exists = await this.getOne({
-        keyboardId: data.keyboardId,
-        hand: data.hand,
-        repeats: data.repeats,
-        date: data.date,
-      });
-
       query = this.#db(HandUsage.table)
-        .update({
-          keyboardId: data.keyboardId,
-          hand: data.hand,
-          repeats: data.repeats,
-          date: data.date,
-          count: data.count || exists.count + 1,
-        })
-        .where({ id: exists.id })
-        .returning("*");
-    } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        query = this.#db(HandUsage.table).insert({
+        .insert({
           keyboardId: data.keyboardId,
           hand: data.hand,
           repeats: data.repeats,
           date: data.date,
           count: data.count || 1,
-        });
-      } else {
-        throw new DatabaseError(
-          "Failed to create hand usage",
-          query!,
-          error as Error,
-        );
-      }
-    }
+        })
+        .returning("*");
 
-    try {
-      [result] = await query;
+      result = await query;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to create hand usage",

@@ -1,8 +1,8 @@
+import "material-symbols/sharp.css";
 import "./App.css";
 
 import { useCallback, useMemo, useState, useEffect } from "react";
 
-import useData from "./hooks/useData.js";
 import useCounts from "./hooks/useCounts.js";
 import useKeyboards from "./hooks/useKeyboards.js";
 import useKeymaps from "./hooks/useKeymaps.js";
@@ -17,7 +17,6 @@ function getUsableLayers(layers) {
 }
 
 function App() {
-  const [data, loading, error, refresh] = useData();
   const [keyboard, setKeyboard] = useState(null);
   const [keyboards, loadingKeyboards, errorKeyboards /*, refreshKeyboards*/] =
     useKeyboards();
@@ -35,13 +34,11 @@ function App() {
   ] = useHandAndFingerUsage(keyboard);
 
   const refreshAllData = useCallback(() => {
-    refresh();
     refreshKeymaps();
     refreshCounts();
     refreshCharacters();
     refreshHandAndFingerUsage();
   }, [
-    refresh,
     refreshCharacters,
     refreshCounts,
     refreshHandAndFingerUsage,
@@ -49,8 +46,8 @@ function App() {
   ]);
 
   const usableLayers = useMemo(() => {
-    if (counts) {
-      return getUsableLayers(counts);
+    if (counts && counts.keymapUsage) {
+      return getUsableLayers(counts.keymapUsage);
     }
     return null;
   }, [counts]);
@@ -68,35 +65,33 @@ function App() {
     }
   }, [keyboards]);
 
+  const loading =
+    loadingKeyboards ||
+    loadingKeymaps ||
+    loadingCounts ||
+    loadingHandAndFingerUsage ||
+    loadingCharacters;
+
+  const error =
+    errorKeyboards ||
+    errorKeymaps ||
+    errorCounts ||
+    errorHandAndFingerUsage ||
+    errorCharacters;
+
   return (
     <div className="App">
       <header>
         {keyboard && keyboard.name && <h1>{keyboard.name}</h1>}
-        {(loading ||
-          loadingKeyboards ||
-          loadingKeymaps ||
-          loadingCounts ||
-          loadingHandAndFingerUsage ||
-          loadingCharacters) && <div>Loading...</div>}
-        {(error ||
-          errorKeyboards ||
-          errorKeymaps ||
-          errorCounts ||
-          errorHandAndFingerUsage ||
-          errorCharacters) && (
-          <div>
-            {error ||
-              errorKeyboards ||
-              errorKeymaps ||
-              errorCounts ||
-              errorCharacters}
-          </div>
+        {loading && <div>Loading...</div>}
+        {error && <div>{error}</div>}
+        {counts && !loading && (
+          <button onClick={refreshAllData}>Refresh</button>
         )}
-        {data && !loading && <button onClick={refreshAllData}>Refresh</button>}
       </header>
       <div class="content-container">
         <div class="layer-container">
-          {data && keymaps && (
+          {counts && keymaps && (
             <ul>
               {usableLayers &&
                 usableLayers.map((matrix, layerId) => {
@@ -105,7 +100,7 @@ function App() {
                   return (
                     <li key={layerId}>
                       <HeatmapComponent
-                        data={data}
+                        data={counts.keymapUsage}
                         matrix={matrix}
                         layerId={layerId}
                         layer={keymaps[layerId]}
@@ -118,10 +113,9 @@ function App() {
             </ul>
           )}
         </div>
-        {data && (
+        {counts && (
           <div class="stats-container">
             <StatsComponent
-              data={data}
               handAndFingerUsage={handAndFingerUsage}
               counts={counts}
               characters={characters}

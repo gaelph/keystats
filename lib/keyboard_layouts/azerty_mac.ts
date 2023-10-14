@@ -1,4 +1,4 @@
-export const normal = [
+export default [
   "", // nothing
   "", // transparent
   "POST_FAIL",
@@ -39,11 +39,11 @@ export const normal = [
   "!",
   "ç",
   "à",
-  "⏎",
+  "ENTER",
   "ESC",
   "BKSP",
-  "⇥",
-  "⎵",
+  "TAB",
+  "SPACE",
   ")",
   "-",
   "^",
@@ -74,14 +74,14 @@ export const normal = [
   "PAUSE",
   "INSERT",
   "HOME",
-  "↥",
+  "PAGE_UP",
   "DEL",
   "END",
-  "↧",
-  "→",
-  "←", // 0x50
-  "↓",
-  "↑",
+  "PAGE_DOWN",
+  "RIGHT",
+  "LEFT", // 0x50
+  "DOWN",
+  "UP",
   "NUM_LOCK",
   "KP_SLASH",
   "KP_ASTERISK",
@@ -669,3 +669,4 @@ export const shiftAlted = [
   null, // "CRSEL",
   null, // "EXSEL",
 ];
+

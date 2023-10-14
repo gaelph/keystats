@@ -1,6 +1,5 @@
 //@ts-check
-import Model from "./model.js";
-import Layer from "./layer.js";
+import Model, { loadRelations } from "./model.js";
 import Keymap from "./keymap.js";
 import Key from "./key.js";
 
@@ -18,7 +17,6 @@ export default class Keyboard extends Model {
   name: string;
   vendorId: number;
   productId: number;
-  layers?: Layer[];
   keys?: Key[];
   keymaps?: Keymap;
 
@@ -29,12 +27,11 @@ export default class Keyboard extends Model {
     this.vendorId = data.vendorId;
     this.productId = data.productId;
 
-    this.loadRelations(data);
+    loadRelations(this, data);
   }
 
-  get relations(): Relation[] {
+  static get relations(): Relation<Keyboard>[] {
     return [
-      { name: "layers", model: Layer, type: "hasMany" },
       { name: "keymaps", model: Keymap, type: "hasMany" },
       { name: "keys", model: Key, type: "hasMany" },
     ];

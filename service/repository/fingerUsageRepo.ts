@@ -17,54 +17,27 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
   async create(data: FingerUsage): Promise<FingerUsage> {
     let result: any;
     let query: Knex.QueryBuilder;
-    try {
-      const exists = await this.getOne({
-        keyboardId: data.keyboardId,
-        finger: data.finger,
-        repeats: data.repeats,
-        date: data.date,
-      });
 
+    try {
       query = this.#db(FingerUsage.table)
-        .update({
+        .insert({
           keyboardId: data.keyboardId,
           finger: data.finger,
           repeats: data.repeats,
           date: data.date,
+          count: data.count || 1,
+        })
+        .onConflict(["keyboardId", "finger", "repeats", "date"])
+        .merge({
           count: data.count,
         })
-        .where({ id: exists.id })
         .returning("*");
-    } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        query = this.#db(FingerUsage.table)
-          .insert({
-            keyboardId: data.keyboardId,
-            finger: data.finger,
-            repeats: data.repeats,
-            date: data.date,
-            count: data.count || 1,
-          })
-          .returning("*");
-      } else {
-        throw new DatabaseError(
-          "Failed to create finger usage",
-          query!,
-          error as Error,
-        );
-      }
-    }
 
-    try {
-      [result] = await query;
-
-      if (!result) {
-        throw new DatabaseError("Insert did not return a result", query);
-      }
+      result = await query;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to create finger usage",
-        query,
+        query!,
         error as Error,
       );
     }
@@ -211,12 +184,11 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
       return;
     }
 
+    // This should go in a date utility package
     const date = new Date();
     const today = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    let query: Knex.QueryBuilder | undefined = undefined;
-
     try {
       const exists = await this.getOne({
         keyboardId,
@@ -225,33 +197,27 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
         date: today,
       });
 
-      query = this.#db(FingerUsage.table)
-        .update({ count: exists.count + 1, updatedAt: new Date() })
-        .where({ id: exists.id })
-        .returning("*");
+      exists.count += 1;
 
-      await query;
+      await this.update(exists);
 
       return;
     } catch (error: unknown) {
       if (error instanceof NotFoundError) {
-        const data = this.build({
-          keyboardId: keyboardId,
-          finger: finger,
-          date: today,
-          repeats: repeats,
-          count: 1,
-        });
+        await this.create(
+          this.build({
+            keyboardId: keyboardId,
+            finger: finger,
+            date: today,
+            repeats: repeats,
+            count: 1,
+          }),
+        );
 
-        await this.create(data);
         return;
       }
 
-      throw new DatabaseError(
-        "Failed to increment finger usage",
-        query!,
-        error as Error,
-      );
+      throw error;
     }
   }
 

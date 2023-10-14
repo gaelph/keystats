@@ -1,128 +1,11 @@
 import { EventEmitter } from "events";
-import fs from "fs";
-import path from "path";
-import url from "url";
 import log from "loglevel";
-// @ts-ignore
 
 // @ts-ignore
-import * as k from "../client/src/lib/keycodes.js";
-// @ts-ignore
-import { getFingerForCoordinates } from "../client/src/lib/sums.js";
-
 import * as Keycodes from "../lib/keycodes.js";
 
 import HIDEvent from "../hid/HIDEvent.js";
 import { KeymapType } from "../service/models/keymap.js";
-
-const __dirname = url.fileURLToPath(new URL("..", import.meta.url));
-// File where the typing data is stored
-const DATA_PATH = path.join(__dirname, "data", "log.json");
-
-interface CodePressed {
-  keycode: string;
-  modifiers: string;
-  count: number;
-  layer: number;
-}
-
-// Volatile storage for typing data collection
-interface Storage {
-  layers: number[][][];
-  codesPressed: Record<string, CodePressed>;
-  handUsage: Record<string, number>[];
-  fingerUsage: Record<string, number>[];
-}
-
-let storage: Storage = {
-  layers: [],
-  codesPressed: {},
-  handUsage: [{}, {}],
-  fingerUsage: new Array(10).fill(0),
-};
-
-// Create the data collection file if it does not exist
-// or load its content if it does
-if (fs.existsSync(DATA_PATH)) {
-  const content = fs.readFileSync(DATA_PATH).toString("utf-8");
-  storage = JSON.parse(content);
-  if (!storage.handUsage) {
-    storage.handUsage = [{}, {}];
-  }
-  if (!storage.fingerUsage) {
-    storage.fingerUsage = new Array(10);
-  }
-}
-
-// List of USB/HID devices
-
-let currentLeftHandCount = 0;
-let currentRightHandCount = 0;
-let lastHandUsed: null | "left" | "right" = null;
-
-function incrementHandCount(hand: "left" | "right") {
-  if (hand == "left") {
-    currentLeftHandCount += 1;
-    if (lastHandUsed === "right") {
-      const previousRightHandCount =
-        storage.handUsage[1][currentRightHandCount] || 0;
-      storage.handUsage[1][currentRightHandCount] =
-        previousRightHandCount + currentRightHandCount;
-    }
-    currentRightHandCount = 0;
-    lastHandUsed = hand;
-  } else {
-    currentRightHandCount += 1;
-    if (lastHandUsed === "left") {
-      const previousLeftHandCount =
-        storage.handUsage[0][currentLeftHandCount] || 0;
-      storage.handUsage[0][currentLeftHandCount] =
-        previousLeftHandCount + currentLeftHandCount;
-    }
-    currentLeftHandCount = 0;
-    lastHandUsed = "right";
-  }
-}
-
-let currentFingerCount = 0;
-let lastFingerUsed = -1;
-
-function incrementFingerCount(row: number, col: number) {
-  const finger = getFingerForCoordinates(row, col);
-  // log.debug("FINGER", finger, row, col);
-  if (finger === null) return;
-
-  if (
-    !storage.fingerUsage[lastFingerUsed] ||
-    typeof storage.fingerUsage[lastFingerUsed] !== "object"
-  ) {
-    storage.fingerUsage[lastFingerUsed] = {};
-  }
-
-  if (
-    !storage.fingerUsage[finger] ||
-    typeof storage.fingerUsage[lastFingerUsed] !== "object"
-  ) {
-    storage.fingerUsage[finger] = {};
-  }
-
-  if (finger !== lastFingerUsed) {
-    // log.debug(`Finger ${finger} used`);
-    const previousFingerCount =
-      storage.fingerUsage[lastFingerUsed][currentFingerCount] || 0;
-    storage.fingerUsage[lastFingerUsed][currentFingerCount] =
-      previousFingerCount + currentFingerCount;
-    // log.debug(
-    //   `-- Previous finger ${lastFingerUsed} was used ${currentFingerCount} times`,
-    // );
-
-    currentFingerCount = 1;
-    lastFingerUsed = finger;
-  } else {
-    // log.debug(`Same finger ${finger} ${currentFingerCount}`);
-    currentFingerCount++;
-  }
-}
 
 interface KeyDown {
   keycode: number;
@@ -151,67 +34,6 @@ export default class KeyHandler extends EventEmitter {
     super();
 
     // this.#logger.disableAll();
-  }
-
-  incrementHandCount(hand: "left" | "right") {
-    if (hand == "left") {
-      currentLeftHandCount += 1;
-      if (this.#lastHandUsed === "right") {
-        const previousRightHandCount =
-          storage.handUsage[1][currentRightHandCount] || 0;
-        storage.handUsage[1][currentRightHandCount] =
-          previousRightHandCount + currentRightHandCount;
-      }
-      currentRightHandCount = 0;
-      this.#lastHandUsed = hand;
-    } else {
-      currentRightHandCount += 1;
-      if (lastHandUsed === "left") {
-        const previousLeftHandCount =
-          storage.handUsage[0][currentLeftHandCount] || 0;
-        storage.handUsage[0][currentLeftHandCount] =
-          previousLeftHandCount + currentLeftHandCount;
-      }
-      currentLeftHandCount = 0;
-      lastHandUsed = "right";
-    }
-  }
-
-  incrementFingerCount(row: number, col: number) {
-    const finger = getFingerForCoordinates(row, col);
-    // log.debug("FINGER", finger, row, col);
-    if (finger === null) return;
-
-    if (
-      !storage.fingerUsage[lastFingerUsed] ||
-      typeof storage.fingerUsage[lastFingerUsed] !== "object"
-    ) {
-      storage.fingerUsage[lastFingerUsed] = {};
-    }
-
-    if (
-      !storage.fingerUsage[finger] ||
-      typeof storage.fingerUsage[lastFingerUsed] !== "object"
-    ) {
-      storage.fingerUsage[finger] = {};
-    }
-
-    if (finger !== lastFingerUsed) {
-      // log.debug(`Finger ${finger} used`);
-      const previousFingerCount =
-        storage.fingerUsage[lastFingerUsed][currentFingerCount] || 0;
-      storage.fingerUsage[lastFingerUsed][currentFingerCount] =
-        previousFingerCount + currentFingerCount;
-      // log.debug(
-      //   `-- Previous finger ${lastFingerUsed} was used ${currentFingerCount} times`,
-      // );
-
-      currentFingerCount = 1;
-      lastFingerUsed = finger;
-    } else {
-      // log.debug(`Same finger ${finger} ${currentFingerCount}`);
-      currentFingerCount++;
-    }
   }
 
   emitPlain(
@@ -270,10 +92,6 @@ export default class KeyHandler extends EventEmitter {
           this.#keysDown.length
         } `,
       );
-
-      incrementHandCount(col < 6 ? "left" : "right");
-      incrementFingerCount(row, col);
-      // Finally write all this to disk
     } else {
       const idx = this.#keysDown.findIndex(
         ({ keycode }) => keycode === keycode,
@@ -302,12 +120,12 @@ export default class KeyHandler extends EventEmitter {
 
       // if it is modTap, we want to wait for its release before counting it
       if (
-        k.isModTap(keycode) &&
-        !k.isLayerTap(keycode) &&
-        !k.isCustomKeycode(keycode)
+        Keycodes.isModTap(keycode) &&
+        !Keycodes.isLayerTap(keycode) &&
+        !Keycodes.isCustomKeycode(keycode)
       ) {
-        const released = k.getBasicFromModTap(keycode);
-        const tapModifier = k.getModifierFromModTap(keycode);
+        const released = Keycodes.getBasicFromModTap(keycode);
+        const tapModifier = Keycodes.getModifierFromModTap(keycode);
 
         this.#logger.debug(
           "MOD TAP RELEASE: ",
@@ -321,7 +139,7 @@ export default class KeyHandler extends EventEmitter {
           this.emitPlain(
             released,
             // ensure we don't count it as Mod+letter combination
-            k.removeModifierFromBitfield(mods, tapModifier),
+            Keycodes.removeModifierFromBitfield(mods, tapModifier),
             col,
             row,
             layer,
@@ -335,9 +153,12 @@ export default class KeyHandler extends EventEmitter {
         } else {
           this.emitNonPlain(keycode, col, row, layer);
         }
-      } else if (k.isLayerTap(keycode) && !k.isCustomKeycode(keycode)) {
-        const released = k.getBasicFromModTap(keycode);
-        const tapLayer = k.getLayerFromLayerTap(keycode);
+      } else if (
+        Keycodes.isLayerTap(keycode) &&
+        !Keycodes.isCustomKeycode(keycode)
+      ) {
+        const released = Keycodes.getBasicFromModTap(keycode);
+        const tapLayer = Keycodes.getLayerFromLayerTap(keycode);
 
         this.#logger.debug(
           "LAYER TAP RELEASE: ",
@@ -360,8 +181,5 @@ export default class KeyHandler extends EventEmitter {
         this.emitPlain(keycode, mods, col, row, layer);
       }
     }
-    fs.writeFile(DATA_PATH, JSON.stringify(storage), {}, (err) => {
-      if (err) this.#logger.error(err);
-    });
   }
 }

@@ -1,9 +1,7 @@
 import KeyboardRepo from "./repository/keyboardRepo.js";
-import KeysRepo from "./repository/keysRepo.js";
-import KeymapRepo from "./repository/keymapRepo.js";
-import LayerRepo from "./repository/layerRepo.js";
 import HandService from "./handService.js";
 import FingerService from "./fingerService.js";
+import KeymapService from "./keymapService.js";
 
 import Keyboard from "./models/keyboard.js";
 
@@ -12,8 +10,10 @@ import KeyHandler from "../lib/eventHandler.js";
 
 import log from "loglevel";
 import RecordService from "./recordService.js";
-import { KeymapType } from "./models/keymap.js";
-import LayerService from "./layerService.js";
+import Keymap, { KeymapType } from "./models/keymap.js";
+import KeysService from "./keysService.js";
+import { Coordinates } from "./types.js";
+import { formatKeyCode } from "../lib/formatKeycodes.js";
 
 interface CreateKeyboardPayload {
   name: string;
@@ -22,16 +22,22 @@ interface CreateKeyboardPayload {
   fingerMap: number[][];
 }
 
+export type KeymapLayers = ({ character: string } & Pick<
+  Keymap,
+  "keycode" | "type"
+>)[][][][];
+
 export default class KeyboardService {
   #keyboardRepo: KeyboardRepo;
-  #layerRepo: LayerRepo;
-  #keysRepo: KeysRepo;
-  #keymapRepo: KeymapRepo;
+  //
   #fingerService: FingerService;
   #handService: HandService;
-  #layerService: LayerService;
   #recordService: RecordService;
+  #keymapService: KeymapService;
+  #keysService: KeysService;
+  // TODO: Maybe this shoulb be part of KeyboardService
   #keyHandler: KeyHandler;
+
   #keyboardId: number = 0;
 
   #logger = log.getLogger("KeyboardService");
@@ -40,17 +46,16 @@ export default class KeyboardService {
     recordService?: RecordService,
     handService?: HandService,
     fingerService?: FingerService,
-    layerService?: LayerService,
+    keymapService?: KeymapService,
+    keysService?: KeysService,
     keyHandler?: KeyHandler,
   ) {
     this.#keyboardRepo = new KeyboardRepo();
-    this.#layerRepo = new LayerRepo();
-    this.#keysRepo = new KeysRepo();
-    this.#keymapRepo = new KeymapRepo();
     this.#recordService = recordService || new RecordService();
     this.#handService = handService || new HandService();
     this.#fingerService = fingerService || new FingerService();
-    this.#layerService = layerService || new LayerService();
+    this.#keymapService = keymapService || new KeymapService();
+    this.#keysService = keysService || new KeysService();
     this.#keyHandler = keyHandler || new KeyHandler();
   }
 
@@ -67,7 +72,7 @@ export default class KeyboardService {
         productId,
       });
 
-      keyboard.keys = await this.#keysRepo.createKeysWithLayout(
+      keyboard.keys = await this.#keysService.createKeysWithLayout(
         keyboard.id!,
         fingerMap,
       );
@@ -89,26 +94,41 @@ export default class KeyboardService {
     return [];
   }
 
-  async getKeymap(
-    keyboardId: number,
-  ): Promise<{ keycode: string; type: string }[][][][]> {
+  async getKeyboard(keyboardId: number): Promise<Keyboard | null> {
     try {
-      const layerMap = await this.#keymapRepo.getKeyboardKeymaps(keyboardId);
-      const layers: { keycode: string; type: string }[][][][] = [[[[]]]];
+      return this.#keyboardRepo.getById(keyboardId);
+    } catch (error: unknown) {
+      this.#logger.error(error);
 
-      for (const [layerId, keymaps] of layerMap.entries()) {
-        if (!layers[layerId]) {
-          layers[layerId] = [];
+      return null;
+    }
+  }
+
+  async getKeymap(keyboard: Keyboard): Promise<KeymapLayers> {
+    try {
+      const layerMap = await this.#keymapService.getKeyboardKeymaps(keyboard);
+      if (!layerMap) {
+        return [];
+      }
+
+      const layers: KeymapLayers = [];
+
+      for (const [layer, keymaps] of layerMap.entries()) {
+        if (!layers[layer]) {
+          layers[layer] = [];
         }
         for (const keymap of keymaps) {
-          if (!layers[layerId][keymap.key!.row]) {
-            layers[layerId][keymap.key!.row] = [];
+          if (!layers[layer][keymap.row]) {
+            layers[layer][keymap.row] = [];
           }
-          if (!layers[layerId][keymap.key!.row][keymap.key!.column]) {
-            layers[layerId][keymap.key!.row][keymap.key!.column] = [];
+          if (!layers[layer][keymap.row][keymap.column]) {
+            layers[layer][keymap.row][keymap.column] = [];
           }
-          layers[layerId][keymap.key!.row][keymap.key!.column].push({
+
+          const character = formatKeyCode(keymap.keycode);
+          layers[layer][keymap.row][keymap.column].push({
             keycode: keymap.keycode,
+            character: character,
             type: keymap.type,
           });
         }
@@ -134,23 +154,18 @@ export default class KeyboardService {
     }
 
     try {
-      const layers = await Promise.all(
+      await Promise.all(
         keymap.map(async (layout, index) => {
-          let layer = this.#layerRepo.build({ keyboardId, index });
-          layer = await this.#layerRepo.create(layer);
-          this.#logger.debug(`Created layer ${layer.id}`);
-          const keymaps = await this.#layerService.createLayerMapping(
-            keyboard.id!,
-            layer.index,
+          const layer = await this.#keymapService.createLayerMapping(
+            keyboardId,
+            index,
             layout,
           );
-          layer.keymaps = keymaps;
+          if (!layer) return null;
 
           return layer;
         }),
       );
-
-      keyboard.layers = layers;
 
       return keyboard;
     } catch (err) {
@@ -162,20 +177,16 @@ export default class KeyboardService {
   async addKeyboardRecord(params: {
     keycode: string;
     type: KeymapType;
-    col: number;
-    row: number;
-    layer: number;
     modifiers?: number;
+    coordinates: Coordinates;
   }) {
     this.#logger.debug("Adding keyboard record", params);
     try {
       this.#recordService.addRecord(
         this.#keyboardId,
-        params.layer,
+        params.coordinates,
         params.keycode,
         params.modifiers || 0,
-        params.row,
-        params.col,
         params.type,
       );
     } catch (error) {
@@ -185,8 +196,8 @@ export default class KeyboardService {
     try {
       this.#handService.incrementHandUsage(
         this.#keyboardId,
-        params.col,
-        params.row,
+        params.coordinates.column,
+        params.coordinates.row,
       );
     } catch (error) {
       this.#logger.error("Failed to increment hand usage", error);
@@ -195,8 +206,8 @@ export default class KeyboardService {
     try {
       this.#fingerService.incrementFingerUsage(
         this.#keyboardId,
-        params.col,
-        params.row,
+        params.coordinates.column,
+        params.coordinates.row,
       );
     } catch (error) {
       this.#logger.error("Failed to increment finger usage", error);
@@ -215,10 +226,12 @@ export default class KeyboardService {
       this.addKeyboardRecord({
         keycode: event.keycode,
         modifiers: event.mods,
-        col: event.col,
-        row: event.row,
-        layer: event.layer,
         type: event.type || KeymapType.Plain,
+        coordinates: {
+          layer: event.layer,
+          column: event.col,
+          row: event.row,
+        },
       });
     });
 
@@ -228,7 +241,7 @@ export default class KeyboardService {
       );
       this.#keyboardId = keyboard.id!;
 
-      const keys = await this.#keysRepo.createKeysWithLayout(
+      const keys = await this.#keysService.createKeysWithLayout(
         this.#keyboardId,
         hidKeyboard.deviceConfig.fingerMap,
       );

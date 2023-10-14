@@ -3,32 +3,36 @@ import FingerUsageRepo from "./repository/fingerUsageRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
 import Key from "./models/key.js";
 
-// const LPKY = 0;
-// const LRNG = 1;
-// const LMID = 2;
-// const LIND = 3;
-// const LTHB = 4;
-// const RTHB = 5;
-// const RIND = 6;
-// const RMID = 7;
-// const RRNG = 8;
-// const RPKY = 9;
+type FingerCount = [
+  number[],
+  number[],
+  number[],
+  number[],
+  number[],
+  number[],
+  number[],
+  number[],
+  number[],
+  number[],
+];
+
+type CurrentCount = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+];
 
 export default class FingerService {
   #fingerUsageRepo: FingerUsageRepo;
   #keysRepo: KeysRepo;
-  currentCount: [
-    number, // LPKY
-    number, // LRNG
-    number, // LMID
-    number, // LIND
-    number, // LTHB
-    number, // RTHB
-    number, // RIND
-    number, // RMID
-    number, // RRNG
-    number, // RPKY
-  ] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  currentCount: CurrentCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   currentFinger: number = -1;
 
   #logger = log.getLogger("FingerService");
@@ -120,16 +124,3 @@ export default class FingerService {
     }
   }
 }
-
-type FingerCount = [
-  number[],
-  number[],
-  number[],
-  number[],
-  number[],
-  number[],
-  number[],
-  number[],
-  number[],
-  number[],
-];

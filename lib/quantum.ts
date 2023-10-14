@@ -57,3 +57,4 @@ export const SHIFT_MASK = QK_LSFT | QK_RSFT;
 export const ALT_MASK = QK_LALT | QK_RALT;
 export const GUI_MASK = QK_LGUI | QK_RGUI;
 export const CTL_MASK = QK_LCTL | QK_RCTL;
+

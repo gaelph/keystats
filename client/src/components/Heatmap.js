@@ -1,7 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import * as Heatmap from "heatmap.js";
-
-import { formatKeyCode } from "../lib/keycodes.js";
+import IconOrChar from "./IconOrChar.js";
 
 const KEY_WIDTH = 60;
 
@@ -35,6 +34,20 @@ function formatData(matrix, total) {
     min,
     data: entries,
   };
+}
+
+function Char({ codes }) {
+  const plain = codes.find((c) => c.type === "plain");
+  const alter = codes.find((c) => c.type !== "plain");
+  let char = "";
+
+  if (plain && plain.keycode !== "") {
+    char = plain.character?.toLocaleUpperCase() || "";
+  } else {
+    char = alter.character || "";
+  }
+
+  return <IconOrChar>{char}</IconOrChar>;
 }
 
 export default function HeatmapComponent({
@@ -84,15 +97,9 @@ export default function HeatmapComponent({
               {layerRow.map((char, c) => (
                 <div
                   className="key"
-                  title={percent(data.layers?.[layerId]?.[r]?.[c] || 0) + "%"}
+                  title={percent(data[layerId]?.[r]?.[c] || 0) + "%"}
                 >
-                  <span>
-                    {char[0].keycode !== ""
-                      ? formatKeyCode(char[0].keycode)?.toLocaleUpperCase()
-                      : char[1] && char[1].keycode !== ""
-                      ? formatKeyCode(char[1].keycode)?.toLocaleUpperCase()
-                      : ""}
-                  </span>
+                  <Char codes={char}></Char>
                 </div>
               ))}
             </div>

@@ -4,10 +4,10 @@ import Keymap, { KeymapType } from "../models/keymap.js";
 import db, { DatabaseError, NotFoundError } from "../database.js";
 
 import Repository from "./Repository.js";
-import Key from "../models/key.js";
-import Layer from "../models/layer.js";
 
 import KeymapRepo from "./keymapRepo.js";
+import { Coordinates, FilterOptions } from "../types.js";
+import Key from "../models/key.js";
 
 interface AddRecordOptions {
   type: KeymapType;
@@ -18,15 +18,21 @@ interface AddRecordOptions {
   counts?: number;
 }
 
-interface RecordQueryOptions {
-  layer: number | number[];
-  date: Date;
-  period: Date[];
-  after: Date;
-  before: Date;
+export interface Count extends Coordinates {
+  count: number;
 }
 
-type RecordCount = Pick<Record, "id" | "counts" | "modifiers"> &
+export interface HandCount {
+  hand: 0 | 1;
+  count: number;
+}
+
+export interface FingerCount {
+  finger: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  count: number;
+}
+
+export type RecordCount = Pick<Record, "id" | "counts" | "modifiers"> &
   Pick<Keymap, "keycode">;
 
 export default class RecordRepo implements Repository<Record> {
@@ -43,7 +49,14 @@ export default class RecordRepo implements Repository<Record> {
   }
 
   async create(record: Record): Promise<Record> {
-    const query = this.#db(Record.table).insert(record).returning("*");
+    const query = this.#db(Record.table)
+      .insert({
+        keymapId: record.keymapId,
+        modifiers: record.modifiers,
+        counts: record.counts,
+        date: record.date,
+      })
+      .returning("*");
     let result: any;
 
     try {
@@ -61,6 +74,31 @@ export default class RecordRepo implements Repository<Record> {
   async getById(id: number): Promise<Record> {
     let row: any;
     const query = this.#db(Record.table).where({ id }).first();
+
+    try {
+      row = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError("Faild to get record", query, error as Error);
+    }
+
+    if (row) return new Record(row);
+
+    throw new NotFoundError(query);
+  }
+
+  async getOne(
+    options: Pick<Record, "modifiers" | "date" | "keymapId">,
+  ): Promise<Record> {
+    const { modifiers, date, keymapId } = options;
+
+    let row: any;
+    const query = this.#db(Record.table)
+      .where({
+        modifiers: modifiers,
+        date: date,
+        keymapId: keymapId,
+      })
+      .first();
 
     try {
       row = await query;
@@ -108,26 +146,15 @@ export default class RecordRepo implements Repository<Record> {
   }
 
   async addRecord(
-    keyboardId: number,
-    layerIndex: number,
-    keycode: string,
-    { type, modifiers, row, column, counts = 1 }: AddRecordOptions,
+    keymap: Keymap,
+    { modifiers, counts = 1 }: AddRecordOptions,
   ): Promise<Record | null> {
-    // Find keymap by coordinates in layer
-    const keymap = await this.#keymapRepo.getKeymapAtCoordinates(
-      keyboardId,
-      layerIndex,
-      column!,
-      row!,
-      keycode,
-      type,
-    );
-
-    let record = new Record({
+    const record = new Record({
       modifiers,
       keymapId: keymap.id!,
     });
 
+    // TODO: This should be moved to a time utils library
     const date = new Date();
     const today = `${date.getFullYear()}-${
       date.getMonth() + 1
@@ -136,128 +163,95 @@ export default class RecordRepo implements Repository<Record> {
     // If there is already a record for this keycode and modifiers
     // and application on that same day;
     // increment the count
-    let existing: { id: number; counts: number } | undefined;
-    let query = await this.#db
-      .select("id", "counts")
-      .from(Record.table)
-      .where({
-        modifiers: modifiers,
-        date: today,
-        keymapId: keymap.id,
-      })
-      .first();
-
+    let existing: Record | null;
     try {
-      existing = await query;
+      existing = await this.getOne({
+        modifiers,
+        date: today,
+        keymapId: keymap.id!,
+      });
     } catch (error: unknown) {
-      throw new DatabaseError("Failed to get record", query, error as Error);
+      if (!(error instanceof NotFoundError)) {
+        throw error;
+      }
+
+      existing = null;
     }
 
     // Create a new record if it is the first one today
     if (!existing) {
       record.counts = counts;
-      let result;
-      query = this.#db<Record>(Record.table).insert(
-        {
-          application: record.application,
+      return this.create(
+        this.build({
           counts: record.counts,
           date: record.date,
           keymapId: record.keymapId,
           modifiers: record.modifiers,
-        },
-        ["*"],
+        }),
       );
-
-      try {
-        [result] = await query;
-        record = new Record(result);
-      } catch (error: unknown) {
-        throw new DatabaseError(
-          "Failed to create record",
-          query,
-          error as Error,
-        );
-      }
     } else {
-      // Otherwise, increment the count
-      let result;
-      const query = this.#db(Record.table)
-        .where("id", existing.id)
-        .increment("counts", 1)
-        .returning("*");
-
-      try {
-        [result] = await query;
-        record = new Record(result);
-      } catch (error: unknown) {
-        throw new DatabaseError(
-          "Failed to increment record count",
-          query,
-          error as Error,
-        );
-      }
+      // Otherwise, incremnt the count
+      existing.counts! += 1;
+      return this.update(existing);
     }
-
-    return record;
   }
 
-  async getRecords(keyboardId: number): Promise<Record[]> {
-    const query = this.#db(Record.table)
-      .select({
-        id: "records.id",
-        counts: "records.counts",
-        date: "records.date",
-        keymapId: "keymaps.id",
-        modifiers: "records.modifiers",
-        "keymaps.keycode": "keymaps.keycode",
-        "keymaps.type": "keymaps.type",
-        "keymaps.layers.index": "layers.index",
-        "keymaps.layers.keyboardId": "layers.keyboardId",
-        "keymaps.keys.column": "keys.column",
-        "keymaps.keys.row": "keys.row",
-      })
-      .join(Keymap.table, function () {
-        this.on("keymaps.id", "=", "records.keymapId");
-      })
-      .join(Layer.table, function () {
-        this.on("layers.id", "=", "keymaps.layerId");
-      })
-      .join("keys", "keys.id", "=", "keymaps.keyId")
-      .where({ "layers.keyboardId": keyboardId });
+  async getRecords(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<Record[]> {
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select({
+          id: "records.id",
+          counts: "records.counts",
+          date: "records.date",
+          keymapId: "keymaps.id",
+          modifiers: "records.modifiers",
+          "keymaps.id": "keymaps.id",
+          "keymaps.keycode": "keymaps.keycode",
+          "keymaps.type": "keymaps.type",
+          "keymaps.layer": "keymaps.layer",
+          "keymaps.keyboardId": "keymaps.keyboardId",
+          "keymaps.column": "keymaps.column",
+          "keymaps.row": "keymaps.row",
+        })
+        .join(Keymap.table, function () {
+          this.on("keymaps.id", "=", "records.keymapId");
+        })
+        .where({ "keymaps.keyboardId": keyboardId }),
+      filter,
+    );
 
     try {
-      const rows = await query;
-      return rows.map((row) => new Record(row));
+      const results = await query;
+      return results.map((result: any) => new Record(result));
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get records", query, error as Error);
     }
   }
 
-  async getTotalCounts(
+  async getKeymapUsage(
     keyboardId: number,
-  ): Promise<
-    { count: number | string; layer: number; row: number; column: number }[]
-  > {
-    const query = this.#db(Record.table)
-      .select([
-        "layers.index AS layer",
-        "keys.row AS row",
-        "keys.column AS column",
-      ])
-      .sum("records.counts AS count")
-      .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
-      .join(Layer.table, "layers.id", "=", "keymaps.layerId")
-      .join(Key.table, "keys.id", "=", "keymaps.keyId")
-      .where("layers.keyboardId", keyboardId)
-      .groupBy("layers.index", "keys.column", "keys.row");
+    filter: FilterOptions = {},
+  ): Promise<Count[]> {
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select([
+          "keymaps.layer AS layer",
+          "keymaps.row AS row",
+          "keymaps.column AS column",
+        ])
+        .sum("records.counts AS count")
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .where("keymaps.keyboardId", keyboardId)
+        .groupBy("keymaps.layer", "keymaps.row", "keymaps.column")
+        .orderBy("keymaps.layer", "keymaps.row", "keymaps.column"),
+      filter,
+    );
 
     try {
-      return (await query) as {
-        count: number;
-        layer: number;
-        row: number;
-        column: number;
-      }[];
+      return (await query) as Count[];
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get total counts",
@@ -267,13 +261,147 @@ export default class RecordRepo implements Repository<Record> {
     }
   }
 
-  async getRecordsBy({
-    date,
-    period,
-    after,
-    before,
-    layer,
-  }: RecordQueryOptions): Promise<Record[]> {
+  async getLayerUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<Pick<Count, "layer" | "count">[]> {
+    let result: { layer: number; count: number }[];
+    let query;
+
+    try {
+      query = this.filterQuery(
+        this.#db(Record.table)
+          .select(["keymaps.layer AS layer"])
+          .sum("records.counts AS count")
+          .where("keymaps.keyboardId", keyboardId)
+          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+          .groupBy("layer")
+          .orderBy("layer"),
+        filter,
+      );
+
+      result = (await query) as { layer: number; count: number }[];
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get layer usage",
+        query!,
+        error as Error,
+      );
+    }
+
+    return result || [];
+  }
+
+  async getRowUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<Pick<Count, "row" | "count">[]> {
+    let result: { row: number; count: number }[];
+    let query;
+
+    try {
+      query = this.filterQuery(
+        this.#db(Record.table)
+          .select(["keymaps.row AS row"])
+          .sum("records.counts AS count")
+          .where("keymaps.keyboardId", keyboardId)
+          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+          .groupBy("keymaps.row")
+          .orderBy("keymaps.row"),
+        filter,
+      );
+
+      result = (await query) as { row: number; count: number }[];
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get layer usage",
+        query!,
+        error as Error,
+      );
+    }
+
+    return result || [];
+  }
+
+  async getHandUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<HandCount[]> {
+    let result: HandCount[];
+    let query;
+
+    try {
+      query = this.filterQuery(
+        this.#db(Record.table)
+          .select(["keys.hand AS hand"])
+          .sum("records.counts AS count")
+          .join(Key.table, function (join) {
+            join
+              .on("keymaps.keyboardId", "keys.keyboardId")
+              .andOn("keymaps.row", "keys.row")
+              .andOn("keymaps.column", "keys.column");
+          })
+          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+          .where("keymaps.keyboardId", keyboardId)
+          .groupBy("keys.hand")
+          .orderBy("keys.hand"),
+        filter,
+      );
+
+      result = (await query) as HandCount[];
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get layer usage",
+        query!,
+        error as Error,
+      );
+    }
+
+    return result || [];
+  }
+
+  async getFingerUsage(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<FingerCount[]> {
+    let result: FingerCount[];
+    let query;
+
+    try {
+      query = this.filterQuery(
+        this.#db(Record.table)
+          .select(["keys.finger AS finger"])
+          .sum("records.counts AS count")
+          .join(Key.table, function (join) {
+            join
+              .on("keymaps.keyboardId", "keys.keyboardId")
+              .andOn("keymaps.row", "keys.row")
+              .andOn("keymaps.column", "keys.column");
+          })
+          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+          .where("keymaps.keyboardId", keyboardId)
+          .groupBy("keys.finger")
+          .orderBy("keys.finger"),
+        filter,
+      );
+
+      result = (await query) as FingerCount[];
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get layer usage",
+        query!,
+        error as Error,
+      );
+    }
+
+    return result || [];
+  }
+
+  private filterQuery(
+    query: Knex.QueryBuilder,
+    options: FilterOptions = {},
+  ): Knex.QueryBuilder {
+    const { date, period, after, before, type } = options;
     if (
       (date && period) ||
       (date && after) ||
@@ -286,84 +414,85 @@ export default class RecordRepo implements Repository<Record> {
       );
     }
 
-    const where = (builder: Knex.QueryBuilder): Knex.QueryBuilder => {
-      if (period) {
-        builder.whereBetween("date", [period[0], period[1]]);
-      }
-      if (after) {
-        builder.where("date", ">=", after);
-      }
-      if (before) {
-        builder.where("date", "<=", before);
-      }
-      if (date) {
-        builder.where("date", "=", date);
-      }
-      if (layer) {
-        if (Array.isArray(layer)) {
-          builder.whereIn("layer", layer);
-        } else {
-          builder.where("layer", "=", layer);
-        }
-      }
+    if (period) {
+      query.whereBetween("records.date", [period[0], period[1]]);
+    }
+    if (after) {
+      query.where("records.date", ">=", after);
+    }
+    if (before) {
+      query.where("records.date", "<=", before);
+    }
+    if (date) {
+      query.where("records.date", "=", date);
+    }
+    if (type) {
+      query.where("keymaps.type", "=", type);
+    }
 
-      return builder;
-    };
+    return query;
+  }
 
-    const query = this.#db
-      .column([
-        { id: "records.id" },
-        { keycode: "records.keycode" },
-        { modifiers: "records.modifiers" },
-        { counts: "records.counts" },
-        { date: "records.date" },
-        { application: "records.application" },
-        { keymapId: "records.keymapId" },
-        { "keymap.id": "keymaps.id" },
-        { "keymap.keyId": "keymaps.keyId" },
-        { "keymap.layerId": "keymaps.layerId" },
-        { "keymap.keycode": "keymaps.keycode" },
-        { "keymap.key.id": "keys.id" },
-        { "keymap.key.column": "keys.column" },
-        { "keymap.key.row": "keys.row" },
-      ])
-      .select()
-      .from(Record.table)
-      .join("keymaps", function () {
-        this.on("keymaps.id", "=", "records.keymapId");
-      })
-      .join("keys", function () {
-        this.on("keys.id", "=", "keymaps.keyId");
-      })
-      .where(where);
+  // TODO: might be useless, evaluate removal
+  async getRecordsBy(filter: FilterOptions): Promise<Record[]> {
+    const query = this.filterQuery(
+      this.#db
+        .column([
+          { id: "records.id" },
+          { keycode: "records.keycode" },
+          { modifiers: "records.modifiers" },
+          { counts: "records.counts" },
+          { date: "records.date" },
+          { application: "records.application" },
+          { keymapId: "records.keymapId" },
+          { "keymap.id": "keymaps.id" },
+          { "keymap.keyId": "keymaps.keyId" },
+          { "keymap.layer": "keymaps.layer" },
+          { "keymap.keycode": "keymaps.keycode" },
+          { "keymap.column": "keymaps.column" },
+          { "keymap.row": "keymaps.row" },
+        ])
+        .select()
+        .from(Record.table)
+        .join("keymaps", function () {
+          this.on("keymaps.id", "=", "records.keymapId");
+        }),
+      filter,
+    );
 
     try {
       const records = await query;
-      return records.map((record) => new Record(record));
+      return records.map((record: any) => new Record(record));
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get records", query, error as Error);
     }
   }
 
-  async getPlainRecords(keyboardId: number): Promise<RecordCount[]> {
-    const query = this.#db(Record.table)
-      .select({
-        id: "records.id",
-        keycode: "keymaps.keycode",
-        modifiers: "records.modifiers",
-        counts: "records.counts",
-      })
-      .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
-      .join(Layer.table, "layers.id", "=", "keymaps.layerId")
-      .where({
-        "layers.keyboardId": keyboardId,
-        "keymaps.type": KeymapType.Plain,
-      });
+  async getCharacterCount(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<RecordCount[]> {
+    filter.type = KeymapType.Plain;
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select({
+          keycode: "keymaps.keycode",
+          modifiers: "records.modifiers",
+        })
+        .sum("records.counts AS counts")
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .where({
+          "keymaps.keyboardId": keyboardId,
+        })
+        .groupBy(["keycode", "modifiers"])
+        .orderBy("counts", "desc"),
+      filter,
+    );
 
     try {
       const result = await query;
 
-      return result;
+      return result as RecordCount[];
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get plain records",
@@ -371,5 +500,38 @@ export default class RecordRepo implements Repository<Record> {
         error as Error,
       );
     }
+  }
+
+  async getTotalKeypresses(
+    keyboardId: number,
+    filter: FilterOptions = {},
+  ): Promise<number> {
+    let result: { counts: number };
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .sum("records.counts AS counts")
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .where("keymaps.keyboardId", keyboardId)
+        .first(),
+      filter,
+    );
+
+    try {
+      result = (await query) as { counts: number };
+      console.log(
+        "LS -> service/repository/recordRepo.ts:519 -> result: ",
+        result,
+      );
+
+      return result.counts;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get total keypresses",
+        query,
+        error as Error,
+      );
+    }
+
+    return 0;
   }
 }

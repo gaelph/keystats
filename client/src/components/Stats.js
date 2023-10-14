@@ -1,17 +1,10 @@
 import { useCallback, useMemo } from "react";
-import { computeTotals } from "../lib/stat.js";
-
-import {
-  getTotalKeyPresses,
-  getTotalsByHand,
-  getTotalsByFinger,
-  getTotalByRow,
-} from "../lib/sums.js";
 import { Tabs, Tab } from "./Tabs.js";
+import IconOrChar from "./IconOrChar.js";
 
 const numberFormater = new Intl.NumberFormat("en-US", {});
 function formatNumber(n) {
-  return numberFormater.format(n);
+  return numberFormater.format(n || 0);
 }
 
 const FINGER_NAMES = [
@@ -32,38 +25,25 @@ const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 const p = (v, total) => ((100 * v) / total).toFixed(2);
 
 export default function StatsComponent({
-  counts: layers,
+  counts,
   handAndFingerUsage,
   characters,
 }) {
-  const [freqTotal, freqTotals] = computeTotals(characters || {});
-  const usableLayers = useMemo(() => {
-    if (!layers) {
-      return {};
-    }
-    return Object.entries(layers)
-      .filter(([key]) => parseInt(key || 0, 10) < 6)
-      .reduce((acc, [key, value]) => {
-        acc[key] = value || 0;
-        return acc;
-      }, {});
-  }, [layers]);
-
-  const totalKeypresses = useMemo(
-    () => getTotalKeyPresses(usableLayers),
-    [usableLayers],
-  );
+  const { totalKeypresses } = counts;
+  const { records, totalCharacters } = characters;
 
   const percent = useCallback(
     (v) => {
-      return ((100 * v) / totalKeypresses.total).toFixed(2);
+      if (!totalKeypresses) return 0;
+      return ((100 * v) / totalKeypresses).toFixed(2);
     },
-    [totalKeypresses.total],
+    [totalKeypresses],
   );
 
-  const hand = useMemo(() => getTotalsByHand(usableLayers), [usableLayers]);
-  const finger = useMemo(() => getTotalsByFinger(usableLayers), [usableLayers]);
-  const row = useMemo(() => getTotalByRow(usableLayers), [usableLayers]);
+  const hand = { left: counts.handUsage[0], right: counts.handUsage[1] };
+  const finger = counts.fingerUsage;
+  const row = counts.rowUsage;
+  const layer = counts.layerUsage;
 
   const fingerUsage = handAndFingerUsage?.fingerUsage;
   const fingerUsageSumPerFinger = useMemo(() => {
@@ -71,6 +51,7 @@ export default function StatsComponent({
       return counts.reduce((acc, usage) => acc + usage, 0);
     });
   }, [fingerUsage]);
+
   const handUsage = handAndFingerUsage?.handUsage;
   const handUsageSumPerHand = useMemo(() => {
     return handUsage?.map((counts) => {
@@ -82,7 +63,7 @@ export default function StatsComponent({
     <Tabs>
       <Tab title="Keypress Statistics">
         <div>
-          <h3>Total key presses: {formatNumber(totalKeypresses.total)}</h3>
+          <h3>Total key presses: {formatNumber(totalKeypresses)}</h3>
           <p>
             All key presses are counted, including keyboard shortcuts (such as
             Ctrl+Alt+Shift+A, that counts as 4 presses), repetitively typing the
@@ -90,7 +71,7 @@ export default function StatsComponent({
           </p>
           <h4>Layer usage</h4>
           <ul>
-            {Object.entries(totalKeypresses.byLayer).map(([key, value]) => (
+            {Object.entries(layer).map(([key, value]) => (
               <li key={`keypress-layer-${key}`}>
                 <span>
                   <strong>Layer #{key}:</strong>{" "}
@@ -231,18 +212,45 @@ export default function StatsComponent({
       </Tab>
       <Tab title="Character Statistics">
         <div>
-          <h3>Total characters entered: {formatNumber(freqTotal)}</h3>
+          <h3>Total characters entered: {formatNumber(totalCharacters)}</h3>
           <table>
             <thead></thead>
             <tbody>
-              {freqTotals.map(([char, count]) => {
-                return (
-                  <tr title={`Entered ${count} times`}>
-                    <th>{char}</th>
-                    <td>{((100 * count) / freqTotal).toFixed(2)}%</td>
-                  </tr>
-                );
-              })}
+              {records &&
+                records
+                  .filter(({ character }) => !!character)
+                  .map(({ character, counts }) => {
+                    return (
+                      <tr title={`Entered ${counts} times`}>
+                        <th>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginTop: 5,
+                              marginBottom: 5,
+                              minWidth: 100,
+                            }}
+                          >
+                            <IconOrChar>{character}</IconOrChar>
+                          </div>
+                        </th>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginTop: 5,
+                              marginBottom: 5,
+                              minWidth: 100,
+                            }}
+                          >
+                            {((100 * counts) / totalCharacters).toFixed(2)}%
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
             </tbody>
           </table>
         </div>

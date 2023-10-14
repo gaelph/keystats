@@ -19,75 +19,27 @@ export default class KeysRepo implements Repository<Key> {
     let result;
 
     try {
-      const exists = await this.getAtCoordinates(
-        data.keyboardId,
-        data.column,
-        data.row,
-      );
-
       query = this.#db(Key.table)
-        .update({
+        .insert({
           keyboardId: data.keyboardId,
           column: data.column,
           row: data.row,
           hand: data.hand,
           finger: data.finger,
         })
-        .where({ id: exists.id })
+        .onConflict(["keyboardId", "column", "row"])
+        .merge({
+          hand: data.hand,
+          finger: data.finger,
+        })
         .returning("*");
-    } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        query = this.#db(Key.table)
-          .insert({
-            keyboardId: data.keyboardId,
-            column: data.column,
-            row: data.row,
-            hand: data.hand,
-            finger: data.finger,
-          })
-          .returning("*");
-      } else {
-        throw new DatabaseError("Failed to create key", query!, error as Error);
-      }
-    }
 
-    try {
-      [result] = await query;
+      result = await query;
     } catch (error: unknown) {
       throw new DatabaseError("Failed to create key", query!, error as Error);
     }
 
     return new Key(result);
-  }
-
-  async createKeysWithLayout(
-    keyboardId: number,
-    layout: number[][],
-  ): Promise<Key[]> {
-    try {
-      const keys = await Promise.all(
-        layout
-          .flatMap((rowData, row) => {
-            return rowData.map((finger, column) => {
-              const hand = finger < 5 ? 0 : 1;
-              return {
-                column,
-                row,
-                finger,
-                hand,
-                keyboardId,
-              };
-            });
-          })
-          .map(async (value) => {
-            return await this.create(this.build(value));
-          }),
-      );
-
-      return keys;
-    } catch (error: unknown) {
-      throw new DatabaseError("Could not create keys", null, error as Error);
-    }
   }
 
   async getById(_id: number): Promise<Key> {
@@ -126,21 +78,32 @@ export default class KeysRepo implements Repository<Key> {
   async update(data: Key): Promise<Key> {
     let result: any;
     const query = this.#db<Key>(Key.table)
-      .where({ id: data.id })
+      .where({
+        keyboardId: data.keyboardId,
+        column: data.column,
+        row: data.row,
+      })
       .update({ hand: data.hand, finger: data.finger });
 
     try {
-      await this.getById(data.id!);
+      await this.getAtCoordinates(data.keyboardId, data.column, data.row);
       result = await query;
+
       return new Key(result);
     } catch (error: unknown) {
       throw new DatabaseError("Could not update key", query, error as Error);
     }
   }
 
-  async delete(id: number): Promise<void> {
-    const query = this.#db(Key.table).where({ id: id }).del();
-    await this.getById(id);
+  async delete(_id: number): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  async deleteKey(key: Key): Promise<void> {
+    const query = this.#db<Key>(Key.table)
+      .where({ keyboardId: key.keyboardId, column: key.column, row: key.row })
+      .del();
+    await this.getAtCoordinates(key.keyboardId, key.column, key.row);
 
     try {
       await query;

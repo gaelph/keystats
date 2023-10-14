@@ -1,13 +1,13 @@
 const API_URL =
   process.env.NODE_ENV === "production" ? "" : "http://localhost:12000";
 
-export async function getData() {
-  const response = await fetch(API_URL + "/log.json");
-  if (response.status !== 200) {
-    throw new Error(`Error fetching data: ${response.status}`);
-  }
-  return response.json();
-}
+// export async function getData() {
+//   const response = await fetch(API_URL + "/log.json");
+//   if (response.status !== 200) {
+//     throw new Error(`Error fetching data: ${response.status}`);
+//   }
+//   return response.json();
+// }
 
 export async function listKeyboards() {
   const response = await fetch(API_URL + "/api/keyboards");
@@ -42,7 +42,7 @@ export async function getTotalCounts(keyboardId) {
   }
 
   const responseJson = await response.json();
-  return responseJson.counts;
+  return responseJson;
 }
 
 export async function getCharacterCounts(keyboardId) {
@@ -54,7 +54,7 @@ export async function getCharacterCounts(keyboardId) {
   }
 
   const responseJson = await response.json();
-  return responseJson.records;
+  return responseJson;
 }
 
 export async function getHandAndFingerUsage(keyboardId) {

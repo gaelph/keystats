@@ -32,30 +32,12 @@ export default class KeyboardRepo implements Repository<Keyboard> {
     let query: Knex.QueryBuilder;
 
     try {
-      const exists = await this.getByVendorAndProductId({
-        vendorId,
-        productId,
-      });
-
       query = this.#db(Keyboard.table)
         .update({ vendorId: vendorId, productId: productId, name: name })
-        .where({ id: exists.id })
+        .onConflict(["vendorId", "productId"])
+        .merge({ name: name })
         .returning("*");
-    } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        query = this.#db(Keyboard.table)
-          .insert({ vendorId: vendorId, productId: productId, name: name })
-          .returning("*");
-      } else {
-        throw new DatabaseError(
-          "Failed to create keyboard",
-          query!,
-          error as Error,
-        );
-      }
-    }
 
-    try {
       [result] = await query;
     } catch (error: unknown) {
       throw new DatabaseError(
@@ -73,7 +55,7 @@ export default class KeyboardRepo implements Repository<Keyboard> {
 
     try {
       const rows = await query;
-      return rows.map((row) => this.build(row));
+      return rows.map((row) => new Keyboard(row));
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get keyboards", query, error as Error);
     }
@@ -145,7 +127,7 @@ export default class KeyboardRepo implements Repository<Keyboard> {
     const query = this.#db(Keyboard.table)
       .update({ name: keyboard.name })
       .where({ id: keyboard.id })
-      .returning(["id", "name"]);
+      .returning("*");
 
     try {
       const exists = await this.getById(keyboard.id);
@@ -157,9 +139,7 @@ export default class KeyboardRepo implements Repository<Keyboard> {
       error = err as Error;
     }
     if (update) {
-      keyboard.id = update.id;
-      keyboard.name = update.name;
-      return keyboard;
+      return new Keyboard(update);
     }
 
     throw new DatabaseError("Failed to update keyboard", query, error);

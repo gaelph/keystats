@@ -6,10 +6,13 @@ import Key from "./models/key.js";
 const LEFT = 0;
 const RIGHT = 1;
 
+type HandCount = [number[], number[]];
+type CurrentCount = [number, number];
+
 export default class HandService {
   #handUsageRepo: HandUsageRepo;
   #keysRepo: KeysRepo;
-  currentCount: [number, number] = [0, 0];
+  currentCount: CurrentCount = [0, 0];
   currentHand: number = 1;
 
   #logger = log.getLogger("HandService");
@@ -77,10 +80,10 @@ export default class HandService {
     }
   }
 
-  async getHandUsage(keyboardId: number): Promise<[number[], number[]] | null> {
+  async getHandUsage(keyboardId: number): Promise<HandCount | null> {
     try {
       const data = await this.#handUsageRepo.getForKeyboard(keyboardId);
-      const result: [number[], number[]] = [[], []];
+      const result: HandCount = [[], []];
 
       for (const datum of data) {
         const { hand, repeats, count } = datum;
