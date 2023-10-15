@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import dayjs from "dayjs";
 import dayjsen from "dayjs/locale/en.js";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore.js";
@@ -109,14 +109,33 @@ function DatePicker({ className, selected, onChange, includeDates }) {
     [setDate],
   );
 
+  const self = useRef();
+  useEffect(() => {
+    const listener = ({ target }) => {
+      if (target === self.current) {
+        self.current?.blur();
+      }
+    };
+
+    document.addEventListener("click", listener);
+
+    return () => {
+      document.removeEventListener("click", listener);
+    };
+  }, []);
+
   return (
-    <button className={"date-picker " + className}>
-      <div
-        type="button"
-        className="date-picker-button"
-        tabIndex="0"
-        onClick={() => {}}
-      >
+    <button
+      ref={self}
+      className={"date-picker " + className}
+      onClick={() => {
+        self.current?.focus();
+      }}
+      onBlur={() => {
+        self.current?.blur();
+      }}
+    >
+      <div type="button" className="date-picker-button">
         <span className="material-symbols-sharp">today</span>
         {selected !== null && (
           <span className="date-picker-button-date">
