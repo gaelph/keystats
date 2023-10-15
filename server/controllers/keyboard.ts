@@ -6,27 +6,37 @@ import HandService from "../../service/handService.js";
 import FingerService from "../../service/fingerService.js";
 import KeyboardService from "../../service/keyboardService.js";
 import {
-  GetKeymapsParams,
-  validateGetKeymapsParams,
+  FilterQuery,
+  KeyboardIdParam,
+  filterQuery,
+  keyboardIdParam,
+  validateParams,
+  validateQuery,
 } from "../dto/keyboardsDto.js";
 import * as Keycodes from "../../lib/keycodes.js";
 import { formatKeyCode } from "../../lib/formatKeycodes.js";
 import { RecordCount } from "../../service/repository/recordRepo.js";
 
-const router = Router();
+type KeyboardRequest = Request<KeyboardIdParam, any, any, FilterQuery>;
+type KeyboardListRequest = Request<{}, any, any, {}>;
+
+const router = Router({ mergeParams: true });
+const entityRouter = Router({ mergeParams: true });
 
 const recordService = new RecordService();
 const handService = new HandService();
 const fingerService = new FingerService();
 const keyboardService = new KeyboardService();
 
-async function listKeyboards(req: Request, res: Response) {
+async function listKeyboards(req: KeyboardListRequest, res: Response) {
   const keyboards = await keyboardService.listKeyboards();
   res.json({ keyboards });
 }
 
-async function getKeymaps(req: Request<GetKeymapsParams>, res: Response) {
-  const keyboard = await keyboardService.getKeyboard(req.params.keyboardId);
+async function getKeymaps(req: KeyboardRequest, res: Response) {
+  const { keyboardId } = req.params;
+
+  const keyboard = await keyboardService.getKeyboard(keyboardId);
   if (!keyboard) {
     return res.status(404).send();
   }
@@ -36,36 +46,25 @@ async function getKeymaps(req: Request<GetKeymapsParams>, res: Response) {
   res.json({ keymaps: keymap });
 }
 
-async function getDates(req: Request, res: Response) {
-  console.log("get dates", req.params.keyboardId);
-  if (!req.params.keyboardId) {
-    return res.status(404).send();
-  }
+async function getDates(req: KeyboardRequest, res: Response) {
+  const { keyboardId } = req.params;
 
-  const keyboardId = parseInt(req.params.keyboardId, 10);
   const dates = await recordService.getAvailableDates(keyboardId);
 
   res.json({ dates });
 }
 
-async function getTotalCounts(req: Request, res: Response) {
-  if (!req.params.keyboardId) {
-    return res.status(404).send();
-  }
+async function getTotalCounts(req: KeyboardRequest, res: Response) {
+  const { keyboardId } = req.params;
+  const filters = req.query;
 
-  let date: Date | undefined = undefined;
-  if (req.query.date) {
-    date = new Date(req.query.date as string);
-  }
-
-  const keyboardId = parseInt(req.params.keyboardId, 10);
   const results = await Promise.all([
-    await recordService.getKeymapUsage(keyboardId, { date }),
-    await recordService.getLayerUsage(keyboardId, { date }),
-    await recordService.getRowUsage(keyboardId, { date }),
-    await recordService.getHandUsage(keyboardId, { date }),
-    await recordService.getFingerUsage(keyboardId, { date }),
-    await recordService.getTotalKeypresses(keyboardId, { date }),
+    await recordService.getKeymapUsage(keyboardId, filters),
+    await recordService.getLayerUsage(keyboardId, filters),
+    await recordService.getRowUsage(keyboardId, filters),
+    await recordService.getHandUsage(keyboardId, filters),
+    await recordService.getFingerUsage(keyboardId, filters),
+    await recordService.getTotalKeypresses(keyboardId, filters),
   ]);
 
   const [
@@ -87,18 +86,11 @@ async function getTotalCounts(req: Request, res: Response) {
   });
 }
 
-async function getCharacterCounts(req: Request, res: Response) {
-  if (!req.params.keyboardId) {
-    return res.status(404).send();
-  }
+async function getCharacterCounts(req: KeyboardRequest, res: Response) {
+  const { keyboardId } = req.params;
+  const filters = req.query;
 
-  let date: Date | undefined = undefined;
-  if (req.query.date) {
-    date = new Date(req.query.date as string);
-  }
-
-  const keyboardId = parseInt(req.params.keyboardId, 10);
-  const records = await recordService.getCharacterCount(keyboardId, { date });
+  const records = await recordService.getCharacterCount(keyboardId, filters);
   const formattedRecords: (RecordCount & { character: string })[] =
     records.reduce(
       (acc, record) => {
@@ -130,12 +122,9 @@ async function getCharacterCounts(req: Request, res: Response) {
   res.json({ records: formattedRecords, totalCharacters });
 }
 
-async function getHandAndFingerCounts(req: Request, res: Response) {
-  if (!req.params.keyboardId) {
-    return res.status(404).send();
-  }
+async function getHandAndFingerCounts(req: KeyboardRequest, res: Response) {
+  const { keyboardId } = req.params;
 
-  const keyboardId = parseInt(req.params.keyboardId, 10);
   const handUsage = await handService.getHandUsage(keyboardId);
   const fingerUsage = await fingerService.getFingerUsage(keyboardId);
 
@@ -143,10 +132,14 @@ async function getHandAndFingerCounts(req: Request, res: Response) {
 }
 
 router.get("/", listKeyboards);
-router.get("/:keyboardId/available-dates", getDates);
-router.get("/:keyboardId/keymaps", [validateGetKeymapsParams], getKeymaps);
-router.get("/:keyboardId/totalCounts", getTotalCounts);
-router.get("/:keyboardId/characterCounts", getCharacterCounts);
-router.get("/:keyboardId/handAndFingerUsage", getHandAndFingerCounts);
+
+entityRouter.use(validateParams(keyboardIdParam), validateQuery(filterQuery));
+entityRouter.get("/available-dates", getDates);
+entityRouter.get("/keymaps", getKeymaps);
+entityRouter.get("/totalCounts", getTotalCounts);
+entityRouter.get("/characterCounts", getCharacterCounts);
+entityRouter.get("/handAndFingerUsage", getHandAndFingerCounts);
+
+router.use("/:keyboardId", entityRouter);
 
 export default router;

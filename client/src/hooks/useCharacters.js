@@ -21,7 +21,7 @@ export default function useCharacters(keyboard, date) {
       if (date) {
         filters.date = date.format("YYYY-MM-DD");
       }
-      const data = await getCharacterCounts(keyboard.id, date);
+      const data = await getCharacterCounts(keyboard.id, filters);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
