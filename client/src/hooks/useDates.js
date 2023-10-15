@@ -2,9 +2,9 @@ import { useReducer, useCallback, useEffect } from "react";
 import { setLoading, setError, setData } from "../store/actions.js";
 import dataReducer from "../store/reducer.js";
 
-import { getCharacterCounts } from "../lib/api.js";
+import { getDates } from "../lib/api.js";
 
-export default function useCharacters(keyboard, date) {
+export default function useData(keyboard) {
   const [state, dispatch] = useReducer(dataReducer, {
     loading: false,
     error: null,
@@ -17,7 +17,7 @@ export default function useCharacters(keyboard, date) {
     }
     dispatch(setLoading(true));
     try {
-      const data = await getCharacterCounts(keyboard.id, date);
+      const data = await getDates(keyboard.id);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
@@ -25,7 +25,7 @@ export default function useCharacters(keyboard, date) {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [date, keyboard]);
+  }, [keyboard]);
 
   useEffect(() => {
     fetchData();

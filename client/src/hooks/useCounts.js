@@ -4,7 +4,7 @@ import dataReducer from "../store/reducer.js";
 
 import { getTotalCounts } from "../lib/api.js";
 
-export default function useCounts(keyboard) {
+export default function useCounts(keyboard, date) {
   const [state, dispatch] = useReducer(dataReducer, {
     loading: false,
     error: null,
@@ -15,7 +15,7 @@ export default function useCounts(keyboard) {
     if (!keyboard) return;
     dispatch(setLoading(true));
     try {
-      const data = await getTotalCounts(keyboard.id);
+      const data = await getTotalCounts(keyboard.id, date);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
@@ -23,7 +23,7 @@ export default function useCounts(keyboard) {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [keyboard]);
+  }, [keyboard, date]);
 
   useEffect(() => {
     fetchData();

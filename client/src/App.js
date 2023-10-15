@@ -4,45 +4,52 @@ import "./App.css";
 import { useCallback, useMemo, useState, useEffect } from "react";
 
 import useCounts from "./hooks/useCounts.js";
+import useDates from "./hooks/useDates.js";
 import useKeyboards from "./hooks/useKeyboards.js";
 import useKeymaps from "./hooks/useKeymaps.js";
 import useCharacters from "./hooks/useCharacters.js";
 import useHandAndFingerUsage from "./hooks/useHandAndFingerUsage.js";
 import HeatmapComponent from "./components/Heatmap.js";
 import StatsComponent from "./components/Stats.js";
-import { getTotalKeyPresses } from "./lib/sums.js";
+import Dates from "./components/Dates.js";
 
 function getUsableLayers(layers) {
   return layers.slice(0, 6);
 }
 
 function App() {
+  const [date, setDate] = useState(null);
   const [keyboard, setKeyboard] = useState(null);
   const [keyboards, loadingKeyboards, errorKeyboards /*, refreshKeyboards*/] =
     useKeyboards();
   const [keymaps, loadingKeymaps, errorKeymaps, refreshKeymaps] =
     useKeymaps(keyboard);
   const [characters, loadingCharacters, errorCharacters, refreshCharacters] =
-    useCharacters(keyboard);
-  const [counts, loadingCounts, errorCounts, refreshCounts] =
-    useCounts(keyboard);
+    useCharacters(keyboard, date);
+  const [counts, loadingCounts, errorCounts, refreshCounts] = useCounts(
+    keyboard,
+    date,
+  );
   const [
     handAndFingerUsage,
     loadingHandAndFingerUsage,
     errorHandAndFingerUsage,
     refreshHandAndFingerUsage,
   ] = useHandAndFingerUsage(keyboard);
+  const [dates, loadingDates, errorDates, refreshDates] = useDates(keyboard);
 
   const refreshAllData = useCallback(() => {
     refreshKeymaps();
     refreshCounts();
     refreshCharacters();
     refreshHandAndFingerUsage();
+    refreshDates();
   }, [
     refreshCharacters,
     refreshCounts,
     refreshHandAndFingerUsage,
     refreshKeymaps,
+    refreshDates,
   ]);
 
   const usableLayers = useMemo(() => {
@@ -51,13 +58,6 @@ function App() {
     }
     return null;
   }, [counts]);
-
-  const totalKeyPresses = useMemo(() => {
-    if (usableLayers) {
-      return getTotalKeyPresses(usableLayers);
-    }
-    return null;
-  }, [usableLayers]);
 
   useEffect(() => {
     if (keyboards && Array.isArray(keyboards) && keyboards.length > 0) {
@@ -70,14 +70,16 @@ function App() {
     loadingKeymaps ||
     loadingCounts ||
     loadingHandAndFingerUsage ||
-    loadingCharacters;
+    loadingCharacters ||
+    loadingDates;
 
   const error =
     errorKeyboards ||
     errorKeymaps ||
     errorCounts ||
     errorHandAndFingerUsage ||
-    errorCharacters;
+    errorCharacters ||
+    errorDates;
 
   return (
     <div className="App">
@@ -89,6 +91,11 @@ function App() {
           <button onClick={refreshAllData}>Refresh</button>
         )}
       </header>
+      <div>
+        {!loadingDates && dates && (
+          <Dates dates={dates} selectedDate={date} onChange={setDate} />
+        )}
+      </div>
       <div class="content-container">
         <div class="layer-container">
           {counts && keymaps && (
@@ -104,8 +111,7 @@ function App() {
                         matrix={matrix}
                         layerId={layerId}
                         layer={keymaps[layerId]}
-                        layerTotal={totalKeyPresses.byLayer[layerId]}
-                        total={totalKeyPresses.total}
+                        total={counts.totalKeypresses}
                       />
                     </li>
                   );

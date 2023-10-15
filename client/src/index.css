@@ -117,3 +117,129 @@ th .material-symbols-sharp {
 .tab.active {
   display: block;
 }
+
+.dates {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 1em auto;
+}
+
+.dates button {
+  appearance: none;
+  padding: 0.5em 1em;
+  border: 1px solid #777;
+  border-right: 0;
+  border-radius: 0;
+}
+
+.dates button:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.dates button:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-right: 1px solid #777;
+}
+
+.dates > button.active {
+  background-color: #aaa;
+  color: #fff;
+}
+
+.date-picker {
+  position: relative;
+}
+
+.date-picker-button {
+  display: flex;
+  align-items: center;
+}
+
+.date-picker-button-date {
+  margin-left: 0.5em;
+}
+
+.date-picker:focus-within .date-picker-pane {
+  display: block;
+  z-index: 1000;
+  color: black;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
+}
+
+.date-picker-pane {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.25em;
+  background-color: white;
+  padding: 1em;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  color: black;
+}
+
+.date-picker button {
+  background-color: transparent;
+  border: 0 !important;
+  cursor: pointer;
+}
+
+.date-picker-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5em;
+}
+
+.date-picker td {
+  text-align: center;
+}
+
+.date-picker td button,
+.date-picker th span {
+  display: flex;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.date-picker td button {
+  font-weight: 500;
+}
+
+.date-picker td button.selected {
+  color: white;
+  font-weight: bold;
+  z-index: 10;
+}
+.date-picker td button.out-of-month,
+.date-picker td button.out-of-month.disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  font-weight: 400;
+}
+.date-picker td button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.date-picker td button.selected::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  background-color: purple;
+  z-index: -1;
+}

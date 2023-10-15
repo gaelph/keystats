@@ -179,4 +179,15 @@ export default class RecordService {
 
     return Object.fromEntries(fingerUsage);
   }
+
+  async getAvailableDates(keyboardId: number): Promise<Date[]> {
+    const dates = await this.#recordRepo.getAvailableDates(keyboardId);
+
+    return dates.map((dateString) => {
+      const [year, month, day] = dateString.split("-");
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
+      return date;
+    });
+  }
 }

@@ -250,6 +250,8 @@ export default class RecordRepo implements Repository<Record> {
       filter,
     );
 
+    query.on("query", console.log);
+
     try {
       return (await query) as Count[];
     } catch (error: unknown) {
@@ -397,6 +399,10 @@ export default class RecordRepo implements Repository<Record> {
     return result || [];
   }
 
+  private formatDate(date: Date): string {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  }
+
   private filterQuery(
     query: Knex.QueryBuilder,
     options: FilterOptions = {},
@@ -415,16 +421,19 @@ export default class RecordRepo implements Repository<Record> {
     }
 
     if (period) {
-      query.whereBetween("records.date", [period[0], period[1]]);
+      query.whereBetween("records.date", [
+        this.formatDate(period[0]),
+        this.formatDate(period[1]),
+      ]);
     }
     if (after) {
-      query.where("records.date", ">=", after);
+      query.where("records.date", ">=", this.formatDate(after));
     }
     if (before) {
-      query.where("records.date", "<=", before);
+      query.where("records.date", "<=", this.formatDate(before));
     }
     if (date) {
-      query.where("records.date", "=", date);
+      query.where("records.date", "=", this.formatDate(date));
     }
     if (type) {
       query.where("keymaps.type", "=", type);
@@ -518,10 +527,6 @@ export default class RecordRepo implements Repository<Record> {
 
     try {
       result = (await query) as { counts: number };
-      console.log(
-        "LS -> service/repository/recordRepo.ts:519 -> result: ",
-        result,
-      );
 
       return result.counts;
     } catch (error: unknown) {
@@ -533,5 +538,28 @@ export default class RecordRepo implements Repository<Record> {
     }
 
     return 0;
+  }
+
+  async getAvailableDates(keyboardId: number): Promise<string[]> {
+    const query = this.#db(Record.table)
+      .select("date")
+      .where("keymaps.keyboardId", keyboardId)
+      .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+      .groupBy("date")
+      .orderBy("date", "asc")
+      .pluck("date");
+    let results: string[];
+
+    try {
+      results = await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Failed to get available dates",
+        query,
+        error as Error,
+      );
+    }
+
+    return results as string[];
   }
 }
