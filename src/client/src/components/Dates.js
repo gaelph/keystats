@@ -55,6 +55,7 @@ function DateCell({ day, current, onSelectDate, selected, disabled }) {
   return (
     <button
       disabled={disabled}
+      aria-disabled={disabled}
       onClick={() => current && !disabled && onSelectDate(day)}
       className={`date-picker-day ${selected ? "selected" : ""} ${
         !current ? "out-of-month" : ""
@@ -155,6 +156,7 @@ function DatePicker({ className, selected, onChange, includeDates }) {
               type="button"
               onClick={() => changeMonth(date.add(1, "month"))}
               disabled={date.isSame(dayjs(), "month")}
+              aria-disabled={date.isSame(dayjs(), "month")}
             >
               &gt;
             </button>

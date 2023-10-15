@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "ts-node-esm index.ts",
-    "start:server": "cd client && npm run build && cd .. && nodemon --ignore ./data --exec node --loader ts-node/esm server/index.ts",
-    "start:client": "cd client && npm run start"
+    "start": "ts-node-esm src/index.ts",
+    "start:server": "cd src/client && npm run build && cd ../.. && nodemon --ignore ./data --exec node --loader ts-node/esm src/server/index.ts",
+    "start:client": "cd src/client && npm run start"
   },
   "author": "",
   "license": "ISC",
