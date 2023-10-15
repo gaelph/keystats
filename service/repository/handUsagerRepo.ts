@@ -2,6 +2,7 @@ import { Knex } from "knex";
 import HandUsage, { HandUsageOptions } from "../models/handUsage.js";
 import Repository from "./Repository.js";
 import db, { DatabaseError, NotFoundError } from "../database.js";
+import { FilterOptions } from "../types.js";
 
 export default class HandUsageRepo implements Repository<HandUsage> {
   #db: Knex;
@@ -161,14 +162,18 @@ export default class HandUsageRepo implements Repository<HandUsage> {
     return result.map((item) => new HandUsage(item));
   }
 
-  async getForKeyboard(keyboardId: number): Promise<HandUsage[]> {
-    const query = this.#db(HandUsage.table)
-      .select()
-      .where({ keyboardId: keyboardId });
+  async getForKeyboard(
+    keyboardId: number,
+    filters: FilterOptions = {},
+  ): Promise<HandUsage[]> {
+    const query = this.filterQuery(
+      this.#db(HandUsage.table).select().where({ keyboardId: keyboardId }),
+      filters,
+    );
 
     try {
       const result = await query;
-      return result.map((item) => new HandUsage(item));
+      return result.map((item: any) => new HandUsage(item));
     } catch (e) {
       console.log(query.toSQL().toNative());
       return [];
@@ -213,5 +218,47 @@ export default class HandUsageRepo implements Repository<HandUsage> {
         error as Error,
       );
     }
+  }
+
+  private filterQuery(
+    query: Knex.QueryBuilder,
+    options: FilterOptions = {},
+  ): Knex.QueryBuilder {
+    const { date, period, after, before, type } = options;
+    if (
+      (date && period) ||
+      (date && after) ||
+      (date && before) ||
+      (period && after) ||
+      (period && before)
+    ) {
+      throw new Error(
+        "Only one of `date`, `period`, `after` or `before` can be specified",
+      );
+    }
+
+    if (period) {
+      query.whereBetween("records.date", [
+        this.formatDate(period[0]),
+        this.formatDate(period[1]),
+      ]);
+    }
+    if (after) {
+      query.where("records.date", ">=", this.formatDate(after));
+    }
+    if (before) {
+      query.where("records.date", "<=", this.formatDate(before));
+    }
+    if (date) {
+      query.where("records.date", "=", this.formatDate(date));
+    }
+    if (type) {
+      query.where("keymaps.type", "=", type);
+    }
+
+    return query;
+  }
+  private formatDate(date: Date): string {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
   }
 }

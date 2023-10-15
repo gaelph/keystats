@@ -2,6 +2,7 @@ import log from "loglevel";
 import HandUsageRepo from "./repository/handUsagerRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
 import Key from "./models/key.js";
+import { FilterOptions } from "./types.js";
 
 const LEFT = 0;
 const RIGHT = 1;
@@ -80,9 +81,15 @@ export default class HandService {
     }
   }
 
-  async getHandUsage(keyboardId: number): Promise<HandCount | null> {
+  async getHandUsage(
+    keyboardId: number,
+    filters: FilterOptions = {},
+  ): Promise<HandCount | null> {
     try {
-      const data = await this.#handUsageRepo.getForKeyboard(keyboardId);
+      const data = await this.#handUsageRepo.getForKeyboard(
+        keyboardId,
+        filters,
+      );
       const result: HandCount = [[], []];
 
       for (const datum of data) {

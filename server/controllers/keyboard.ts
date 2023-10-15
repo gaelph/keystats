@@ -124,9 +124,10 @@ async function getCharacterCounts(req: KeyboardRequest, res: Response) {
 
 async function getHandAndFingerCounts(req: KeyboardRequest, res: Response) {
   const { keyboardId } = req.params;
+  const filters = req.query;
 
-  const handUsage = await handService.getHandUsage(keyboardId);
-  const fingerUsage = await fingerService.getFingerUsage(keyboardId);
+  const handUsage = await handService.getHandUsage(keyboardId, filters);
+  const fingerUsage = await fingerService.getFingerUsage(keyboardId, filters);
 
   res.json({ handUsage, fingerUsage });
 }

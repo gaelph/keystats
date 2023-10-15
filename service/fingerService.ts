@@ -2,6 +2,7 @@ import log from "loglevel";
 import FingerUsageRepo from "./repository/fingerUsageRepo.js";
 import KeysRepo from "./repository/keysRepo.js";
 import Key from "./models/key.js";
+import { FilterOptions } from "./types.js";
 
 type FingerCount = [
   number[],
@@ -104,9 +105,15 @@ export default class FingerService {
     }
   }
 
-  async getFingerUsage(keyboardId: number): Promise<FingerCount | null> {
+  async getFingerUsage(
+    keyboardId: number,
+    filters: FilterOptions = {},
+  ): Promise<FingerCount | null> {
     try {
-      const data = await this.#fingerUsageRepo.getForKeyboard(keyboardId);
+      const data = await this.#fingerUsageRepo.getForKeyboard(
+        keyboardId,
+        filters,
+      );
       const result: FingerCount = [[], [], [], [], [], [], [], [], [], []];
 
       for (const datum of data) {
