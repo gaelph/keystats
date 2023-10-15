@@ -2,3 +2,7 @@ node_modules
 data
 log.json
 nohup.out
+.env
+.session
+database.sqlite
+database.sqlite3
