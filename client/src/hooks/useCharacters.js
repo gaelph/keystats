@@ -17,6 +17,10 @@ export default function useCharacters(keyboard, date) {
     }
     dispatch(setLoading(true));
     try {
+      let filters = {};
+      if (date) {
+        filters.date = date.format("YYYY-MM-DD");
+      }
       const data = await getCharacterCounts(keyboard.id, date);
       dispatch(setData(data));
     } catch (error) {

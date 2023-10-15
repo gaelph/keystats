@@ -15,7 +15,12 @@ export default function useCounts(keyboard, date) {
     if (!keyboard) return;
     dispatch(setLoading(true));
     try {
-      const data = await getTotalCounts(keyboard.id, date);
+      const filters = {};
+      if (date) {
+        filters.date = date.format("YYYY-MM-DD");
+      }
+
+      const data = await getTotalCounts(keyboard.id, filters);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);

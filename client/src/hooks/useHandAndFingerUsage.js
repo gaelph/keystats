@@ -4,7 +4,7 @@ import dataReducer from "../store/reducer.js";
 
 import { getHandAndFingerUsage } from "../lib/api.js";
 
-export default function useData(keyboard) {
+export default function useData(keyboard, date) {
   const [state, dispatch] = useReducer(dataReducer, {
     loading: false,
     error: null,
@@ -17,7 +17,11 @@ export default function useData(keyboard) {
     }
     dispatch(setLoading(true));
     try {
-      const data = await getHandAndFingerUsage(keyboard.id);
+      const filters = {};
+      if (date) {
+        filters.date = date.format("YYYY-MM-DD");
+      }
+      const data = await getHandAndFingerUsage(keyboard.id, filters);
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
@@ -25,7 +29,7 @@ export default function useData(keyboard) {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [keyboard]);
+  }, [keyboard, date]);
 
   useEffect(() => {
     fetchData();
