@@ -1,5 +1,7 @@
 const API_URL =
-  process.env.NODE_ENV === "production" ? "" : "http://localhost:12000";
+  process.env.NODE_ENV === "production"
+    ? window.location.origin
+    : "http://localhost:12000";
 
 function toUrl(pathTemplate, params, query) {
   let path = pathTemplate;

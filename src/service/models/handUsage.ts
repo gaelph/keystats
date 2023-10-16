@@ -18,7 +18,7 @@ function today() {
 }
 
 export default class HandUsage extends Model {
-  static table = "hand_usage";
+  static table: "hand_usage" = "hand_usage";
 
   id?: number;
   hand: number;

@@ -1,10 +1,31 @@
+import Fs from "fs";
+import Path from "path";
 import knex, { Knex } from "knex";
+
+import { existSync } from "../utils/fs.js";
+import createDatabase from "../utils/createDatabase.js";
+
+const { HOME } = process.env;
+if (!HOME) {
+  throw new Error("HOME environment variable not set");
+  process.exit(1);
+}
+
+const STATE_DIR = Path.join(HOME, ".local", "state", "keystats");
+const DB_FILE = Path.join(STATE_DIR, "database.sqlite3");
+
+if (!existSync(STATE_DIR)) {
+  Fs.mkdirSync(STATE_DIR, { recursive: true });
+}
+
+const CREATE_DATABASE = !existSync(DB_FILE);
+console.log("Will create database: ", DB_FILE, CREATE_DATABASE);
 
 // @ts-ignore
 const db = knex({
   client: "sqlite3",
   connection: {
-    filename: "./database.sqlite3",
+    filename: DB_FILE,
   },
   migrations: {
     tableName: "knex_migrations",
@@ -12,7 +33,12 @@ const db = knex({
   useNullAsDefault: true,
 });
 
-db.migrate.latest();
+export async function initializeDB() {
+  console.log("Initializing database...", CREATE_DATABASE);
+  if (CREATE_DATABASE) {
+    await createDatabase(db);
+  }
+}
 
 export class DatabaseError extends Error {
   cause: Error | null;

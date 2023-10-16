@@ -36,7 +36,7 @@ export type RecordCount = Pick<Record, "id" | "counts" | "modifiers"> &
   Pick<Keymap, "keycode">;
 
 export default class RecordRepo implements Repository<Record> {
-  #db: Knex;
+  #db: Knex<Record>;
   #keymapRepo: KeymapRepo;
 
   constructor() {
@@ -57,10 +57,10 @@ export default class RecordRepo implements Repository<Record> {
         date: record.date,
       })
       .returning("*");
-    let result: any;
+    let result: Awaited<typeof query>[number];
 
     try {
-      result = await query;
+      [result] = await query;
       if (!result) {
         throw new Error("Insert did not return a value");
       }
@@ -72,16 +72,16 @@ export default class RecordRepo implements Repository<Record> {
   }
 
   async getById(id: number): Promise<Record> {
-    let row: any;
     const query = this.#db(Record.table).where({ id }).first();
+    let result: Awaited<typeof query>;
 
     try {
-      row = await query;
+      result = await query;
     } catch (error: unknown) {
       throw new DatabaseError("Faild to get record", query, error as Error);
     }
 
-    if (row) return new Record(row);
+    if (result) return new Record(result);
 
     throw new NotFoundError(query);
   }
@@ -91,7 +91,6 @@ export default class RecordRepo implements Repository<Record> {
   ): Promise<Record> {
     const { modifiers, date, keymapId } = options;
 
-    let row: any;
     const query = this.#db(Record.table)
       .where({
         modifiers: modifiers,
@@ -99,14 +98,15 @@ export default class RecordRepo implements Repository<Record> {
         keymapId: keymapId,
       })
       .first();
+    let result: Awaited<typeof query>;
 
     try {
-      row = await query;
+      result = await query;
     } catch (error: unknown) {
       throw new DatabaseError("Faild to get record", query, error as Error);
     }
 
-    if (row) return new Record(row);
+    if (result) return new Record(result);
 
     throw new NotFoundError(query);
   }
@@ -122,7 +122,6 @@ export default class RecordRepo implements Repository<Record> {
       .where({ id: record.id })
       .update({
         modifiers: record.modifiers,
-        application: record.application || null,
         counts: record.counts || 1,
       })
       .returning("*");
@@ -225,7 +224,7 @@ export default class RecordRepo implements Repository<Record> {
 
     try {
       const results = await query;
-      return results.map((result: any) => new Record(result));
+      return results.map((result) => new Record(result));
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get records", query, error as Error);
     }
@@ -236,12 +235,12 @@ export default class RecordRepo implements Repository<Record> {
     filter: FilterOptions = {},
   ): Promise<Count[]> {
     const query = this.filterQuery(
-      this.#db(Record.table)
-        .select([
-          "keymaps.layer AS layer",
-          "keymaps.row AS row",
-          "keymaps.column AS column",
-        ])
+      this.#db<Count>(Record.table)
+        .select({
+          layer: "keymaps.layer",
+          row: "keymaps.row",
+          column: "keymaps.column",
+        })
         .sum("records.counts AS count")
         .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
         .where("keymaps.keyboardId", keyboardId)
@@ -250,10 +249,9 @@ export default class RecordRepo implements Repository<Record> {
       filter,
     );
 
-    query.on("query", console.log);
-
     try {
-      return (await query) as Count[];
+      // NOTE: knex seems to be guessing the type wrong here
+      return (await query) as unknown as Count[];
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get total counts",
@@ -267,22 +265,21 @@ export default class RecordRepo implements Repository<Record> {
     keyboardId: number,
     filter: FilterOptions = {},
   ): Promise<Pick<Count, "layer" | "count">[]> {
-    let result: { layer: number; count: number }[];
-    let query;
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select(["keymaps.layer AS layer"])
+        .sum("records.counts AS count")
+        .where("keymaps.keyboardId", keyboardId)
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .groupBy("layer")
+        .orderBy("layer"),
+      filter,
+    );
+    let result: Pick<Count, "layer" | "count">[];
 
     try {
-      query = this.filterQuery(
-        this.#db(Record.table)
-          .select(["keymaps.layer AS layer"])
-          .sum("records.counts AS count")
-          .where("keymaps.keyboardId", keyboardId)
-          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
-          .groupBy("layer")
-          .orderBy("layer"),
-        filter,
-      );
-
-      result = (await query) as { layer: number; count: number }[];
+      // NOTE: knex seems to be guessing the type wrong here
+      result = (await query) as unknown as typeof result;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get layer usage",
@@ -298,22 +295,21 @@ export default class RecordRepo implements Repository<Record> {
     keyboardId: number,
     filter: FilterOptions = {},
   ): Promise<Pick<Count, "row" | "count">[]> {
-    let result: { row: number; count: number }[];
-    let query;
+    let result: Pick<Count, "row" | "count">[];
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select(["keymaps.row AS row"])
+        .sum("records.counts AS count")
+        .where("keymaps.keyboardId", keyboardId)
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .groupBy("keymaps.row")
+        .orderBy("keymaps.row"),
+      filter,
+    );
 
     try {
-      query = this.filterQuery(
-        this.#db(Record.table)
-          .select(["keymaps.row AS row"])
-          .sum("records.counts AS count")
-          .where("keymaps.keyboardId", keyboardId)
-          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
-          .groupBy("keymaps.row")
-          .orderBy("keymaps.row"),
-        filter,
-      );
-
-      result = (await query) as { row: number; count: number }[];
+      // NOTE: knex seems to be guessing the type wrong here
+      result = (await query) as unknown as typeof result;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get layer usage",
@@ -330,27 +326,26 @@ export default class RecordRepo implements Repository<Record> {
     filter: FilterOptions = {},
   ): Promise<HandCount[]> {
     let result: HandCount[];
-    let query;
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select(["keys.hand AS hand"])
+        .sum("records.counts AS count")
+        .join(Key.table, function (join) {
+          join
+            .on("keymaps.keyboardId", "keys.keyboardId")
+            .andOn("keymaps.row", "keys.row")
+            .andOn("keymaps.column", "keys.column");
+        })
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .where("keymaps.keyboardId", keyboardId)
+        .groupBy("keys.hand")
+        .orderBy("keys.hand"),
+      filter,
+    );
 
     try {
-      query = this.filterQuery(
-        this.#db(Record.table)
-          .select(["keys.hand AS hand"])
-          .sum("records.counts AS count")
-          .join(Key.table, function (join) {
-            join
-              .on("keymaps.keyboardId", "keys.keyboardId")
-              .andOn("keymaps.row", "keys.row")
-              .andOn("keymaps.column", "keys.column");
-          })
-          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
-          .where("keymaps.keyboardId", keyboardId)
-          .groupBy("keys.hand")
-          .orderBy("keys.hand"),
-        filter,
-      );
-
-      result = (await query) as HandCount[];
+      // NOTE: knex seems to be guessing the type wrong here
+      result = (await query) as unknown as typeof result;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get layer usage",
@@ -367,27 +362,26 @@ export default class RecordRepo implements Repository<Record> {
     filter: FilterOptions = {},
   ): Promise<FingerCount[]> {
     let result: FingerCount[];
-    let query;
+    const query = this.filterQuery(
+      this.#db(Record.table)
+        .select(["keys.finger AS finger"])
+        .sum("records.counts AS count")
+        .join(Key.table, function (join) {
+          join
+            .on("keymaps.keyboardId", "keys.keyboardId")
+            .andOn("keymaps.row", "keys.row")
+            .andOn("keymaps.column", "keys.column");
+        })
+        .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+        .where("keymaps.keyboardId", keyboardId)
+        .groupBy("keys.finger")
+        .orderBy("keys.finger"),
+      filter,
+    );
 
     try {
-      query = this.filterQuery(
-        this.#db(Record.table)
-          .select(["keys.finger AS finger"])
-          .sum("records.counts AS count")
-          .join(Key.table, function (join) {
-            join
-              .on("keymaps.keyboardId", "keys.keyboardId")
-              .andOn("keymaps.row", "keys.row")
-              .andOn("keymaps.column", "keys.column");
-          })
-          .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
-          .where("keymaps.keyboardId", keyboardId)
-          .groupBy("keys.finger")
-          .orderBy("keys.finger"),
-        filter,
-      );
-
-      result = (await query) as FingerCount[];
+      // NOTE: knex seems to be guessing the type wrong here
+      result = (await query) as unknown as typeof result;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get layer usage",
@@ -403,10 +397,10 @@ export default class RecordRepo implements Repository<Record> {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
   }
 
-  private filterQuery(
-    query: Knex.QueryBuilder,
+  private filterQuery<T extends Knex.QueryBuilder<Record>>(
+    query: T,
     options: FilterOptions = {},
-  ): Knex.QueryBuilder {
+  ): T {
     const { date, period, after, before, type } = options;
     if (
       (date && period) ||
@@ -499,9 +493,8 @@ export default class RecordRepo implements Repository<Record> {
     );
 
     try {
-      const result = await query;
-
-      return result as RecordCount[];
+      // NOTE: knex seems to be guessing the type wrong here
+      return (await query) as unknown as RecordCount[];
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get plain records",
@@ -515,7 +508,6 @@ export default class RecordRepo implements Repository<Record> {
     keyboardId: number,
     filter: FilterOptions = {},
   ): Promise<number> {
-    let result: { counts: number };
     const query = this.filterQuery(
       this.#db(Record.table)
         .sum("records.counts AS counts")
@@ -526,9 +518,9 @@ export default class RecordRepo implements Repository<Record> {
     );
 
     try {
-      result = (await query) as { counts: number };
-
-      return result.counts;
+      // NOTE: knex seems to be guessing the type wrong here
+      const result = (await query) as unknown as { counts: number };
+      return result?.counts || 0;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get total keypresses",

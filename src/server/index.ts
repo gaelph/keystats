@@ -22,8 +22,8 @@ app.use(
   }),
 );
 
-app.use(express.static(path.join(__dirname, "..", "client", "build")));
-app.use(express.static(path.join(__dirname, "..", "data")));
+const staticFolder = path.join(__dirname, "..", "src", "client", "build");
+app.use(express.static(staticFolder));
 
 app.get("/", (req, res /*  next */) => {
   res.send("OK");

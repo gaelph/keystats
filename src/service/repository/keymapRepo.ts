@@ -6,7 +6,7 @@ import db, { DatabaseError, NotFoundError } from "../database.js";
 import { Coordinates } from "../types.js";
 
 export default class KeymapRepository implements Repository<Keymap> {
-  #db: Knex;
+  #db: Knex<Keymap>;
 
   constructor() {
     this.#db = db;
@@ -17,23 +17,21 @@ export default class KeymapRepository implements Repository<Keymap> {
   }
 
   async create(data: Keymap): Promise<Keymap> {
-    let result: any;
-    let query: Knex.QueryBuilder;
+    const query = this.#db<Keymap>(Keymap.table)
+      .insert({
+        keycode: data.keycode,
+        type: data.type,
+        keyboardId: data.keyboardId,
+        layer: data.layer,
+        column: data.column,
+        row: data.row,
+      })
+      .onConflict(["keyboardId", "layer", "row", "column", "type"])
+      .merge({ keycode: data.keycode })
+      .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
-      query = this.#db<Keymap>(Keymap.table)
-        .insert({
-          keycode: data.keycode,
-          type: data.type,
-          keyboardId: data.keyboardId,
-          layer: data.layer,
-          column: data.column,
-          row: data.row,
-        })
-        .onConflict(["keyboardId", "layer", "row", "column", "type"])
-        .merge({ keycode: data.keycode })
-        .returning("*");
-
       [result] = await query;
     } catch (error: unknown) {
       throw new DatabaseError(
@@ -50,9 +48,9 @@ export default class KeymapRepository implements Repository<Keymap> {
     const query = this.#db<Keymap>(Keymap.table).where({ id }).first();
 
     try {
-      const row = await query;
+      const result = await query;
 
-      if (row) return new Keymap(row);
+      if (result) return new Keymap(result);
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get keymap", query!, error as Error);
     }
@@ -64,9 +62,9 @@ export default class KeymapRepository implements Repository<Keymap> {
     const query = this.#db(Keymap.table).select();
 
     try {
-      const rows = await query;
+      const results = await query;
 
-      return rows.map((row) => new Keymap(row));
+      return results.map((row) => new Keymap(row));
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get keymaps", query, error as Error);
     }
@@ -78,83 +76,42 @@ export default class KeymapRepository implements Repository<Keymap> {
     type: KeymapType,
     keycode?: string,
   ): Promise<Keymap> {
-    let result: any;
-    let query: Knex.QueryBuilder;
     const { layer, row, column } = coordinates;
+    let query = this.#db(Keymap.table)
+      .where({
+        keyboardId,
+        layer,
+        row,
+        column,
+        type,
+      })
+      .first();
+    let result: Awaited<typeof query>;
 
     try {
-      query = this.#db<Keymap>(Keymap.table)
-        .where({
-          keyboardId,
-          layer,
-          row,
-          column,
-          type,
-        })
-        .first();
-
       if (keycode) {
         query = query.andWhere({ keycode });
       }
 
       result = await query;
     } catch (error: unknown) {
-      throw new DatabaseError("Failed to get keymaps", query!, error as Error);
+      throw new DatabaseError("Failed to get keymaps", query, error as Error);
     }
 
     if (result) return new Keymap(result);
 
-    throw new NotFoundError(query!);
+    throw new NotFoundError(query);
   }
 
-  /* async getKeymapAtCoordinates(
-    keyboardId: number,
-    layerIndex: number,
-    column: number,
-    row: number,
-    keycode: string,
-    type: KeymapType,
-  ): Promise<Keymap> {
-    let result: any;
-    const query = this.#db
-      .select<Keymap>([{ id: "keymaps.id" }])
-      .from(Keymap.table)
-      .join(Layer.table, function () {
-        this.on("layers.id", "=", "keymaps.layerId");
-      })
-      .join(Key.table, function () {
-        this.on("keys.id", "=", "keymaps.keyId");
-      })
-      .where({
-        "keymaps.keycode": keycode,
-        "keymaps.type": type,
-        "layers.keyboardId": keyboardId,
-        "keys.column": column,
-        "keys.row": row,
-      })
-      .andWhere("layers.index", "<=", layerIndex)
-      .orderBy("layers.index", "desc");
-
-    try {
-      result = await query;
-    } catch (error: unknown) {
-      throw new DatabaseError("Failed to get keymaps", query, error as Error);
-    }
-
-    if (result) return new Keymap(result[0]);
-
-    throw new NotFoundError(query);
-  } */
-
   async getByKeyboard(keyboardId: number): Promise<Keymap[]> {
-    const query = this.#db<Keymap>(Keymap.table)
+    const query = this.#db(Keymap.table)
       .select("id", "keycode", "type", "layer", "column", "row", "keyboardId")
       .where("keyboardId", keyboardId)
       .orderBy(["layer", "row", "column"]);
 
     try {
-      const rows = await query;
-      return rows.map((row) => new Keymap(row));
+      const result = await query;
+      return result.map((row) => new Keymap(row));
     } catch (error: unknown) {
       console.error(error);
       throw new DatabaseError(
@@ -167,11 +124,11 @@ export default class KeymapRepository implements Repository<Keymap> {
 
   async update(data: Keymap): Promise<Keymap> {
     await this.getById(data.id!);
-    const query = this.#db<Keymap>(Keymap.table)
+    const query = this.#db(Keymap.table)
       .where({ id: data.id })
       .update({ keycode: data.keycode })
       .returning("*");
-    let result: Keymap;
+    let result: Awaited<typeof query>[number];
 
     try {
       [result] = await query;
@@ -193,7 +150,7 @@ export default class KeymapRepository implements Repository<Keymap> {
   }
 
   async deleteKeymapsOfLayer(layer: number): Promise<void> {
-    const query = this.#db<Keymap>(Keymap.table).where("layer", layer).del();
+    const query = this.#db(Keymap.table).where("layer", layer).del();
     try {
       await query;
     } catch (error: unknown) {

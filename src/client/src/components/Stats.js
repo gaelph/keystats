@@ -161,7 +161,7 @@ export default function StatsComponent({
                 modifiers pressed with the same hand, counts as 3 presses in row
                 for that hand).
                 <br />
-                Counts below 2% are discarded.
+                Counts below 1% are discarded.
               </p>
               <ul>
                 <li>
@@ -170,7 +170,7 @@ export default function StatsComponent({
                     {handUsage[0].map(
                       (count, ntimes) =>
                         parseFloat(p(count || 0, handUsageSumPerHand[0])) >=
-                          2 &&
+                          1 &&
                         ntimes >= 2 && (
                           <li key={`left_hand_same_use_${ntimes}_${count}`}>
                             <span>
@@ -191,7 +191,7 @@ export default function StatsComponent({
                       ([ntimes, count], idx) =>
                         parseFloat(
                           percent(count || 0, handUsageSumPerHand[1]),
-                        ) >= 2 &&
+                        ) >= 1 &&
                         ntimes >= 2 && (
                           <li key={`right_hand_same_use_${idx}`}>
                             <span>

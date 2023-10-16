@@ -8,6 +8,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16"
-  }
+    "moduleResolution": "node16",
+    "outDir": "./dist/"
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/client/**/*.{js,ts}"]
 }

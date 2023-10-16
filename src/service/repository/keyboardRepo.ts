@@ -13,7 +13,7 @@ interface CreateKeyboardParams {
 }
 
 export default class KeyboardRepo implements Repository<Keyboard> {
-  #db: Knex;
+  #db: Knex<Keyboard>;
 
   constructor() {
     this.#db = db;
@@ -28,16 +28,14 @@ export default class KeyboardRepo implements Repository<Keyboard> {
     productId,
     name,
   }: CreateKeyboardParams): Promise<Keyboard> {
-    let result: any;
-    let query: Knex.QueryBuilder;
+    const query = this.#db(Keyboard.table)
+      .insert({ vendorId: vendorId, productId: productId, name: name })
+      .onConflict(["vendorId", "productId"])
+      .merge({ name: name })
+      .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
-      query = this.#db(Keyboard.table)
-        .update({ vendorId: vendorId, productId: productId, name: name })
-        .onConflict(["vendorId", "productId"])
-        .merge({ name: name })
-        .returning("*");
-
       [result] = await query;
     } catch (error: unknown) {
       throw new DatabaseError(
@@ -63,13 +61,12 @@ export default class KeyboardRepo implements Repository<Keyboard> {
 
   async getById(id: number): Promise<Keyboard> {
     const query = this.#db(Keyboard.table).where({ id }).first();
-
-    let data: any = null;
+    let result: Awaited<typeof query>;
     try {
-      data = await query;
+      result = await query;
 
-      if (data) {
-        return new Keyboard(data);
+      if (result) {
+        return new Keyboard(result);
       }
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get keyboard", query, error as Error);
@@ -80,12 +77,12 @@ export default class KeyboardRepo implements Repository<Keyboard> {
 
   async getByName(name: string): Promise<Keyboard> {
     const query = this.#db(Keyboard.table).where({ name }).first();
-    let data: any = null;
+    let result: Awaited<typeof query>;
 
     try {
-      data = await query;
-      if (data) {
-        return new Keyboard(data);
+      result = await query;
+      if (result) {
+        return new Keyboard(result);
       }
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get keyboard", query, error as Error);
@@ -104,12 +101,12 @@ export default class KeyboardRepo implements Repository<Keyboard> {
     const query = this.#db(Keyboard.table)
       .where({ vendorId, productId })
       .first();
-    let data: any = null;
+    let result: Awaited<typeof query>;
 
     try {
-      data = await query;
-      if (data) {
-        return new Keyboard(data);
+      result = await query;
+      if (result) {
+        return new Keyboard(result);
       }
     } catch (error: unknown) {
       throw new DatabaseError("Failed to get keyboard", query, error as Error);
@@ -122,12 +119,12 @@ export default class KeyboardRepo implements Repository<Keyboard> {
       throw new Error("Cannot update a keyboard without an id");
     }
 
-    let update: any = null;
     let error: Error | null = null;
     const query = this.#db(Keyboard.table)
       .update({ name: keyboard.name })
       .where({ id: keyboard.id })
       .returning("*");
+    let update: Awaited<typeof query>[number] | undefined;
 
     try {
       const exists = await this.getById(keyboard.id);
@@ -138,6 +135,7 @@ export default class KeyboardRepo implements Repository<Keyboard> {
     } catch (err: unknown) {
       error = err as Error;
     }
+
     if (update) {
       return new Keyboard(update);
     }

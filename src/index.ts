@@ -1,4 +1,4 @@
-import log from "loglevel";
+import log, { LogLevelDesc } from "loglevel";
 // @ts-ignore
 import logPrefix from "loglevel-plugin-prefix";
 import Config from "./config/Config.js";
@@ -7,15 +7,34 @@ import HIDManager from "./hid/HIDManager.js";
 import KeyboardService from "./service/keyboardService.js";
 
 import type HIDKeyboard from "./hid/HIDKeyboard.js";
+import { initializeDB } from "./service/database.js";
 
 logPrefix.reg(log);
 logPrefix.apply(log, {
   template: "%n [%t]: %l:",
 });
-log.setLevel(log.levels.TRACE);
+
+// TODO: move to config
+function isLogLevel(level: string): level is keyof typeof log.levels {
+  return level in log.levels;
+}
+
+// TODO: move to config
+function getLogLevel(): LogLevelDesc {
+  const level: string | undefined = process.env.LOG_LEVEL;
+  if (level && isLogLevel(level)) {
+    return log.levels[level as keyof typeof log.levels];
+  } else {
+    return log.levels.INFO;
+  }
+}
+
+// TODO: move to config
+log.setLevel(getLogLevel());
 
 async function main() {
   const config = await new Config().load();
+  await initializeDB();
 
   const manager = new HIDManager(config.devices);
   const keyboardService = new KeyboardService();
@@ -42,7 +61,7 @@ async function main() {
     .on("disconnect", (keyboard: HIDKeyboard) => {
       keyboardService.stop(keyboard);
     })
-    .on("error", (error) => {
+    .on("error", (error: unknown) => {
       log.error(error);
     });
 }

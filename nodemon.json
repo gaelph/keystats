@@ -1,0 +1,6 @@
+{
+  "watch": ["./src/"],
+  "ext": "ts",
+  "exec": "node esbuild.js && node ./build/keystats.cjs",
+  "legacyWatch": true
+}

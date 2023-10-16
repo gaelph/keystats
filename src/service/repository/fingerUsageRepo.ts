@@ -5,7 +5,7 @@ import db, { DatabaseError, NotFoundError } from "../database.js";
 import { FilterOptions } from "../types.js";
 
 export default class FingerUsageRepo implements Repository<FingerUsage> {
-  #db: Knex;
+  #db: Knex<FingerUsage>;
 
   constructor() {
     this.#db = db;
@@ -16,25 +16,23 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
   }
 
   async create(data: FingerUsage): Promise<FingerUsage> {
-    let result: any;
-    let query: Knex.QueryBuilder;
+    const query = this.#db(FingerUsage.table)
+      .insert({
+        keyboardId: data.keyboardId,
+        finger: data.finger,
+        repeats: data.repeats,
+        date: data.date,
+        count: data.count || 1,
+      })
+      .onConflict(["keyboardId", "finger", "repeats", "date"])
+      .merge({
+        count: data.count,
+      })
+      .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
-      query = this.#db(FingerUsage.table)
-        .insert({
-          keyboardId: data.keyboardId,
-          finger: data.finger,
-          repeats: data.repeats,
-          date: data.date,
-          count: data.count || 1,
-        })
-        .onConflict(["keyboardId", "finger", "repeats", "date"])
-        .merge({
-          count: data.count,
-        })
-        .returning("*");
-
-      result = await query;
+      [result] = await query;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to create finger usage",
@@ -48,7 +46,7 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
 
   async getById(id: number): Promise<FingerUsage> {
     const query = this.#db(FingerUsage.table).where("id", id).first();
-    let result: any;
+    let result: Awaited<typeof query>;
 
     try {
       result = await query;
@@ -117,7 +115,6 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
     repeats,
     date,
   }: Omit<FingerUsageOptions, "count">): Promise<FingerUsage> {
-    let result: any = null;
     const query = this.#db(FingerUsage.table)
       .where({
         keyboardId,
@@ -126,6 +123,7 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
         date,
       })
       .first();
+    let result: Awaited<typeof query>;
 
     try {
       result = await query;
@@ -170,7 +168,7 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
 
     try {
       const result = await query;
-      return result.map((item: any) => new FingerUsage(item));
+      return result.map((item) => new FingerUsage(item));
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to get finger usage",
@@ -227,11 +225,11 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
   }
 
   async update(data: FingerUsage): Promise<FingerUsage> {
-    let result: any = null;
     const query = this.#db(FingerUsage.table)
       .where("id", data.id)
       .update({ count: data.count })
       .returning("count");
+    let result: Awaited<typeof query>[number];
 
     try {
       await this.getById(data.id!);
@@ -262,10 +260,10 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
     }
   }
 
-  private filterQuery(
-    query: Knex.QueryBuilder,
+  private filterQuery<T extends Knex.QueryBuilder>(
+    query: T,
     options: FilterOptions = {},
-  ): Knex.QueryBuilder {
+  ): T {
     const { date, period, after, before, type } = options;
     if (
       (date && period) ||
@@ -300,6 +298,7 @@ export default class FingerUsageRepo implements Repository<FingerUsage> {
 
     return query;
   }
+
   private formatDate(date: Date): string {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
   }

@@ -10,7 +10,7 @@ export async function up(knex) {
     table.integer("vendorId").notNullable();
     table.integer("productId").notNullable();
 
-    table.unique(["vendorId", "productId", "name"]);
+    table.unique(["vendorId", "productId"]);
   });
 
   await knex.schema.createTable("layers", (table) => {
@@ -96,7 +96,7 @@ export async function down(knex) {
   await knex.schema.dropTable("layers");
 
   await knex.schema.alterTable("keyboards", (table) => {
-    table.dropUnique(["vendorId", "productId", "name"]);
+    table.dropUnique(["vendorId", "productId"]);
   });
   await knex.schema.dropTable("keyboards");
 }

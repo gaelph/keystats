@@ -4,7 +4,7 @@ import Repository from "./Repository.js";
 import db, { DatabaseError, NotFoundError } from "../database.js";
 
 export default class KeysRepo implements Repository<Key> {
-  #db: Knex;
+  #db: Knex<Key>;
 
   constructor() {
     this.#db = db;
@@ -15,26 +15,24 @@ export default class KeysRepo implements Repository<Key> {
   }
 
   async create(data: Key): Promise<Key> {
-    let query: Knex.QueryBuilder;
-    let result;
+    const query = this.#db(Key.table)
+      .insert({
+        keyboardId: data.keyboardId,
+        column: data.column,
+        row: data.row,
+        hand: data.hand,
+        finger: data.finger,
+      })
+      .onConflict(["keyboardId", "column", "row"])
+      .merge({
+        hand: data.hand,
+        finger: data.finger,
+      })
+      .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
-      query = this.#db(Key.table)
-        .insert({
-          keyboardId: data.keyboardId,
-          column: data.column,
-          row: data.row,
-          hand: data.hand,
-          finger: data.finger,
-        })
-        .onConflict(["keyboardId", "column", "row"])
-        .merge({
-          hand: data.hand,
-          finger: data.finger,
-        })
-        .returning("*");
-
-      result = await query;
+      [result] = await query;
     } catch (error: unknown) {
       throw new DatabaseError("Failed to create key", query!, error as Error);
     }
@@ -51,15 +49,17 @@ export default class KeysRepo implements Repository<Key> {
     column: number,
     row: number,
   ): Promise<Key> {
-    let result: Key | undefined;
-    const query = this.#db<Key>(Key.table).where({
-      keyboardId,
-      column,
-      row,
-    });
+    const query = this.#db<Key>(Key.table)
+      .where({
+        keyboardId,
+        column,
+        row,
+      })
+      .first();
+    let result: Awaited<typeof query>;
 
     try {
-      result = await query.first();
+      result = await query;
     } catch (error: unknown) {
       throw new DatabaseError("Could not find key", query, error as Error);
     }
@@ -76,18 +76,19 @@ export default class KeysRepo implements Repository<Key> {
   }
 
   async update(data: Key): Promise<Key> {
-    let result: any;
-    const query = this.#db<Key>(Key.table)
+    const query = this.#db(Key.table)
       .where({
         keyboardId: data.keyboardId,
         column: data.column,
         row: data.row,
       })
-      .update({ hand: data.hand, finger: data.finger });
+      .update({ hand: data.hand, finger: data.finger })
+      .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
       await this.getAtCoordinates(data.keyboardId, data.column, data.row);
-      result = await query;
+      [result] = await query;
 
       return new Key(result);
     } catch (error: unknown) {
@@ -100,7 +101,7 @@ export default class KeysRepo implements Repository<Key> {
   }
 
   async deleteKey(key: Key): Promise<void> {
-    const query = this.#db<Key>(Key.table)
+    const query = this.#db(Key.table)
       .where({ keyboardId: key.keyboardId, column: key.column, row: key.row })
       .del();
     await this.getAtCoordinates(key.keyboardId, key.column, key.row);

@@ -15,7 +15,7 @@ export enum KeymapType {
 }
 
 export default class Keymap extends Model {
-  static table = "keymaps";
+  static table: "keymaps" = "keymaps";
   id?: number;
   keycode: string;
   type: KeymapType;

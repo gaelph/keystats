@@ -11,7 +11,7 @@ export type KeyboardOptions = Pick<
 >;
 
 export default class Keyboard extends Model {
-  static table = "keyboards";
+  static table: "keyboards" = "keyboards";
 
   id?: number;
   name: string;

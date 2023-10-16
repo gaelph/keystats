@@ -5,7 +5,7 @@ import db, { DatabaseError, NotFoundError } from "../database.js";
 import { FilterOptions } from "../types.js";
 
 export default class HandUsageRepo implements Repository<HandUsage> {
-  #db: Knex;
+  #db: Knex<HandUsage>;
 
   constructor() {
     this.#db = db;
@@ -16,21 +16,19 @@ export default class HandUsageRepo implements Repository<HandUsage> {
   }
 
   async create(data: HandUsage): Promise<HandUsage> {
-    let result: any;
-    let query: Knex.QueryBuilder;
+    const query = this.#db(HandUsage.table)
+      .insert({
+        keyboardId: data.keyboardId,
+        hand: data.hand,
+        repeats: data.repeats,
+        date: data.date,
+        count: data.count || 1,
+      })
+      .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
-      query = this.#db(HandUsage.table)
-        .insert({
-          keyboardId: data.keyboardId,
-          hand: data.hand,
-          repeats: data.repeats,
-          date: data.date,
-          count: data.count || 1,
-        })
-        .returning("*");
-
-      result = await query;
+      result = (await query) as any;
     } catch (error: unknown) {
       throw new DatabaseError(
         "Failed to create hand usage",
@@ -45,13 +43,13 @@ export default class HandUsageRepo implements Repository<HandUsage> {
   async getById(_id: number): Promise<HandUsage> {
     throw new Error("Not Implemented");
   }
+
   async getOne({
     keyboardId,
     hand,
     repeats,
     date,
   }: Omit<HandUsageOptions, "count">): Promise<HandUsage> {
-    let result: any = null;
     const query = this.#db(HandUsage.table)
       .where({
         keyboardId,
@@ -60,6 +58,7 @@ export default class HandUsageRepo implements Repository<HandUsage> {
         date,
       })
       .first();
+    let result: Awaited<typeof query>;
 
     try {
       result = await query;
@@ -112,11 +111,12 @@ export default class HandUsageRepo implements Repository<HandUsage> {
       return;
     }
 
+    // TODO: this should be in a date utils module
     const date = new Date();
     const today = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    let query: Knex.QueryBuilder | undefined = undefined;
+    let query;
 
     try {
       const exists = await this.getOne({
@@ -173,7 +173,7 @@ export default class HandUsageRepo implements Repository<HandUsage> {
 
     try {
       const result = await query;
-      return result.map((item: any) => new HandUsage(item));
+      return result.map((item) => new HandUsage(item));
     } catch (e) {
       console.log(query.toSQL().toNative());
       return [];
@@ -183,11 +183,11 @@ export default class HandUsageRepo implements Repository<HandUsage> {
   async update(data: HandUsage): Promise<HandUsage> {
     await this.getById(data.id!);
 
-    let result: any;
     const query = this.#db(HandUsage.table)
       .where("id", data.id)
       .update({ count: data.count, updatedAt: data.updatedAt })
       .returning("*");
+    let result: Awaited<typeof query>[number];
 
     try {
       [result] = await query;
@@ -220,10 +220,10 @@ export default class HandUsageRepo implements Repository<HandUsage> {
     }
   }
 
-  private filterQuery(
-    query: Knex.QueryBuilder,
+  private filterQuery<T extends Knex.QueryBuilder>(
+    query: T,
     options: FilterOptions = {},
-  ): Knex.QueryBuilder {
+  ): T {
     const { date, period, after, before, type } = options;
     if (
       (date && period) ||

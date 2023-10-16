@@ -3,22 +3,13 @@ import Keymap from "./keymap.js";
 
 import type { Relation } from "./model.js";
 
-// export interface RecordOptions {
-//   id?: number;
-//   modifiers: number;
-//   application?: string;
-//   date?: string;
-//   counts?: number;
-//   keymapId: number;
-// }
-
 export type RecordOptions = Pick<
   Record,
   "id" | "keymapId" | "modifiers" | "counts" | "date"
 >;
 
 export default class Record extends Model {
-  static table = "records";
+  static table: "records" = "records";
   id?: number;
   modifiers: number;
   application?: string;

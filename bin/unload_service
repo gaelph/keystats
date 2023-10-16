@@ -1,0 +1,5 @@
+#!/bin/bash
+
+launchctl stop com.gaelph.keystats
+launchctl unload ~/Library/LaunchAgents/com.gaelph.keystats.plist
+

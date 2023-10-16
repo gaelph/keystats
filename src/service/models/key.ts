@@ -10,7 +10,7 @@ export type KeyOptions = Pick<
 >;
 
 export default class Key extends Model {
-  static table = "keys";
+  static table: "keys" = "keys";
   column: number;
   row: number;
   hand: number;
