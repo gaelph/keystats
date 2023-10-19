@@ -5,10 +5,11 @@ import Repository from "./Repository.js";
 import db, { DatabaseError, NotFoundError } from "../database.js";
 import { Coordinates } from "../types.js";
 
-export default class KeymapRepository implements Repository<Keymap> {
+export default class KeymapRepository extends Repository<Keymap> {
   #db: Knex<Keymap>;
 
   constructor() {
+    super();
     this.#db = db;
   }
 

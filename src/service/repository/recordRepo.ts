@@ -8,6 +8,7 @@ import Repository from "./Repository.js";
 import KeymapRepo from "./keymapRepo.js";
 import { Coordinates, FilterOptions } from "../types.js";
 import Key from "../models/key.js";
+import { todayAsDbDate } from "../../utils/time.js";
 
 interface AddRecordOptions {
   type: KeymapType;
@@ -35,11 +36,12 @@ export interface FingerCount {
 export type RecordCount = Pick<Record, "id" | "counts" | "modifiers"> &
   Pick<Keymap, "keycode">;
 
-export default class RecordRepo implements Repository<Record> {
+export default class RecordRepo extends Repository<Record> {
   #db: Knex<Record>;
   #keymapRepo: KeymapRepo;
 
   constructor() {
+    super();
     this.#db = db;
     this.#keymapRepo = new KeymapRepo();
   }
@@ -153,12 +155,6 @@ export default class RecordRepo implements Repository<Record> {
       keymapId: keymap.id!,
     });
 
-    // TODO: This should be moved to a time utils library
-    const date = new Date();
-    const today = `${date.getFullYear()}-${
-      date.getMonth() + 1
-    }-${date.getDate()}`;
-
     // If there is already a record for this keycode and modifiers
     // and application on that same day;
     // increment the count
@@ -166,7 +162,7 @@ export default class RecordRepo implements Repository<Record> {
     try {
       existing = await this.getOne({
         modifiers,
-        date: today,
+        date: todayAsDbDate(),
         keymapId: keymap.id!,
       });
     } catch (error: unknown) {
@@ -391,49 +387,6 @@ export default class RecordRepo implements Repository<Record> {
     }
 
     return result || [];
-  }
-
-  private formatDate(date: Date): string {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-  }
-
-  private filterQuery<T extends Knex.QueryBuilder<Record>>(
-    query: T,
-    options: FilterOptions = {},
-  ): T {
-    const { date, period, after, before, type } = options;
-    if (
-      (date && period) ||
-      (date && after) ||
-      (date && before) ||
-      (period && after) ||
-      (period && before)
-    ) {
-      throw new Error(
-        "Only one of `date`, `period`, `after` or `before` can be specified",
-      );
-    }
-
-    if (period) {
-      query.whereBetween("records.date", [
-        this.formatDate(period[0]),
-        this.formatDate(period[1]),
-      ]);
-    }
-    if (after) {
-      query.where("records.date", ">=", this.formatDate(after));
-    }
-    if (before) {
-      query.where("records.date", "<=", this.formatDate(before));
-    }
-    if (date) {
-      query.where("records.date", "=", this.formatDate(date));
-    }
-    if (type) {
-      query.where("keymaps.type", "=", type);
-    }
-
-    return query;
   }
 
   // TODO: might be useless, evaluate removal

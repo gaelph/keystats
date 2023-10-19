@@ -1,3 +1,4 @@
+import { todayAsDbDate } from "../../utils/time.js";
 import Model from "./model.js";
 
 export type FingerUsageOptions = Pick<
@@ -11,12 +12,6 @@ export type FingerUsageOptions = Pick<
   | "createdAt"
   | "updatedAt"
 >;
-
-function today() {
-  const date = new Date();
-
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-}
 
 export default class FingerUsage extends Model {
   static table: "finger_usage" = "finger_usage";
@@ -37,7 +32,7 @@ export default class FingerUsage extends Model {
     this.finger = options.finger;
     this.repeats = options.repeats;
     this.count = options.count || 1;
-    this.date = options.date || today();
+    this.date = options.date || todayAsDbDate();
     this.createdAt = options.createdAt || new Date();
     this.updatedAt = options.updatedAt || new Date();
     this.keyboardId = options.keyboardId;

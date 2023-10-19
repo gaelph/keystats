@@ -3,10 +3,11 @@ import Key, { KeyOptions } from "../models/key.js";
 import Repository from "./Repository.js";
 import db, { DatabaseError, NotFoundError } from "../database.js";
 
-export default class KeysRepo implements Repository<Key> {
+export default class KeysRepo extends Repository<Key> {
   #db: Knex<Key>;
 
   constructor() {
+    super();
     this.#db = db;
   }
 

@@ -2,6 +2,7 @@ import Model, { loadRelations } from "./model.js";
 import Keymap from "./keymap.js";
 
 import type { Relation } from "./model.js";
+import { todayAsDbDate } from "../../utils/time.js";
 
 export type RecordOptions = Pick<
   Record,
@@ -20,15 +21,11 @@ export default class Record extends Model {
 
   constructor(data: RecordOptions) {
     super();
-    const date = new Date();
-    const today = `${date.getFullYear()}-${
-      date.getMonth() + 1
-    }-${date.getDate()}`;
 
     this.id = data.id;
     this.modifiers = data.modifiers || 0;
     this.counts = data.counts || 1;
-    this.date = today;
+    this.date = todayAsDbDate();
     this.keymapId = data.keymapId;
 
     loadRelations(this, data);

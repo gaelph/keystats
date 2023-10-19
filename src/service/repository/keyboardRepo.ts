@@ -12,10 +12,11 @@ interface CreateKeyboardParams {
   name: string;
 }
 
-export default class KeyboardRepo implements Repository<Keyboard> {
+export default class KeyboardRepo extends Repository<Keyboard> {
   #db: Knex<Keyboard>;
 
   constructor() {
+    super();
     this.#db = db;
   }
 

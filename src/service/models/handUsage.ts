@@ -1,3 +1,4 @@
+import { todayAsDbDate } from "../../utils/time.js";
 import Model from "./model.js";
 
 export type HandUsageOptions = Pick<
@@ -11,11 +12,6 @@ export type HandUsageOptions = Pick<
   | "updatedAt"
   | "date"
 >;
-
-function today() {
-  const date = new Date();
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-}
 
 export default class HandUsage extends Model {
   static table: "hand_usage" = "hand_usage";
@@ -36,7 +32,7 @@ export default class HandUsage extends Model {
     this.hand = options.hand;
     this.repeats = options.repeats;
     this.count = options.count || 1;
-    this.date = options.date || today();
+    this.date = options.date || todayAsDbDate();
     this.createdAt = options.createdAt || new Date();
     this.updatedAt = options.updatedAt || new Date();
 
