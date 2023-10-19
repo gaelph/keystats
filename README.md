@@ -14,7 +14,7 @@ work with minor modifications.
 
 After cloning the repository, run:
 ```sh
-npm install;&& cd src/client && npm install && cd ../..;
+npm install && cd src/client && npm install && cd ../..;
 ```
 To install all the dependencies.
 Make sure you have a configuration file in `~/.config/keystats/keystats.json`
