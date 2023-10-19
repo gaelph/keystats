@@ -1,18 +1,21 @@
 #/bin/bash
 
-plist="com.gaelph.keystats.plist"
+plists=("com.gaelph.keystats.plist" "com.gaelph.keystats-server.plist")
 BIN_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
 BIN_PATH=$(realpath $BIN_PATH)
-echo $BIN_PATH
 KEYSTATS_HOME=$(dirname -- "$BIN_PATH")
+echo "Keystat Home is ${KEYSTATS_HOME}"
 
-echo $KEYSTATS_HOME
+for plist in ${plists[@]}; do
+	echo "Rendering plist ${plist}"
+	cp "${KEYSTATS_HOME}/res/${plist}" "/tmp/${plist}"
 
-cp "${KEYSTATS_HOME}/res/${plist}" "/tmp/${plist}"
+	sed -i "" "s#{{ KEYSTATS_HOME }}#${KEYSTATS_HOME}#g" "/tmp/${plist}"
+	sed -i "" "s#{{ HOME }}#${HOME}#g" "/tmp/${plist}"
 
-sed -i "" "s#{{ KEYSTATS_HOME }}#${KEYSTATS_HOME}#g" "/tmp/${plist}"
-sed -i "" "s#{{ HOME }}#${HOME}#g" "/tmp/${plist}"
+	echo "Installing ${plist} in User’s Library/LaunchAgents directory"
+	cp "/tmp/${plist}" "${HOME}/Library/LaunchAgents/"
 
-cp "/tmp/${plist}" "${HOME}/Library/LaunchAgents/"
-
-rm  "/tmp/${plist}"
+	echo "Removing temporary plist"
+	rm  "/tmp/${plist}"
+done

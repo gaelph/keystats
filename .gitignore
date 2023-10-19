@@ -8,3 +8,4 @@ database.sqlite
 database.sqlite3
 build
 bin/keystats
+bin/keystats-server

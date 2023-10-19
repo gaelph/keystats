@@ -3,3 +3,5 @@
 launchctl stop com.gaelph.keystats
 launchctl unload ~/Library/LaunchAgents/com.gaelph.keystats.plist
 
+launchctl stop com.gaelph.keystats-server
+launchctl unload ~/Library/LaunchAgents/com.gaelph.keystats-server.plist

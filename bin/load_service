@@ -2,3 +2,6 @@
 
 launchctl load ~/Library/LaunchAgents/com.gaelph.keystats.plist
 launchctl start com.gaelph.keystats
+
+launchctl load ~/Library/LaunchAgents/com.gaelph.keystats-server.plist
+launchctl start com.gaelph.keystats-server
