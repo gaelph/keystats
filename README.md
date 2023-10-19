@@ -14,35 +14,78 @@ work with minor modifications.
 
 After cloning the repository, run:
 ```sh
-npm install && cd client && npm install && cd ..
+npm install;&& cd src/client && npm install && cd ../..;
 ```
 To install all the dependencies.
+Make sure you have a configuration file in `~/.config/keystats/keystats.json`
+with contents such as:
+```json
+{
+	"devices": [
+		{
+			"name": "Plaid",
+			"vendorId": 5824,
+			"productId": 10203,
+			"usagePage": "0xff60",
+			"usage": "0x61",
+			"fingerMap": [
+				[0, 0, 1, 2, 3, 3, 6, 6, 7, 8, 9, 9],
+				[0, 0, 1, 2, 3, 3, 6, 6, 7, 8, 9, 9],
+				[0, 0, 1, 2, 3, 3, 6, 6, 7, 8, 9, 9],
+				[0, 0, 1, 2, 4, 4, 5, 5, 7, 8, 9, 9]
+			]
+		}
+	]
+}
+```
+Then :
+```sh
+npm run build;
+./bin/install_service
+./bin/load_service
+```
 
 ## Usage
 
-### Gather data
+Plug your keystats enabled QMK keyboard and  open your browser at
+[http://localhost:12000](http://localhost:12000)
+
+## Change the server port
+Start by stopping the services if they are running:
 ```sh
-npm run start
+./bin/unload_service
 ```
-starts the program that communicates with the keyboard.
 
-There is currently no way to daemonize it, but you can start it in the background
-with
+Then change the port number in `res/com.gaelph.keystats-server.plist`, line 16
+to something that suits you better.
+Reinstall the services:
 ```sh
-nohup npm run start &
-disown $1
+./bin/install_service
+```
+And start the services again:
+```sh
+./bin/load_service
 ```
 
-### Display the data
+## Configuration
+Then configration file has the following format:
+```typescript
+interface Config {
+	devices: {
+		name: string;
+		productId: number;
+		vendorId: number;
+		usagePage: string; // 0x starting hexadecimal value
+		usage: string; // 0x starting hexadecimal value
+		fingerMap: nubmer[][] // Matrix of number from 0 to 9
+	}[];
+}
 ```
-npm run start:server
-```
-starts a server and gives you an URL you can access with your browser.
 
-By default it listens to port 5000 by you can change it by starting
-your server with
-```
-PORT=60138 npm run start:server
-```
+### Finger Map
+The finger map is a matrix used to indentify which finger you use to type
+which key. So the matrix must have the same shape as the matrix used in your
+QMK firmware.
 
-
+The fingers are numbered from 0 to 9, where 0 is the left pinkie, 4 is the
+left thumb, 5 is the right thumb, and 9 ist the right pinkie
