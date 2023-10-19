@@ -3,7 +3,6 @@ import Path from "path";
 import knex, { Knex } from "knex";
 
 import { existSync } from "../utils/fs.js";
-import createDatabase from "../utils/createDatabase.js";
 
 const { HOME } = process.env;
 if (!HOME) {
@@ -28,16 +27,15 @@ const db = knex({
     filename: DB_FILE,
   },
   migrations: {
+    directory: "./build/migrations",
     tableName: "knex_migrations",
+    extension: "js",
   },
   useNullAsDefault: true,
 });
 
 export async function initializeDB() {
-  console.log("Initializing database...", CREATE_DATABASE);
-  if (CREATE_DATABASE) {
-    await createDatabase(db);
-  }
+  await db.migrate.latest();
 }
 
 export class DatabaseError extends Error {

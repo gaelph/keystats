@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function up(knex) {
+module.exports.up = async (knex) => {
   await knex.schema.alterTable("hand_usage", (table) => {
     table.string("date").nullable();
 
@@ -15,13 +15,13 @@ export async function up(knex) {
     table.dropUnique(["keyboardId", "finger", "repeats"]);
     table.unique(["keyboardId", "finger", "repeats", "date"]);
   });
-}
+};
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function down(knex) {
+module.exports.down = async (knex) => {
   await knex.schema.alterTable("hand_usage", (table) => {
     table.unique(["keyboardId", "hand", "repeats"]);
     table.dropUnique(["keyboardId", "hand", "repeats", "date"]);
@@ -35,4 +35,4 @@ export async function down(knex) {
 
     table.dropColumn("date");
   });
-}
+};

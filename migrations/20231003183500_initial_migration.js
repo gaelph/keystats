@@ -3,7 +3,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function up(knex) {
+module.exports.up = async (knex) => {
   await knex.schema.createTable("keyboards", (table) => {
     table.increments("id").primary();
     table.string("name").notNullable();
@@ -61,13 +61,13 @@ export async function up(knex) {
     //
     table.index(["counts", "modifiers"], "records_keycode_modifiers_index");
   });
-}
+};
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function down(knex) {
+module.exports.down = async (knex) => {
   await knex.schema.alterTable("records", (table) => {
     table.dropIndex(["modifiers", "modifiers"]);
     table.dropForeign("keymapId");
@@ -99,8 +99,8 @@ export async function down(knex) {
     table.dropUnique(["vendorId", "productId"]);
   });
   await knex.schema.dropTable("keyboards");
-}
+};
 
-export const config = {
+module.exports.config = {
   transaction: true,
 };

@@ -4,7 +4,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function up(knex) {
+module.exports.up = async (knex) => {
   await knex.schema.alterTable("keymaps", function (table) {
     table.dropForeign("keysId");
     table.dropForeign("layerId");
@@ -50,13 +50,13 @@ export async function up(knex) {
   });
 
   await knex.schema.dropTable("layers");
-}
+};
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function down(knex) {
+module.exports.down = async (knex) => {
   await knex.schema.createTable("layers", function (table) {
     table.integer("id").primary();
     table.integer("index").notNullable();
@@ -114,4 +114,4 @@ export async function down(knex) {
     table.dropColumn("row");
     table.dropColumn("column");
   });
-}
+};

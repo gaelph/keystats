@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function up(knex) {
+module.exports.up = async (knex) => {
   await knex.schema.createTable("hand_usage", (table) => {
     table.increments("id").primary();
     table.integer("hand").checkIn([0, 1]).notNullable();
@@ -31,13 +31,13 @@ export async function up(knex) {
     table.foreign("keyboardId").references("id").inTable("keyboards");
     table.unique(["keyboardId", "finger", "repeats"]);
   });
-}
+};
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function down(knex) {
+module.exports.down = async (knex) => {
   await knex.schema.alterTable("finger_usage", (table) => {
     table.dropForeign(["keyboardId"]);
     table.dropUnique(["keyboardId", "finger", "repeats"]);
@@ -51,4 +51,4 @@ export async function down(knex) {
   });
 
   await knex.schema.dropTable("hand_usage");
-}
+};

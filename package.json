@@ -2,7 +2,7 @@
   "name": "keystats",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
+  "type": "commonjs",
   "main": "build/main.cjs",
   "bin": {
     "keystats": "./bin/keystats"
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "nodemon",
     "bundle": "node esbuild.js",
-    "build": "npm run bundle && pkg -t node18-macos-arm64 --out-path ./bin ./build/keystats.cjs",
+    "build": "npm run bundle && pkg --debug -t node18-macos-arm64 --out-path ./bin ./build/keystats.cjs",
     "start:server": "cd src/client && npm run build && cd ../.. && nodemon --config nodemon-server.json",
     "start:client": "cd src/client && npm run start"
   },
@@ -40,5 +40,6 @@
     "nodemon": "^3.0.1",
     "pkg": "^5.8.1",
     "typescript": "^5.2.2"
-  }
+  },
+  "pkg": {}
 }
