@@ -11,6 +11,6 @@ for plist in ${plists[@]}; do
 	echo "Installing ${plist}"
 	cp "${KEYSTATS_HOME}/res/${plist}" "/${LAUNCH_AGENTS_DIR}/${plist}"
 
-	sed -i "" "s#{{ KEYSTATS_HOME }}#${KEYSTATS_HOME}#g" "/${LAUNCH_AGENTS_DIR}/${plist}"
-	sed -i "" "s#{{ HOME }}#${HOME}#g" "/${LAUNCH_AGENTS_DIR}/${plist}"
+	/usr/bin/sed -i "" "s#{{ KEYSTATS_HOME }}#${KEYSTATS_HOME}#g" "/${LAUNCH_AGENTS_DIR}/${plist}"
+	/usr/bin/sed -i "" "s#{{ HOME }}#${HOME}#g" "/${LAUNCH_AGENTS_DIR}/${plist}"
 done
