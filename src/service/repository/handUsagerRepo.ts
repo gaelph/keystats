@@ -137,7 +137,7 @@ export default class HandUsageRepo extends Repository<HandUsage> {
           keyboardId: keyboardId,
           hand: hand,
           repeats: repeats,
-          date: today,
+          date: todayAsDbDate(),
           count: 1,
         });
 
