@@ -14,7 +14,7 @@
     "clean": "rm -rf ./build",
     "build:client": "cd src/client && npm run build && cd ../.. && cp -R 'src/client/build' 'build/client'",
     "pkg:keystats": "pkg -t node18-macos-arm64 --out-path ./bin ./build/keystats.cjs",
-    "pkg:keystats-server": "pkg -t node18-macos-arm64 --out-path./bin./build/keystats-server.cjs",
+    "pkg:keystats-server": "pkg -t node18-macos-arm64 --out-path ./bin ./build/keystats-server.cjs",
     "build": "npm run clean && npm run bundle && npm run build:client && npm run pkg:keystats && npm run pkg:keystats-server",
     "start:server": "cd src/client && npm run build && cd ../.. && nodemon --config nodemon-server.json",
     "start:client": "cd src/client && npm run start"
