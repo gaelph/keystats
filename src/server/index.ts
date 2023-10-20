@@ -1,12 +1,12 @@
 import express from "express";
 import path from "path";
-import url from "url";
+// import url from "url";
 import cors from "cors";
 const app = express();
 
 import keyboardController from "./controllers/keyboard.js";
 
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+// const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 process
   .on("uncaughtException", (err: unknown) => {
@@ -22,7 +22,7 @@ app.use(
   }),
 );
 
-const staticFolder = path.join(__dirname, "..", "src", "client", "build");
+const staticFolder = path.join(process.cwd(), "build", "client");
 app.use(express.static(staticFolder));
 
 app.get("/", (req, res /*  next */) => {
