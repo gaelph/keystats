@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import HID from "node-hid";
-import log from "loglevel";
+import log from "../lib/logger";
 
 import HIDMessage from "./HIDMessage.js";
 import HIDCommand from "./Command.js";
@@ -174,7 +174,7 @@ export default class HIDKeyboard extends EventEmitter {
         // @ts-ignore | the function does exist
         bytesWritten += hidDevice.write(message.serialize());
       } catch (err) {
-        log.error(err);
+        this.#logger.error(err);
         return;
       }
 
@@ -182,7 +182,7 @@ export default class HIDKeyboard extends EventEmitter {
       msgWritten += 1;
     }
 
-    log.debug(
+    this.#logger.debug(
       this.deviceConfig.name,
       msgWritten,
       "messages sent |",

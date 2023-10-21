@@ -8,7 +8,7 @@ import Keyboard from "./models/keyboard.js";
 import type HIDKeyboard from "../hid/HIDKeyboard.js";
 import KeyHandler from "../lib/eventHandler.js";
 
-import log from "loglevel";
+import log from "../lib/logger.js";
 import RecordService from "./recordService.js";
 import Keymap, { KeymapType } from "./models/keymap.js";
 import KeysService from "./keysService.js";

@@ -1,12 +1,12 @@
 import express from "express";
 import path from "path";
-// import url from "url";
 import cors from "cors";
 const app = express();
 
 import keyboardController from "./controllers/keyboard.js";
+import log from "../lib/logger.js";
 
-// const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const logger = log.getLogger("Server");
 
 process
   .on("uncaughtException", (err: unknown) => {
@@ -23,7 +23,7 @@ app.use(
 );
 
 const staticFolder = path.join(__dirname, "client");
-console.log("serving static folder", staticFolder);
+logger.debug("serving static folder", staticFolder);
 app.use(express.static(staticFolder));
 
 app.get("/", (req, res /*  next */) => {
@@ -34,7 +34,7 @@ app.use("/api/keyboards", keyboardController);
 
 export default async function () {
   app.listen(process.env.PORT || 5000, () => {
-    console.log(
+    logger.info(
       `You can access the app at http://localhost:${process.env.PORT || 5000}`,
     );
   });

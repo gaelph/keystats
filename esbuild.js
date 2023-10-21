@@ -55,7 +55,20 @@ Esbuild.build({
   define: {
     "import.meta.url": "import_meta_url",
   },
-  external: dependencies,
+  external: [
+    "@mapbox/node-pre-gyp",
+    "pg-query-stream",
+    "better-sqlite3",
+    "oracledb",
+    "tedious",
+    "mysql",
+    "mysql2",
+    "pg",
+    "sqlite3",
+    "usb-detection",
+    "node-usb-detection",
+    "node-hid",
+  ],
 });
 
 /**
@@ -79,5 +92,18 @@ Esbuild.build({
   define: {
     "import.meta.url": "import_meta_url",
   },
-  external: dependencies,
+  external: [
+    "@mapbox/node-pre-gyp",
+    "pg-query-stream",
+    "better-sqlite3",
+    "oracledb",
+    "tedious",
+    "mysql",
+    "mysql2",
+    "pg",
+    "sqlite3",
+    "usb-detection",
+    "node-usb-detection",
+    "node-hid",
+  ],
 });

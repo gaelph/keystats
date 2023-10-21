@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import log from "loglevel";
+import log from "../lib/logger";
 
 // @ts-ignore
 import * as Keycodes from "../lib/keycodes.js";
@@ -32,8 +32,6 @@ export default class KeyHandler extends EventEmitter {
 
   constructor() {
     super();
-
-    // this.#logger.disableAll();
   }
 
   emitPlain(

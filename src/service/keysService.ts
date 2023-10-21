@@ -1,4 +1,4 @@
-import log from "loglevel";
+import log from "../lib/logger";
 import Key, { KeyOptions } from "./models/key.js";
 import KeysRepo from "./repository/keysRepo.js";
 

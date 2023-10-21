@@ -1,4 +1,4 @@
-import log from "loglevel";
+import log from "../lib/logger.js";
 import Keymap, { KeymapType } from "./models/keymap.js";
 import KeymapRepo from "./repository/keymapRepo.js";
 import KeysRepo from "./repository/keysRepo.js";

@@ -1,6 +1,8 @@
 import { Router } from "express";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
+import log from "../../lib/logger.js";
+import loggerMiddleware from "../middlewares/loggerMiddleware.js";
 import RecordService from "../../service/recordService.js";
 import HandService from "../../service/handService.js";
 import FingerService from "../../service/fingerService.js";
@@ -19,6 +21,7 @@ import { RecordCount } from "../../service/repository/recordRepo.js";
 
 type KeyboardRequest = Request<KeyboardIdParam, any, any, FilterQuery>;
 type KeyboardListRequest = Request<{}, any, any, {}>;
+const logger = log.getLogger("KeyboardController");
 
 const router = Router({ mergeParams: true });
 const entityRouter = Router({ mergeParams: true });
@@ -28,12 +31,21 @@ const handService = new HandService();
 const fingerService = new FingerService();
 const keyboardService = new KeyboardService();
 
-async function listKeyboards(req: KeyboardListRequest, res: Response) {
+async function listKeyboards(
+  req: KeyboardListRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const keyboards = await keyboardService.listKeyboards();
   res.json({ keyboards });
+  next();
 }
 
-async function getKeymaps(req: KeyboardRequest, res: Response) {
+async function getKeymaps(
+  req: KeyboardRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const { keyboardId } = req.params;
 
   const keyboard = await keyboardService.getKeyboard(keyboardId);
@@ -44,17 +56,27 @@ async function getKeymaps(req: KeyboardRequest, res: Response) {
   const keymap = await keyboardService.getKeymap(keyboard);
 
   res.json({ keymaps: keymap });
+  next();
 }
 
-async function getDates(req: KeyboardRequest, res: Response) {
+async function getDates(
+  req: KeyboardRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const { keyboardId } = req.params;
 
   const dates = await recordService.getAvailableDates(keyboardId);
 
   res.json({ dates });
+  next();
 }
 
-async function getTotalCounts(req: KeyboardRequest, res: Response) {
+async function getTotalCounts(
+  req: KeyboardRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const { keyboardId } = req.params;
   const filters = req.query;
 
@@ -84,9 +106,15 @@ async function getTotalCounts(req: KeyboardRequest, res: Response) {
     fingerUsage,
     totalKeypresses,
   });
+
+  next();
 }
 
-async function getCharacterCounts(req: KeyboardRequest, res: Response) {
+async function getCharacterCounts(
+  req: KeyboardRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const { keyboardId } = req.params;
   const filters = req.query;
 
@@ -120,9 +148,14 @@ async function getCharacterCounts(req: KeyboardRequest, res: Response) {
   );
 
   res.json({ records: formattedRecords, totalCharacters });
+  next();
 }
 
-async function getHandAndFingerCounts(req: KeyboardRequest, res: Response) {
+async function getHandAndFingerCounts(
+  req: KeyboardRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const { keyboardId } = req.params;
   const filters = req.query;
 
@@ -130,6 +163,7 @@ async function getHandAndFingerCounts(req: KeyboardRequest, res: Response) {
   const fingerUsage = await fingerService.getFingerUsage(keyboardId, filters);
 
   res.json({ handUsage, fingerUsage });
+  next();
 }
 
 router.get("/", listKeyboards);
@@ -142,5 +176,8 @@ entityRouter.get("/characterCounts", getCharacterCounts);
 entityRouter.get("/handAndFingerUsage", getHandAndFingerCounts);
 
 router.use("/:keyboardId", entityRouter);
+
+entityRouter.use(loggerMiddleware(logger));
+router.use(loggerMiddleware(logger));
 
 export default router;

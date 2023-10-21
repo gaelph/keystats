@@ -1,7 +1,5 @@
-import log, { LogLevelDesc } from "loglevel";
-// @ts-ignore
-import logPrefix from "loglevel-plugin-prefix";
 import Config from "./config/Config.js";
+import logger from "./lib/logger.js";
 import HIDManager from "./hid/HIDManager.js";
 import startServer from "./server/index.js";
 
@@ -10,28 +8,7 @@ import KeyboardService from "./service/keyboardService.js";
 import type HIDKeyboard from "./hid/HIDKeyboard.js";
 import { initializeDB } from "./service/database.js";
 
-logPrefix.reg(log);
-logPrefix.apply(log, {
-  template: "%n [%t]: %l:",
-});
-
-// TODO: move to config
-function isLogLevel(level: string): level is keyof typeof log.levels {
-  return level in log.levels;
-}
-
-// TODO: move to config
-function getLogLevel(): LogLevelDesc {
-  const level: string | undefined = process.env.LOG_LEVEL;
-  if (level && isLogLevel(level)) {
-    return log.levels[level as keyof typeof log.levels];
-  } else {
-    return log.levels.INFO;
-  }
-}
-
-// TODO: move to config
-log.setLevel(getLogLevel());
+const log = logger.getLogger();
 
 async function main() {
   const config = await new Config().load();
