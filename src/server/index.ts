@@ -22,7 +22,8 @@ app.use(
   }),
 );
 
-const staticFolder = path.join(process.cwd(), "build", "client");
+const staticFolder = path.join(__dirname, "client");
+console.log("serving static folder", staticFolder);
 app.use(express.static(staticFolder));
 
 app.get("/", (req, res /*  next */) => {
@@ -31,8 +32,10 @@ app.get("/", (req, res /*  next */) => {
 
 app.use("/api/keyboards", keyboardController);
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(
-    `You can access the app at http://localhost:${process.env.PORT || 5000}`,
-  );
-});
+export default async function () {
+  app.listen(process.env.PORT || 5000, () => {
+    console.log(
+      `You can access the app at http://localhost:${process.env.PORT || 5000}`,
+    );
+  });
+}

@@ -5,18 +5,17 @@
   "type": "commonjs",
   "main": "build/main.cjs",
   "bin": {
-    "keystats": "./bin/keystats",
-    "keystats-server": "./bin/keystats-server"
+    "keystats": "./build/keystats.cjs"
   },
   "scripts": {
     "start": "nodemon",
     "bundle": "node esbuild.js",
     "clean": "rm -rf ./build",
     "build:client": "cd src/client && npm run build && cd ../.. && cp -R 'src/client/build' 'build/client'",
-    "pkg:keystats": "pkg -t node18-macos-arm64 --out-path ./bin ./build/keystats.cjs",
-    "pkg:keystats-server": "pkg -t node18-macos-arm64 --out-path ./bin ./build/keystats-server.cjs",
-    "build": "npm run clean && npm run bundle && npm run build:client && npm run pkg:keystats && npm run pkg:keystats-server",
-    "start:server": "cd src/client && npm run build && cd ../.. && nodemon --config nodemon-server.json",
+    "pkg": "pkg --plublic -t node18-macos-arm64 -C Brotli --output ./bin/keystats .",
+    "pkg:debug": "pkg --debug --public -t node18-macos-arm64 --output ./bin/keystats .",
+    "build": "npm run clean && npm run bundle && npm run build:client && npm run pkg",
+    "start:server": "npm run build:client && nodemon --config nodemon-server.json",
     "start:client": "cd src/client && npm run start"
   },
   "author": "",

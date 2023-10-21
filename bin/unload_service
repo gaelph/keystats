@@ -1,7 +1,6 @@
 #!/bin/bash
 
-launchctl stop com.gaelph.keystats
-launchctl unload ~/Library/LaunchAgents/com.gaelph.keystats.plist
-
-launchctl stop com.gaelph.keystats-server
-launchctl unload ~/Library/LaunchAgents/com.gaelph.keystats-server.plist
+launchctl list | grep com.gaelph.keystats | awk 'index($NF, "com.gaelph.keystasts") { print $NF; }' | xargs -I % launchctl stop "%"
+for f in "${HOME}/Library/LaunchAgents"/com.gaelph.keystats*; do
+	launchctl unload "$f"
+done

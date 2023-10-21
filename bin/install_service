@@ -1,6 +1,6 @@
 #/bin/bash
 
-plists=("com.gaelph.keystats.plist" "com.gaelph.keystats-server.plist")
+plists=("com.gaelph.keystats.plist")
 BIN_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
 BIN_PATH=$(realpath $BIN_PATH)
 KEYSTATS_HOME=$(dirname -- "$BIN_PATH")

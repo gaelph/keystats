@@ -1,6 +1,9 @@
 const Fs = require("fs");
 const Esbuild = require("esbuild");
 
+/** We need to get the migrations in the build directory
+ * so that they are included in the pkg binary
+ */
 const migrations = Fs.readdirSync("./migrations");
 
 const migrationsEntries = migrations.map((migration) => {
@@ -11,17 +14,30 @@ const migrationsEntries = migrations.map((migration) => {
   };
 });
 
+// This banner will ensure the migrations are detected and included
+// in the binary
 let banner = "const path = require('path');\n";
 for (let migration of migrations) {
-  // migration = migration.replace(".js", ".cjs");
   banner += "require('./migrations/" + migration + "');\n";
 }
 
+/**
+ * Since we are in a node environment, we don’t need to
+ * bundle the denpendencies (some of which have .node files
+ * which can’t be bundled anyway)
+ */
+const packgeJson = JSON.parse(Fs.readFileSync("./package.json", "utf8"));
+
+const dependencies = [
+  Object.keys(packgeJson.dependencies || {}),
+  Object.keys(packgeJson.devDependencies),
+].flat(4);
+
+/**
+ * Main program build
+ */
 Esbuild.build({
-  entryPoints: [
-    { in: "./src/index.ts", out: "./keystats" },
-    { in: "./src/server/index.ts", out: "./keystats-server" },
-  ],
+  entryPoints: [{ in: "./src/index.ts", out: "./keystats" }],
   entryNames: "[dir]/[name]",
   banner: { js: banner },
   loader: {
@@ -32,28 +48,19 @@ Esbuild.build({
   bundle: true,
   platform: "node",
   outdir: "build",
-  sourcemap: true,
+  sourcemap: "inline",
   target: "node18",
   inject: ["./src/server/import_meta.js"],
   allowOverwrite: true,
   define: {
     "import.meta.url": "import_meta_url",
   },
-  external: [
-    "better-sqlite3",
-    "mysql",
-    "mysql2",
-    "oracledb",
-    "pg",
-    "pg-query-stream",
-    "tedious",
-    "@mapbox/node-pre-gyp",
-    "sqlite3",
-    "usb-detection",
-    "node-hid",
-  ],
+  external: dependencies,
 });
 
+/**
+ * Migrations build (so that they are included in the binary)
+ */
 Esbuild.build({
   entryPoints: migrationsEntries,
   entryNames: "[dir]/[name]",
@@ -72,17 +79,5 @@ Esbuild.build({
   define: {
     "import.meta.url": "import_meta_url",
   },
-  external: [
-    "better-sqlite3",
-    "mysql",
-    "mysql2",
-    "oracledb",
-    "pg",
-    "pg-query-stream",
-    "tedious",
-    "@mapbox/node-pre-gyp",
-    "sqlite3",
-    "usb-detection",
-    "node-hid",
-  ],
+  external: dependencies,
 });

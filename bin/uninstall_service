@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for f in "${HOME}/Library/LaunchAgents"/com.gaelph.keystats*; do
+	rm "$f";
+done;

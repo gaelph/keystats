@@ -3,6 +3,7 @@ import log, { LogLevelDesc } from "loglevel";
 import logPrefix from "loglevel-plugin-prefix";
 import Config from "./config/Config.js";
 import HIDManager from "./hid/HIDManager.js";
+import startServer from "./server/index.js";
 
 import KeyboardService from "./service/keyboardService.js";
 
@@ -50,6 +51,8 @@ async function main() {
     .on("unhandledRejection", (err: unknown) => {
       log.error(err);
     });
+
+  startServer();
 
   // Blocking call, tries to connect to keyboard
   // or wait for one to connect
