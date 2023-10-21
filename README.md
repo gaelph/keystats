@@ -45,6 +45,29 @@ npm run build;
 ./bin/load_service
 ```
 
+## Updating
+
+After pulling a new version of the project, run:
+```sh
+npm run build;
+bin/reload_service;
+```
+
+## Uninstalling
+Run:
+```sh
+# Stop and remove the launch agents
+bin/unload_service;
+bin/uninstall_service;
+# Remove the database
+rm -rf $HOME/.local/state/keystats
+# Remove the configuration
+rm -rf $HOME/.config/keystats
+# Remove the logs
+rm -rf $HOME/.cache/keystats
+```
+
+
 ## Usage
 
 Plug your keystats enabled QMK keyboard and  open your browser at
