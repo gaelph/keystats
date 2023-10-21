@@ -208,7 +208,7 @@ export default class FingerUsageRepo extends Repository<FingerUsage> {
           this.build({
             keyboardId: keyboardId,
             finger: finger,
-            date: today,
+            date: todayAsDbDate(),
             repeats: repeats,
             count: 1,
           }),
