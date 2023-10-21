@@ -61,7 +61,11 @@ export default function HeatmapComponent({
   const canvasRef = useRef();
   const heatmap = useRef();
   useEffect(() => {
-    if (canvasRef.current) {
+    if (
+      canvasRef.current &&
+      matrix &&
+      (total !== null || total !== undefined)
+    ) {
       for (let child of canvasRef.current.children) {
         if (child.tagName.toLowerCase() === "canvas") {
           child.remove();
