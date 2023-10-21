@@ -49,7 +49,7 @@ Esbuild.build({
   bundle: true,
   platform: "node",
   outdir: "build",
-  sourcemap: "inline",
+  sourcemap: process.env.ENV === "dev" ? true : "inline",
   target: "node18",
   inject: ["./src/server/import_meta.js"],
   allowOverwrite: true,
