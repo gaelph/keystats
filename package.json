@@ -15,7 +15,6 @@
     "pkg": "pkg --plublic -t node18-macos-arm64 -C Brotli --output ./bin/keystats .",
     "pkg:debug": "pkg --debug --public -t node18-macos-arm64 --output ./bin/keystats .",
     "build": "npm run clean && npm run bundle && npm run build:client && npm run pkg",
-    "start:server": "npm run build:client && nodemon --config nodemon-server.json",
     "start:client": "cd src/client && npm run start"
   },
   "author": "",
