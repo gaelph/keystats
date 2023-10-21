@@ -30,8 +30,9 @@ const packgeJson = JSON.parse(Fs.readFileSync("./package.json", "utf8"));
 
 const dependencies = [
   Object.keys(packgeJson.dependencies || {}),
-  Object.keys(packgeJson.devDependencies),
-].flat(4);
+  Object.keys(packgeJson.devDependencies || {}),
+  Object.keys(packgeJson.peerDependencies || {}),
+].flat(4); // 4 is arbitrary as -1 didn’t work
 
 /**
  * Main program build
@@ -55,20 +56,7 @@ Esbuild.build({
   define: {
     "import.meta.url": "import_meta_url",
   },
-  external: [
-    "@mapbox/node-pre-gyp",
-    "pg-query-stream",
-    "better-sqlite3",
-    "oracledb",
-    "tedious",
-    "mysql",
-    "mysql2",
-    "pg",
-    "sqlite3",
-    "usb-detection",
-    "node-usb-detection",
-    "node-hid",
-  ],
+  external: dependencies,
 });
 
 /**
@@ -92,18 +80,5 @@ Esbuild.build({
   define: {
     "import.meta.url": "import_meta_url",
   },
-  external: [
-    "@mapbox/node-pre-gyp",
-    "pg-query-stream",
-    "better-sqlite3",
-    "oracledb",
-    "tedious",
-    "mysql",
-    "mysql2",
-    "pg",
-    "sqlite3",
-    "usb-detection",
-    "node-usb-detection",
-    "node-hid",
-  ],
+  external: dependencies,
 });
