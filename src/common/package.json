@@ -1,0 +1,24 @@
+{
+  "name": "keystats-common",
+  "version": "1.0.0",
+  "description": "",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./dto/keyboard": "./dist/dto/keyboard.js",
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "types": "tsc -p tsconfig.json",
+    "build": "npm run types && node esbuild.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.19.5"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.10",
+    "zod": "^3.22.4"
+  }
+}

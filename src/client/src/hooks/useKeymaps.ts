@@ -1,15 +1,22 @@
 import { useReducer, useCallback, useEffect } from "react";
 import { setLoading, setError, setData } from "../store/actions.js";
-import dataReducer from "../store/reducer.js";
+import dataReducer, { State } from "../store/reducer.js";
 
-import { getKeyboardKeymaps } from "../lib/api.js";
+import { getKeyboardKeymaps, Keyboard } from "../lib/api.js";
+type Data = Awaited<ReturnType<typeof getKeyboardKeymaps>>;
 
-export default function useData(keyboard) {
-  const [state, dispatch] = useReducer(dataReducer, {
-    loading: false,
-    error: null,
-    data: null,
-  });
+export default function useData(
+  keyboard: Keyboard | null,
+): [Data | null, boolean, Error | null, () => Promise<void>] {
+  const [state, dispatch] = useReducer<typeof dataReducer<Data>, State<Data>>(
+    dataReducer,
+    {
+      loading: false,
+      error: null,
+      data: null,
+    },
+    (state) => state,
+  );
 
   const fetchData = useCallback(async () => {
     if (!keyboard) {
@@ -21,7 +28,9 @@ export default function useData(keyboard) {
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
-      dispatch(setError(error.message));
+      if (error instanceof Error) {
+        dispatch(setError(error));
+      }
     } finally {
       dispatch(setLoading(false));
     }

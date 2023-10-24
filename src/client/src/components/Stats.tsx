@@ -1,9 +1,14 @@
-import { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Tabs, Tab } from "./Tabs.js";
 import IconOrChar from "./IconOrChar.js";
+import {
+  Character,
+  RepetitionsBody,
+  TotalCountBody,
+} from "keystats-common/dto/keyboard";
 
 const numberFormater = new Intl.NumberFormat("en-US", {});
-function formatNumber(n) {
+function formatNumber(n: number): string {
   return numberFormater.format(n || 0);
 }
 
@@ -22,41 +27,56 @@ const FINGER_NAMES = [
 
 const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 
-const p = (v, total) => ((100 * v) / total).toFixed(2);
+const p = (v: number, total: number): string => ((100 * v) / total).toFixed(2);
+
+interface StatsComponentProps {
+  totals: TotalCountBody;
+  repetitions: RepetitionsBody | null;
+  characters: { records: Character[]; totalCharacters: number } | null;
+}
 
 export default function StatsComponent({
-  counts,
-  handAndFingerUsage,
+  totals,
+  repetitions,
   characters,
-}) {
-  const { totalKeypresses } = counts;
-  const { records, totalCharacters } = characters;
+}: StatsComponentProps): React.ReactElement<StatsComponentProps> {
+  const { totalKeypresses } = totals;
+  let records: Character[] = [];
+  let totalCharacters = 0;
+  if (characters) {
+    records = characters.records;
+    totalCharacters = characters.totalCharacters;
+  }
 
   const percent = useCallback(
-    (v) => {
-      if (!totalKeypresses) return 0;
+    (v: number): string => {
+      if (!totalKeypresses) return (0).toFixed(2);
       return ((100 * v) / totalKeypresses).toFixed(2);
     },
     [totalKeypresses],
   );
 
-  const hand = { left: counts.handUsage[0], right: counts.handUsage[1] };
-  const finger = counts.fingerUsage;
-  const row = counts.rowUsage;
-  const layer = counts.layerUsage;
+  const hand = { left: totals.handUsage[0], right: totals.handUsage[1] };
+  const finger = totals.fingerUsage;
+  const row = totals.rowUsage;
+  const layer = totals.layerUsage;
 
-  const fingerUsage = handAndFingerUsage?.fingerUsage;
+  const fingerUsage = repetitions?.fingerRepetitions;
   const fingerUsageSumPerFinger = useMemo(() => {
-    return fingerUsage?.map((counts) => {
-      return counts.reduce((acc, usage) => acc + usage, 0);
-    });
+    return (
+      fingerUsage?.map((counts) => {
+        return counts.reduce((acc: number, usage) => acc + (usage || 0), 0);
+      }) || []
+    );
   }, [fingerUsage]);
 
-  const handUsage = handAndFingerUsage?.handUsage;
+  const handUsage = repetitions?.handRepetitions;
   const handUsageSumPerHand = useMemo(() => {
-    return handUsage?.map((counts) => {
-      return counts.reduce((acc, usage) => acc + usage, 0);
-    });
+    return (
+      handUsage?.map((counts) => {
+        return counts.reduce((acc: number, usage) => acc + (usage || 0), 0);
+      }) || []
+    );
   }, [handUsage]);
 
   return (
@@ -76,7 +96,7 @@ export default function StatsComponent({
                 <span>
                   <strong>Layer #{key}:</strong>{" "}
                 </span>
-                <span>{percent(value)}%</span>
+                <span>{percent(value || 0)}%</span>
               </li>
             ))}
           </ul>
@@ -87,7 +107,7 @@ export default function StatsComponent({
                 <span>
                   <strong>{name}:</strong>{" "}
                 </span>
-                <span>{percent(row[idx])}%</span>
+                <span>{percent(row[idx as keyof typeof row] || 0)}%</span>
               </li>
             ))}
           </ul>
@@ -95,12 +115,12 @@ export default function StatsComponent({
           <ul>
             <li>
               <span>
-                <strong>Left:</strong> {percent(hand.left)}%
+                <strong>Left:</strong> {percent(hand.left || 0)}%
               </span>
             </li>
             <li>
               <span>
-                <strong>Right:</strong> {percent(hand.right)}%
+                <strong>Right:</strong> {percent(hand.right || 0)}%
               </span>
             </li>
           </ul>
@@ -109,7 +129,8 @@ export default function StatsComponent({
             {FINGER_NAMES.map((name, idx) => (
               <li key={name}>
                 <span>
-                  <strong>{name}:</strong> {percent(finger[idx])}%
+                  <strong>{name}:</strong>{" "}
+                  {percent(finger[idx as keyof typeof finger] || 0)}%
                 </span>
               </li>
             ))}
@@ -139,7 +160,7 @@ export default function StatsComponent({
                                 <strong>Used {ntimes} times in a row:</strong>
                               </span>{" "}
                               <span>
-                                {p(count, fingerUsageSumPerFinger[idx])}%
+                                {p(count || 0, fingerUsageSumPerFinger[idx])}%
                               </span>
                             </li>
                           ),
@@ -187,13 +208,12 @@ export default function StatsComponent({
                 <li>
                   <h5>Right Hand</h5>
                   <ul>
-                    {Object.entries(handUsage[1]).map(
-                      ([ntimes, count], idx) =>
-                        parseFloat(
-                          percent(count || 0, handUsageSumPerHand[1]),
-                        ) >= 1 &&
+                    {handUsage[1].map(
+                      (count, ntimes) =>
+                        parseFloat(p(count || 0, handUsageSumPerHand[1])) >=
+                          1 &&
                         ntimes >= 2 && (
-                          <li key={`right_hand_same_use_${idx}`}>
+                          <li key={`right_hand_same_use_${ntimes}_${count}`}>
                             <span>
                               <strong>Used {ntimes} times in a row:</strong>
                             </span>{" "}
@@ -217,40 +237,41 @@ export default function StatsComponent({
             <thead></thead>
             <tbody>
               {records &&
-                records
-                  .filter(({ character }) => !!character)
-                  .map(({ character, counts }) => {
-                    return (
-                      <tr title={`Entered ${counts} times`}>
-                        <th>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginTop: 5,
-                              marginBottom: 5,
-                              minWidth: 100,
-                            }}
-                          >
-                            <IconOrChar>{character}</IconOrChar>
-                          </div>
-                        </th>
-                        <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginTop: 5,
-                              marginBottom: 5,
-                              minWidth: 100,
-                            }}
-                          >
-                            {((100 * counts) / totalCharacters).toFixed(2)}%
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                records.map(({ character, counts }, idx) => {
+                  return (
+                    <tr
+                      title={`Entered ${counts} times`}
+                      key={`tr-${character}-${counts}-${idx}`}
+                    >
+                      <th>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginTop: 5,
+                            marginBottom: 5,
+                            minWidth: 100,
+                          }}
+                        >
+                          <IconOrChar>{character}</IconOrChar>
+                        </div>
+                      </th>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginTop: 5,
+                            marginBottom: 5,
+                            minWidth: 100,
+                          }}
+                        >
+                          {((100 * counts) / totalCharacters).toFixed(2)}%
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

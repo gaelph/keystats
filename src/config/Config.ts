@@ -1,33 +1,34 @@
 import Path from "path";
 import fs from "fs/promises";
 
-import { object, array, string, number, InferType } from "yup";
+import { z } from "zod";
 
-const deviceConfigSchema = object({
-  vendorId: number().required().transform(coerceHexStringToNumber),
-  productId: number().required().transform(coerceHexStringToNumber),
-  usagePage: number().required().transform(coerceHexStringToNumber),
-  usage: number().required().transform(coerceHexStringToNumber),
-  name: string().required().min(1),
-  fingerMap: array()
-    .of(array().of(number().min(0).max(9).required()).min(1).required())
-    .min(1)
-    .required(),
+const deviceConfigSchema = z.object({
+  vendorId: z.coerce.string().transform(coerceHexStringToNumber),
+  productId: z.coerce.string().transform(coerceHexStringToNumber),
+  usagePage: z.coerce.string().transform(coerceHexStringToNumber),
+  usage: z.coerce.string().transform(coerceHexStringToNumber),
+  name: z.string().min(1),
+  fingerMap: z.array(z.array(z.number().min(0).max(9)).min(1)).min(1),
 });
-export type DeviceConfig = InferType<typeof deviceConfigSchema>;
+export type DeviceConfig = z.infer<typeof deviceConfigSchema>;
 
-const configSchema = object({
-  devices: array().of(deviceConfigSchema).required().min(1),
+const configSchema = z.object({
+  devices: z.array(deviceConfigSchema).min(1),
 });
-export type ConfigObject = InferType<typeof configSchema>;
+export type ConfigObject = z.infer<typeof configSchema>;
 
 function getHomedir(): string | undefined {
   return process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 }
 
 function hexStringToInt(hexString: string): number {
-  const hex = hexString.replace("0x", "");
-  return parseInt(hex, 16);
+  if (hexString.startsWith("0x")) {
+    const hex = hexString.replace("0x", "");
+    return parseInt(hex, 16);
+  } else {
+    return parseInt(hexString, 10);
+  }
 }
 
 function coerceHexStringToNumber(hexString: string | number): number {
@@ -62,8 +63,7 @@ export default class Config {
   }
 
   #validateConfig(config: any): ConfigObject {
-    configSchema.validateSync(config);
-    const validConfig = configSchema.cast(config);
+    const validConfig = configSchema.parse(config);
 
     for (const deviceConfig of validConfig.devices) {
       const rowLengths = new Set(

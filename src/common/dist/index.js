@@ -1,0 +1,6 @@
+import * as _KeyboardDTO from "./dto/keyboard.js";
+const KeyboardDTO = _KeyboardDTO;
+export {
+  KeyboardDTO
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vc3JjL2luZGV4LnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJpbXBvcnQgKiBhcyBfS2V5Ym9hcmREVE8gZnJvbSBcIi4vZHRvL2tleWJvYXJkLmpzXCI7XG5cbmV4cG9ydCBjb25zdCBLZXlib2FyZERUTyA9IF9LZXlib2FyZERUTztcbiJdLAogICJtYXBwaW5ncyI6ICJBQUFBLFlBQVksa0JBQWtCO0FBRXZCLE1BQU0sY0FBYzsiLAogICJuYW1lcyI6IFtdCn0K

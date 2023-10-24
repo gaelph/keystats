@@ -1,4 +1,5 @@
 import { KeymapType } from "./models/keymap.js";
+import type { Dayjs } from "dayjs";
 
 export interface Coordinates {
   layer: number;
@@ -7,9 +8,9 @@ export interface Coordinates {
 }
 
 export interface FilterOptions {
-  date?: Date;
-  period?: Date[];
-  after?: Date;
-  before?: Date;
+  date?: Dayjs;
+  period?: Dayjs[];
+  after?: Dayjs;
+  before?: Dayjs;
   type?: KeymapType;
 }

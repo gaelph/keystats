@@ -10,14 +10,25 @@ import KeyboardService from "../../service/keyboardService.js";
 import {
   FilterQuery,
   KeyboardIdParam,
+  characterCountBody,
+  datesBody,
   filterQuery,
   keyboardIdParam,
-  validateParams,
+  keyboardListBody,
+  keymapsBody,
+  repetitionsBody,
+  totalCountBody,
+} from "../../common/dist/dto/keyboard.js";
+import {
   validateQuery,
+  validateParams,
+  validateBody,
+  validateResponse,
 } from "../dto/keyboardsDto.js";
 import * as Keycodes from "../../lib/keycodes.js";
 import { formatKeyCode } from "../../lib/formatKeycodes.js";
 import { RecordCount } from "../../service/repository/recordRepo.js";
+import { AUTH } from "sqlite3";
 
 type KeyboardRequest = Request<KeyboardIdParam, any, any, FilterQuery>;
 type KeyboardListRequest = Request<{}, any, any, {}>;
@@ -159,21 +170,44 @@ async function getHandAndFingerCounts(
   const { keyboardId } = req.params;
   const filters = req.query;
 
-  const handUsage = await handService.getHandUsage(keyboardId, filters);
-  const fingerUsage = await fingerService.getFingerUsage(keyboardId, filters);
+  const handRepetitions = await handService.getHandUsage(keyboardId, filters);
+  const fingerRepetitions = await fingerService.getFingerUsage(
+    keyboardId,
+    filters,
+  );
 
-  res.json({ handUsage, fingerUsage });
+  res.json({ handRepetitions, fingerRepetitions });
   next();
 }
 
-router.get("/", listKeyboards);
+router.get("/", validateResponse(keyboardListBody), listKeyboards);
 
 entityRouter.use(validateParams(keyboardIdParam), validateQuery(filterQuery));
-entityRouter.get("/available-dates", getDates);
-entityRouter.get("/keymaps", getKeymaps);
-entityRouter.get("/totalCounts", getTotalCounts);
-entityRouter.get("/characterCounts", getCharacterCounts);
-entityRouter.get("/handAndFingerUsage", getHandAndFingerCounts);
+entityRouter.get<KeyboardIdParam>(
+  "/available-dates",
+  validateResponse(datesBody),
+  getDates,
+);
+entityRouter.get<KeyboardIdParam>(
+  "/keymaps",
+  validateResponse(keymapsBody),
+  getKeymaps,
+);
+entityRouter.get<KeyboardIdParam>(
+  "/totalCounts",
+  validateResponse(totalCountBody),
+  getTotalCounts,
+);
+entityRouter.get<KeyboardIdParam>(
+  "/characterCounts",
+  validateResponse(characterCountBody),
+  getCharacterCounts,
+);
+entityRouter.get<KeyboardIdParam>(
+  "/handAndFingerUsage",
+  validateResponse(repetitionsBody),
+  getHandAndFingerCounts,
+);
 
 router.use("/:keyboardId", entityRouter);
 

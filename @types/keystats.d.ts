@@ -1,61 +1,61 @@
 import { Knex } from "knex";
 
+interface Keyboard {
+  id: number;
+  name: string;
+  vendorId: number;
+  productId: number;
+}
+
+interface Key {
+  keyboardId: Keyboard["id"];
+  column: number;
+  row: number;
+  finger: number;
+  hand: number;
+}
+
+interface Keymap {
+  id: number;
+  keycode: string;
+  type: "plain" | "mtap" | "ltap" | "lmod";
+  layer: number;
+  keyboardId: Key["keyboardId"];
+  column: Key["column"];
+  row: Key["row"];
+}
+
+interface Record {
+  id: number;
+  date: Date;
+  modifiers: number;
+  counts: number;
+  keymapId: Keymap["id"];
+}
+
+interface FingerUsage {
+  id: number;
+  count: number;
+  finger: number;
+  repeats: number;
+  date: string;
+  keyboardId: Keyboard["id"];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface HandUsage {
+  id: number;
+  count: number;
+  hand: number;
+  repeats: number;
+  date: string;
+  keyboardId: Keyboard["id"];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 declare module "knex/types/tables" {
-  interface Keyboard {
-    id: number;
-    name: string;
-    vendorId: number;
-    productId: number;
-  }
-
-  interface Key {
-    keyboardId: Keyboard["id"];
-    column: number;
-    row: number;
-    finger: number;
-    hand: number;
-  }
-
-  interface Keymap {
-    id: number;
-    keycode: string;
-    type: "plain" | "mtap" | "ltap" | "lmod";
-    layer: number;
-    keyboardId: Key["keyboardId"];
-    column: Key["column"];
-    row: Key["row"];
-  }
-
-  interface Record {
-    id: number;
-    date: Date;
-    modifiers: number;
-    counts: number;
-    keymapId: Keymap["id"];
-  }
-
-  interface FingerUsage {
-    id: number;
-    count: number;
-    finger: number;
-    repeats: number;
-    date: string;
-    keyboardId: Keyboard["id"];
-    createdAt: Date;
-    updatedAt: Date;
-  }
-
-  interface HandUsage {
-    id: number;
-    count: number;
-    hand: number;
-    repeats: number;
-    date: string;
-    keyboardId: Keyboard["id"];
-    createdAt: Date;
-    updatedAt: Date;
-  }
-
   interface Tables {
     keyboards: Keyboard;
     keyboards_composite: Knex.CompositeTableType<

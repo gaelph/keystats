@@ -1,15 +1,26 @@
 import { useReducer, useCallback, useEffect } from "react";
 import { setLoading, setError, setData } from "../store/actions.js";
-import dataReducer from "../store/reducer.js";
+import dataReducer, { State } from "../store/reducer.js";
 
 import { listKeyboards } from "../lib/api.js";
 
-export default function useData() {
-  const [state, dispatch] = useReducer(dataReducer, {
-    loading: false,
-    error: null,
-    data: null,
-  });
+type Data = Awaited<ReturnType<typeof listKeyboards>>;
+
+export default function useData(): [
+  Data | null,
+  boolean,
+  Error | null,
+  () => Promise<void>,
+] {
+  const [state, dispatch] = useReducer<typeof dataReducer<Data>, State<Data>>(
+    dataReducer,
+    {
+      loading: false,
+      error: null,
+      data: null,
+    },
+    (state) => state,
+  );
 
   const fetchData = useCallback(async () => {
     dispatch(setLoading(true));
@@ -18,7 +29,9 @@ export default function useData() {
       dispatch(setData(data));
     } catch (error) {
       console.error(error);
-      dispatch(setError(error.message));
+      if (error instanceof Error) {
+        dispatch(setError(error));
+      }
     } finally {
       dispatch(setLoading(false));
     }

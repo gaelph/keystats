@@ -4,23 +4,41 @@ import "./App.css";
 
 import { useCallback, useMemo, useState, useEffect } from "react";
 
-import useCounts from "./hooks/useCounts.js";
-import useDates from "./hooks/useDates.js";
-import useKeyboards from "./hooks/useKeyboards.js";
-import useKeymaps from "./hooks/useKeymaps.js";
-import useCharacters from "./hooks/useCharacters.js";
-import useHandAndFingerUsage from "./hooks/useHandAndFingerUsage.js";
-import HeatmapComponent from "./components/Heatmap.js";
-import StatsComponent from "./components/Stats.js";
-import Dates from "./components/Dates.js";
+import useCounts from "~/hooks/useCounts.js";
+import useDates from "~/hooks/useDates.js";
+import useKeyboards from "~/hooks/useKeyboards.js";
+import useKeymaps from "~/hooks/useKeymaps.js";
+import useCharacters from "~/hooks/useCharacters.js";
+import useHandAndFingerUsage from "~/hooks/useHandAndFingerUsage.js";
+import HeatmapComponent from "~/components/Heatmap.js";
+import StatsComponent from "~/components/Stats.js";
+import Dates from "~/components/Dates.js";
+import { Keyboard } from "~/lib/api.js";
+import dayjs from "dayjs";
+import { KeymapUsage } from "keystats-common/dto/keyboard";
 
-function getUsableLayers(layers) {
+function getUsableLayers(layers: number[][][]): number[][][] {
   return layers.slice(0, 6);
 }
 
+function onlyDefined(layers: KeymapUsage): number[][][] {
+  if (!layers) return [];
+  return layers.map((l) => {
+    if (!l) return [];
+
+    return l.map((r) => {
+      if (!r) return [];
+
+      return r.map((c) => {
+        return c || 0;
+      });
+    });
+  });
+}
+
 function App() {
-  const [date, setDate] = useState(null);
-  const [keyboard, setKeyboard] = useState(null);
+  const [date, setDate] = useState<dayjs.Dayjs | null>(null);
+  const [keyboard, setKeyboard] = useState<Keyboard | null>(null);
   const [keyboards, loadingKeyboards, errorKeyboards /*, refreshKeyboards*/] =
     useKeyboards();
   const [keymaps, loadingKeymaps, errorKeymaps, refreshKeymaps] =
@@ -55,7 +73,7 @@ function App() {
 
   const usableLayers = useMemo(() => {
     if (counts && counts.keymapUsage) {
-      return getUsableLayers(counts.keymapUsage);
+      return getUsableLayers(onlyDefined(counts.keymapUsage));
     }
     return null;
   }, [counts]);
@@ -87,7 +105,7 @@ function App() {
       <header>
         {keyboard && keyboard.name && <h1>{keyboard.name}</h1>}
         {loading && <div>Loading...</div>}
-        {error && <div>{error}</div>}
+        {error && <div>{error.message}</div>}
         {counts && !loading && (
           <button onClick={refreshAllData}>Refresh</button>
         )}
@@ -108,7 +126,7 @@ function App() {
                   return (
                     <li key={layerId}>
                       <HeatmapComponent
-                        data={counts.keymapUsage}
+                        data={onlyDefined(counts.keymapUsage)}
                         matrix={matrix}
                         layerId={layerId}
                         layer={keymaps[layerId]}

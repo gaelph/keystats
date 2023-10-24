@@ -1,27 +1,29 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import dayjs from "dayjs";
 import dayjsen from "dayjs/locale/en.js";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore.js";
 dayjs.extend(isSameOrBefore);
 dayjs.locale("en-europe", { ...dayjsen, weekStart: 1 });
 
-function boundsOfMonth(date) {
+function boundsOfMonth(date: string | Date | dayjs.Dayjs): dayjs.Dayjs[] {
   return [dayjs(date).startOf("month"), dayjs(date).endOf("month")];
 }
 
-function monday(date) {
+function monday(date: string | Date | dayjs.Dayjs): dayjs.Dayjs {
   return dayjs(date).startOf("week");
 }
 
-function sunday(date) {
+function sunday(date: string | Date | dayjs.Dayjs): dayjs.Dayjs {
   return dayjs(date).endOf("week");
 }
 
-function getDaysInMonth(date) {
+function getDaysInMonth(
+  date: string | Date | dayjs.Dayjs,
+): { day: dayjs.Dayjs; current: boolean }[] {
   const [firstDay, lastDay] = boundsOfMonth(date);
   const firstDate = monday(firstDay);
   const lastDate = sunday(lastDay);
-  const days = [];
+  const days: { day: dayjs.Dayjs; current: boolean }[] = [];
 
   let current = dayjs(firstDate);
   while (current <= lastDate) {
@@ -37,7 +39,7 @@ function getDaysInMonth(date) {
   return days;
 }
 
-function DateHeader() {
+function DateHeader(): React.ReactElement {
   return (
     <tr>
       <th>M</th>
@@ -51,7 +53,21 @@ function DateHeader() {
   );
 }
 
-function DateCell({ day, current, onSelectDate, selected, disabled }) {
+interface DateCellProps {
+  day: dayjs.Dayjs;
+  current: boolean;
+  onSelectDate: (day: dayjs.Dayjs) => void;
+  selected: boolean;
+  disabled: boolean;
+}
+
+function DateCell({
+  day,
+  current,
+  onSelectDate,
+  selected,
+  disabled,
+}: DateCellProps): React.ReactElement<DateCellProps> {
   return (
     <button
       disabled={disabled}
@@ -66,16 +82,30 @@ function DateCell({ day, current, onSelectDate, selected, disabled }) {
   );
 }
 
-function DateBody({ currentDate, selected, includeDates, onSelectDate }) {
-  let datesInMonth = getDaysInMonth(currentDate);
-  const allowed = includeDates.map((date) => dayjs(date));
+interface DateBodyProps {
+  currentDate: dayjs.Dayjs;
+  selected: dayjs.Dayjs;
+  includeDates?: dayjs.Dayjs[];
+  onSelectDate: (day: dayjs.Dayjs) => void;
+}
 
-  let rows = [];
+function DateBody({
+  currentDate,
+  selected,
+  includeDates,
+  onSelectDate,
+}: DateBodyProps): React.ReactElement<DateBodyProps> {
+  const datesInMonth = getDaysInMonth(currentDate);
+  const allowed = (includeDates || []).map((date) => dayjs(date));
+
+  const rows: React.ReactElement[] = [];
+  let wn = 0;
   while (datesInMonth.length > 0) {
     const week = datesInMonth.splice(0, 7);
+    wn++;
 
     rows.push(
-      <tr>
+      <tr key={`dates-w-${wn}`}>
         {week.map(({ day, current }) => (
           <td key={day.format()}>
             <DateCell
@@ -91,10 +121,22 @@ function DateBody({ currentDate, selected, includeDates, onSelectDate }) {
     );
   }
 
-  return rows;
+  return <>{rows}</>;
 }
 
-function DatePicker({ className, selected, onChange, includeDates }) {
+interface DatePickerProps {
+  className?: string;
+  selected?: dayjs.Dayjs | null;
+  onChange: (date: dayjs.Dayjs) => void;
+  includeDates?: dayjs.Dayjs[];
+}
+
+function DatePicker({
+  className,
+  selected,
+  onChange,
+  includeDates,
+}: DatePickerProps): React.ReactElement<DatePickerProps> {
   // we set the initial date to the middle of the cusrent month
   // to avoid skipping february
   const [date, setDate] = useState(dayjs().startOf("month").add(15, "day"));
@@ -102,7 +144,7 @@ function DatePicker({ className, selected, onChange, includeDates }) {
   const monthAndYear = date.format("MMMM YYYY");
 
   const changeMonth = useCallback(
-    (candidate) => {
+    (candidate: dayjs.Dayjs) => {
       if (candidate.isSameOrBefore(dayjs(), "month")) {
         setDate(candidate);
       }
@@ -110,9 +152,9 @@ function DatePicker({ className, selected, onChange, includeDates }) {
     [setDate],
   );
 
-  const self = useRef();
+  const self = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
-    const listener = ({ target }) => {
+    const listener = ({ target }: MouseEvent) => {
       if (target === self.current) {
         self.current?.blur();
       }
@@ -136,7 +178,7 @@ function DatePicker({ className, selected, onChange, includeDates }) {
         self.current?.blur();
       }}
     >
-      <div type="button" className="date-picker-button">
+      <div className="date-picker-button">
         <span className="material-symbols-sharp">today</span>
         {selected !== null && (
           <span className="date-picker-button-date">
@@ -145,12 +187,12 @@ function DatePicker({ className, selected, onChange, includeDates }) {
         )}
         <div className="date-picker-pane">
           <div className="date-picker-header">
-            <button
-              type="button"
+            <div
+              tabIndex={0}
               onClick={() => changeMonth(date.subtract(1, "month"))}
             >
               &lt;
-            </button>
+            </div>
             <span>{monthAndYear}</span>
             <button
               type="button"
@@ -180,9 +222,19 @@ function DatePicker({ className, selected, onChange, includeDates }) {
   );
 }
 
-export default function Dates({ dates, selectedDate, onChange }) {
+interface DatesProps {
+  dates: dayjs.Dayjs[];
+  selectedDate: dayjs.Dayjs | null;
+  onChange: (date: dayjs.Dayjs | null) => void;
+}
+
+export default function Dates({
+  dates,
+  selectedDate,
+  onChange,
+}: DatesProps): React.ReactElement<DatesProps> {
   const handleDateClick = useCallback(
-    (date) => {
+    (date: dayjs.Dayjs | null) => {
       onChange && onChange(date);
     },
     [onChange],

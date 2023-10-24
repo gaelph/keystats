@@ -1,4 +1,4 @@
-import type { Logger } from "loglever";
+import type { Logger } from "loglevel";
 import type { NextFunction, Request, Response } from "express";
 
 export default function (logger: Logger) {

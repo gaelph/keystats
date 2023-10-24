@@ -1,45 +1,48 @@
 import { NextFunction, Request, Response } from "express";
-import { object, number, InferType, ObjectSchema, date } from "yup";
-
-export const keyboardIdParam = object().shape({
-  keyboardId: number().required(),
-});
-
-export type KeyboardIdParam = InferType<typeof keyboardIdParam>;
-
-export const filterQuery = object().shape({
-  date: date().optional(),
-});
-
-export type FilterQuery = InferType<typeof filterQuery>;
+import type { ZodSchema } from "zod";
 
 export function validateParams(
-  schema: ObjectSchema<any>,
+  schema: ZodSchema<any>,
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!schema.isValidSync(req.params)) {
+    try {
+      req.params = schema.parse(req.params);
+    } catch (error) {
       res.status(400);
       return next(new Error("Bad Request"));
     }
-    req.params = schema.cast(req.params);
 
     next();
   };
 }
 
 export function validateQuery(
-  schema: ObjectSchema<any>,
+  schema: ZodSchema<any>,
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (
-      req.query &&
-      Object.keys(req.query).length &&
-      !schema.isValidSync(req.query)
-    ) {
-      res.status(400);
-      return next(new Error("Bad Request"));
+    if (req.query && Object.keys(req.query).length) {
+      try {
+        req.query = schema.parse(req.query);
+      } catch (error) {
+        res.status(400);
+        return next(new Error("Bad Request"));
+      }
     }
-    req.query = schema.cast(req.query);
+
+    next();
+  };
+}
+
+export function validateResponse<P>(
+  schema: ZodSchema<any>,
+): (req: Request<P>, res: Response, next: NextFunction) => Promise<void> {
+  return async (req: Request<P>, res: Response, next: NextFunction) => {
+    const oldJson = res.json;
+
+    res.json = (data: any): ReturnType<typeof oldJson> => {
+      data = schema.parse(data);
+      return oldJson.call(res, data);
+    };
 
     next();
   };

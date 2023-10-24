@@ -1,17 +1,18 @@
-export function toDbDate(date: Date): string {
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+
+import type { Dayjs } from "dayjs";
+
+export function toDbDate(date: Dayjs): string {
+  return date.format("YYYY-M-DD");
 }
 
-export function fromDbDate(input: string): Date {
-  const date = new Date();
-  const [year, month, day] = input.split("-");
-  date.setFullYear(parseInt(year));
-  date.setMonth(parseInt(month) - 1);
-  date.setDate(parseInt(day));
-
-  return date;
+export function fromDbDate(input: string): Dayjs {
+  // @ts-ignore
+  return dayjs.parse(input, "YYYY-M-DD");
 }
 
 export function todayAsDbDate(): string {
-  return toDbDate(new Date());
+  return toDbDate(dayjs());
 }
