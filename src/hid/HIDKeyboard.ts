@@ -121,9 +121,9 @@ export default class HIDKeyboard extends EventEmitter {
 
             case HID_CMD_UNKNOWN:
               this.#logger.warn(
-                "unknown command",
+                "unrecognized command",
                 this.deviceConfig.name,
-                message.cmd,
+                message.cmd.toString(16),
                 message.callId,
               );
               break;
@@ -134,9 +134,9 @@ export default class HIDKeyboard extends EventEmitter {
                 this.callbacks.delete(message.callId);
               } else {
                 this.#logger.warn(
-                  "unknown command",
+                  "No callback for callId",
                   this.deviceConfig.name,
-                  message.cmd,
+                  message.cmd.toString(16),
                   message.callId,
                 );
               }
@@ -166,6 +166,7 @@ export default class HIDKeyboard extends EventEmitter {
   ): Promise<HIDMessage[] | undefined> {
     let msgWritten = 0;
     let bytesWritten = 0;
+    this.#logger.debug("Sending command", command.cmd, command.callId);
     const mess = command.toHIDMessages();
     for (const message of mess) {
       await wait(100);
