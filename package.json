@@ -8,13 +8,15 @@
     "keystats": "./build/keystats.cjs"
   },
   "scripts": {
-    "start": "nodemon",
+    "build": "npm run clean && npm run build:dependencies && npm run bundle && npm run pkg",
+    "build:client": "cd src/client && npm run build && cd ../.. && cp -R 'src/client/build' 'build/client'",
+    "build:common": "cd src/common && npm run build && cd ../..",
+    "build:dependencies": "npm run build:common && npm run build:client",
     "bundle": "node esbuild.js",
     "clean": "rm -rf ./build",
-    "build:client": "cd src/client && npm run build && cd ../.. && cp -R 'src/client/build' 'build/client'",
     "pkg": "pkg --plublic -t node18-macos-arm64 -C Brotli --output ./bin/keystats .",
     "pkg:debug": "pkg --debug --public -t node18-macos-arm64 --output ./bin/keystats .",
-    "build": "npm run clean && npm run bundle && npm run build:client && npm run pkg",
+    "start": "nodemon",
     "start:client": "cd src/client && npm run start"
   },
   "author": "",

@@ -244,3 +244,69 @@ th .material-symbols-sharp {
   background-color: purple;
   z-index: -1;
 }
+
+.keyboard-selector {
+	cursor: pointer;
+	display: inline-block;
+
+	.container {
+		position: relative;
+		width: 100%;
+	}
+
+	.button.select {
+		padding: 0 2em ;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+
+		span.material-symbols-sharp {
+			font-size: 2em !important;
+			margin-left: 0.5em;
+			margin-top: 0.125em;
+		}
+	}
+
+	.options {
+		display: block;
+		visibility: hidden;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		position: absolute;
+		z-index: 1000;
+		top: 100%;
+		left: 0;
+		width: 100%;
+		text-align: center;
+
+		background-color: white;
+		border-radius: 4px;
+  	border: 1px solid #ddd;
+		box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
+
+		.option {
+			padding: 0.75em 1em;
+			transition: background-color 0.2s ease;
+
+			&:not(:last-child) {
+				border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+			}
+
+			&:hover {
+				background-color: rgba(0, 0, 0, 0.03)
+			}
+
+			&.selected {
+				background-color: rgba(0, 0, 0, 0.03);
+				font-weight: bold;
+			}
+		}
+	}
+
+	&:focus-within {
+		.options {
+			visibility: visible;
+			opacity: 1;
+		}
+	}
+}

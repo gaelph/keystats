@@ -16,6 +16,7 @@ import Dates from "~/components/Dates.js";
 import { Keyboard } from "~/lib/api.js";
 import dayjs from "dayjs";
 import { KeymapUsage } from "keystats-common/dto/keyboard";
+import KeyboardSelector from "./components/KeyboardSelector.js";
 
 function getUsableLayers(layers: number[][][]): number[][][] {
   return layers.slice(0, 6);
@@ -103,7 +104,13 @@ function App() {
   return (
     <div className="App test">
       <header>
-        {keyboard && keyboard.name && <h1>{keyboard.name}</h1>}
+        <div>
+          <KeyboardSelector
+            selectedKeyboard={keyboard}
+            keyboards={keyboards || []}
+            onChange={(kb) => setKeyboard(kb)}
+          />
+        </div>
         {loading && <div>Loading...</div>}
         {error && <div>{error.message}</div>}
         {counts && !loading && (
