@@ -1,12 +1,15 @@
 import React from "react";
 
 interface IconOrCharProps {
-  children: string;
+  children: string | undefined;
 }
 
 export default function IconOrChar({
   children,
 }: IconOrCharProps): React.ReactElement<IconOrCharProps> {
+  if (!children) {
+    return <></>;
+  }
   const chars = children.split(" ");
 
   return (

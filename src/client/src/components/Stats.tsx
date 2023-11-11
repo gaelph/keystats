@@ -65,7 +65,7 @@ export default function StatsComponent({
   const fingerUsageSumPerFinger = useMemo(() => {
     return (
       fingerUsage?.map((counts) => {
-        return counts.reduce((acc: number, usage) => acc + (usage || 0), 0);
+        return counts.reduce((acc: number, usage) => acc + usage, 0);
       }) || []
     );
   }, [fingerUsage]);
@@ -74,7 +74,7 @@ export default function StatsComponent({
   const handUsageSumPerHand = useMemo(() => {
     return (
       handUsage?.map((counts) => {
-        return counts.reduce((acc: number, usage) => acc + (usage || 0), 0);
+        return counts.reduce((acc: number, usage) => acc + usage, 0);
       }) || []
     );
   }, [handUsage]);
@@ -107,7 +107,7 @@ export default function StatsComponent({
                 <span>
                   <strong>{name}:</strong>{" "}
                 </span>
-                <span>{percent(row[idx as keyof typeof row] || 0)}%</span>
+                <span>{percent(row[idx])}%</span>
               </li>
             ))}
           </ul>
@@ -115,12 +115,12 @@ export default function StatsComponent({
           <ul>
             <li>
               <span>
-                <strong>Left:</strong> {percent(hand.left || 0)}%
+                <strong>Left:</strong> {percent(hand.left)}%
               </span>
             </li>
             <li>
               <span>
-                <strong>Right:</strong> {percent(hand.right || 0)}%
+                <strong>Right:</strong> {percent(hand.right)}%
               </span>
             </li>
           </ul>
@@ -130,7 +130,7 @@ export default function StatsComponent({
               <li key={name}>
                 <span>
                   <strong>{name}:</strong>{" "}
-                  {percent(finger[idx as keyof typeof finger] || 0)}%
+                  {percent(finger[idx as keyof typeof finger])}%
                 </span>
               </li>
             ))}
@@ -151,16 +151,15 @@ export default function StatsComponent({
                     <ul>
                       {f.map(
                         (count, ntimes) =>
-                          parseFloat(
-                            p(count || 0, fingerUsageSumPerFinger[idx]),
-                          ) >= 1 &&
+                          parseFloat(p(count, fingerUsageSumPerFinger[idx])) >=
+                            1 &&
                           ntimes >= 2 && (
                             <li key={`same-finger-use-${idx}-${ntimes}`}>
                               <span>
                                 <strong>Used {ntimes} times in a row:</strong>
                               </span>{" "}
                               <span>
-                                {p(count || 0, fingerUsageSumPerFinger[idx])}%
+                                {p(count, fingerUsageSumPerFinger[idx])}%
                               </span>
                             </li>
                           ),
@@ -190,16 +189,13 @@ export default function StatsComponent({
                   <ul>
                     {handUsage[0].map(
                       (count, ntimes) =>
-                        parseFloat(p(count || 0, handUsageSumPerHand[0])) >=
-                          1 &&
+                        parseFloat(p(count, handUsageSumPerHand[0])) >= 1 &&
                         ntimes >= 2 && (
                           <li key={`left_hand_same_use_${ntimes}_${count}`}>
                             <span>
                               <strong>Used {ntimes} times in a row:</strong>
                             </span>{" "}
-                            <span>
-                              {p(count || 0, handUsageSumPerHand[0])}%
-                            </span>
+                            <span>{p(count, handUsageSumPerHand[0])}%</span>
                           </li>
                         ),
                     )}
@@ -210,16 +206,13 @@ export default function StatsComponent({
                   <ul>
                     {handUsage[1].map(
                       (count, ntimes) =>
-                        parseFloat(p(count || 0, handUsageSumPerHand[1])) >=
-                          1 &&
+                        parseFloat(p(count, handUsageSumPerHand[1])) >= 1 &&
                         ntimes >= 2 && (
                           <li key={`right_hand_same_use_${ntimes}_${count}`}>
                             <span>
                               <strong>Used {ntimes} times in a row:</strong>
                             </span>{" "}
-                            <span>
-                              {p(count || 0, handUsageSumPerHand[1])}%
-                            </span>
+                            <span>{p(count, handUsageSumPerHand[1])}%</span>
                           </li>
                         ),
                     )}
