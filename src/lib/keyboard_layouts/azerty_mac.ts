@@ -669,4 +669,3 @@ export const shiftAlted = [
   null, // "CRSEL",
   null, // "EXSEL",
 ];
-

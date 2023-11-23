@@ -12,6 +12,7 @@ export enum KeymapType {
   ModTap = "mtap",
   LayerTap = "ltap",
   LayerMod = "lmod",
+  Layer = "layer",
 }
 
 export default class Keymap extends Model {

@@ -109,6 +109,66 @@ export default function IconOrChar({
                   arrow_downward
                 </span>
               );
+            case "BRIGHTNESS_DOWN":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  brightness_low
+                </span>
+              );
+            case "BRIGHTNESS_UP":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  brightness_high
+                </span>
+              );
+            case "AUDIO_MUTE":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  volume_off
+                </span>
+              );
+            case "AUDIO_VOL_DOWN":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  volume_down
+                </span>
+              );
+            case "AUDIO_VOL_UP":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  volume_up
+                </span>
+              );
+            case "MEDIA_NEXT_TRACK":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  skip_next
+                </span>
+              );
+            case "MEDIA_PREV_TRACK":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  skip_previous
+                </span>
+              );
+            case "MEDIA_STOP":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  stop
+                </span>
+              );
+            case "MEDIA_PLAY_PAUSE":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  play_pause
+                </span>
+              );
+            case "BOOT":
+              return (
+                <span key={char} className="material-symbols-sharp">
+                  restart_alt
+                </span>
+              );
 
             default:
               return (

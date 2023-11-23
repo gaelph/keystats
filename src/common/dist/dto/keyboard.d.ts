@@ -42,14 +42,14 @@ export declare const keyboardListBody: z.ZodObject<{
 export type KeyboardListBody = z.infer<typeof keyboardListBody>;
 declare const keymap: z.ZodObject<{
     keycode: z.ZodString;
-    type: z.ZodEnum<["plain", "mtap", "ltap", "lmod"]>;
+    type: z.ZodEnum<["plain", "mtap", "ltap", "lmod", "layer"]>;
     character: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    type: "plain" | "mtap" | "ltap" | "lmod";
+    type: "plain" | "mtap" | "ltap" | "lmod" | "layer";
     keycode: string;
     character?: string | undefined;
 }, {
-    type: "plain" | "mtap" | "ltap" | "lmod";
+    type: "plain" | "mtap" | "ltap" | "lmod" | "layer";
     keycode: string;
     character?: string | undefined;
 }>;
@@ -57,26 +57,26 @@ export type Keymap = z.infer<typeof keymap>;
 export declare const keymapsBody: z.ZodObject<{
     keymaps: z.ZodArray<z.ZodArray<z.ZodArray<z.ZodArray<z.ZodObject<{
         keycode: z.ZodString;
-        type: z.ZodEnum<["plain", "mtap", "ltap", "lmod"]>;
+        type: z.ZodEnum<["plain", "mtap", "ltap", "lmod", "layer"]>;
         character: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        type: "plain" | "mtap" | "ltap" | "lmod";
+        type: "plain" | "mtap" | "ltap" | "lmod" | "layer";
         keycode: string;
         character?: string | undefined;
     }, {
-        type: "plain" | "mtap" | "ltap" | "lmod";
+        type: "plain" | "mtap" | "ltap" | "lmod" | "layer";
         keycode: string;
         character?: string | undefined;
     }>, "many">, "many">, "many">, "many">;
 }, "strip", z.ZodTypeAny, {
     keymaps: {
-        type: "plain" | "mtap" | "ltap" | "lmod";
+        type: "plain" | "mtap" | "ltap" | "lmod" | "layer";
         keycode: string;
         character?: string | undefined;
     }[][][][];
 }, {
     keymaps: {
-        type: "plain" | "mtap" | "ltap" | "lmod";
+        type: "plain" | "mtap" | "ltap" | "lmod" | "layer";
         keycode: string;
         character?: string | undefined;
     }[][][][];
@@ -118,9 +118,9 @@ declare const fingerUsage: z.ZodObject<{
     0: number;
     2: number;
     1: number;
-    4: number;
-    3: number;
     5: number;
+    3: number;
+    4: number;
     6: number;
     7: number;
     8: number;
@@ -171,9 +171,9 @@ export declare const totalCountBody: z.ZodObject<{
         0: number;
         2: number;
         1: number;
-        4: number;
-        3: number;
         5: number;
+        3: number;
+        4: number;
         6: number;
         7: number;
         8: number;
@@ -203,9 +203,9 @@ export declare const totalCountBody: z.ZodObject<{
         0: number;
         2: number;
         1: number;
-        4: number;
-        3: number;
         5: number;
+        3: number;
+        4: number;
         6: number;
         7: number;
         8: number;

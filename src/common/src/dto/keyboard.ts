@@ -48,7 +48,7 @@ export type KeyboardListBody = z.infer<typeof keyboardListBody>;
 
 const keymap = z.object({
   keycode: z.string(),
-  type: z.enum(["plain", "mtap", "ltap", "lmod"]),
+  type: z.enum(["plain", "mtap", "ltap", "lmod", "layer"]),
   character: z.string().optional(),
 });
 

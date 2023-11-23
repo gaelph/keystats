@@ -3,6 +3,8 @@ import * as Keycodes from "./keycodes.js";
 import Modifiers from "./modifiers.js";
 import Custom from "./custom.js";
 
+import Qwerty from "./keyboard_layouts/qwerty.js";
+
 import Azerty, {
   shifted as AzertyShifted,
   shiftAlted as AzertyShiftAlted,
@@ -52,21 +54,27 @@ function formatWithModifier(kc: number, result: string): string {
   return result;
 }
 
+// FIXME: Layer Mod encodes a layer and a modifier, this is bugous
 function formatLayerMod(kc: number): string {
   const base = kc & QK.QK_BASIC_MAX;
   return `L(${base})`;
 }
 
+function formatMomentary(kc: number): string {
+  const base = kc ^ QK.QK_MOMENTARY;
+  return `L(${base})`;
+}
+
 function formatModTap(kc: number): string {
   const base = kc & QK.QK_BASIC_MAX;
-  return Azerty[base];
+  return Azerty[base] ?? Qwerty[base];
   // const modifier = getModifierFromModTap(kc) - 0xe0;
   // return `MT(${modifiers[modifier]}, ${azerty.normal[base]})`;
 }
 
 function formatLayerTap(kc: number): string {
   const base = kc & QK.QK_BASIC_MAX;
-  return Azerty[base];
+  return Azerty[base] ?? Qwerty[base];
   // const upper = kc & ~QK.QK_BASIC_MAX;
   // const layer = (upper & ~QK.QK_LAYER_TAP) >> 8;
   // return `LT(${layer}, ${azerty.normal[base]})`;
@@ -85,10 +93,14 @@ export function formatKeyCode(k: string): string {
   const upper = parseInt(k, 16) >> 8;
   const kc = parseInt(k, 16);
 
-  let result = Azerty[base];
+  let result = Azerty[base] || Qwerty[base];
 
   if (isCustomKey(kc)) {
     return Custom[kc];
+  }
+
+  if (kc >= QK.QK_MAGIC) {
+    return "???";
   }
 
   if (upper === 0) {
@@ -100,6 +112,16 @@ export function formatKeyCode(k: string): string {
 
   if (Keycodes.isModifier(base)) {
     result = formatModifier(kc);
+  }
+
+  if (Keycodes.isLayerMod(kc)) {
+    result = formatLayerMod(kc);
+    return result;
+  }
+
+  if (Keycodes.isMomentary(kc)) {
+    result = formatMomentary(kc);
+    return result;
   }
 
   if (
@@ -117,10 +139,6 @@ export function formatKeyCode(k: string): string {
   }
   if (Keycodes.isLayerTap(kc)) {
     result = formatLayerTap(kc);
-    return result;
-  }
-  if (Keycodes.isLayerMod(kc)) {
-    result = formatLayerMod(kc);
     return result;
   }
 

@@ -79,6 +79,10 @@ li {
   display: flex;
   align-items: center;
   justify-content: center;
+	box-sizing: border-box;
+	overflow: hidden;
+  text-align: center;
+  flex-direction: column;
 }
 .key:last-child {
   border-right-width: 1px;

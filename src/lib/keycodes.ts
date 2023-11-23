@@ -159,7 +159,6 @@ export function isCustomKeycode(kc: number): boolean {
 }
 
 export function getType(keycode: number): KeymapType {
-  console.log("getType", keycode.toString(16));
   if (
     !hasModifier(keycode) &&
     !isModTap(keycode) &&
@@ -168,6 +167,9 @@ export function getType(keycode: number): KeymapType {
     !isMomentary(keycode)
   ) {
     return KeymapType.Plain;
+  }
+  if (isMomentary(keycode)) {
+    return KeymapType.Layer;
   }
   if (isLayerMod(keycode) || isMomentary(keycode)) {
     return KeymapType.LayerMod;
@@ -208,8 +210,12 @@ export function getEncodedKeycode(
       break;
 
     case KeymapType.LayerMod:
-      console.log("LAYER MOD", keycode, base, (kc >> 8).toString(16));
       alter = (kc ^ QK.QK_MOMENTARY).toString(16);
+      break;
+
+    case KeymapType.Layer:
+      base = "";
+      alter = keycode;
       break;
 
     default:
