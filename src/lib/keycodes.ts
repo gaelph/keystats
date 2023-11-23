@@ -8,15 +8,19 @@ export function isModifier(kc: number): boolean {
 }
 
 export function isLayerMod(kc: number): boolean {
-  return (kc & QK.QK_LAYER_MOD) !== 0 && kc <= QK.QK_LAYER_MOD_MAX;
+  return kc >= QK.QK_LAYER_MOD && kc <= QK.QK_LAYER_MOD_MAX;
+}
+
+export function isMomentary(kc: number): boolean {
+  return kc >= QK.QK_MOMENTARY && kc <= QK.QK_MOMENTARY_MAX;
 }
 
 export function isLayerTap(kc: number): boolean {
-  return (kc & QK.QK_LAYER_TAP) !== 0 && kc <= QK.QK_LAYER_TAP_MAX;
+  return kc >= QK.QK_LAYER_TAP && kc <= QK.QK_LAYER_TAP_MAX;
 }
 
 export function isModTap(kc: number): boolean {
-  return (kc & QK.QK_MOD_TAP) !== 0 && kc <= QK.QK_MOD_TAP_MAX;
+  return kc >= QK.QK_MOD_TAP && kc <= QK.QK_MOD_TAP_MAX;
 }
 
 export function getModifierFromModTap(kc: number): number {
@@ -155,17 +159,24 @@ export function isCustomKeycode(kc: number): boolean {
 }
 
 export function getType(keycode: number): KeymapType {
-  if (!hasModifier(keycode) && !isModTap(keycode) && !isLayerTap(keycode)) {
+  console.log("getType", keycode.toString(16));
+  if (
+    !hasModifier(keycode) &&
+    !isModTap(keycode) &&
+    !isLayerTap(keycode) &&
+    !isLayerMod(keycode) &&
+    !isMomentary(keycode)
+  ) {
     return KeymapType.Plain;
+  }
+  if (isLayerMod(keycode) || isMomentary(keycode)) {
+    return KeymapType.LayerMod;
   }
   if (isModTap(keycode) && !isLayerTap(keycode)) {
     return KeymapType.ModTap;
   }
   if (isLayerTap(keycode)) {
     return KeymapType.LayerTap;
-  }
-  if (isLayerMod(keycode)) {
-    return KeymapType.LayerMod;
   }
 
   return KeymapType.Plain;
@@ -197,7 +208,8 @@ export function getEncodedKeycode(
       break;
 
     case KeymapType.LayerMod:
-      alter = base;
+      console.log("LAYER MOD", keycode, base, (kc >> 8).toString(16));
+      alter = (kc ^ QK.QK_MOMENTARY).toString(16);
       break;
 
     default:
