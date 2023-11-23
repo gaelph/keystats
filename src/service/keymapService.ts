@@ -92,6 +92,10 @@ export default class KeymapService {
       }),
     );
 
+    // delete any keymap that did not get created or updated,
+    // as they are no longer used by the keyboard
+    this.#keymapRepo.cleanUp(keymaps, layer, keyboardId);
+
     return keymaps;
   }
 

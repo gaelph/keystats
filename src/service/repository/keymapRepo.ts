@@ -162,4 +162,35 @@ export default class KeymapRepository extends Repository<Keymap> {
       );
     }
   }
+
+  /**
+   * Removes all keymaps of a keyboard that is not in the keymap
+   * list past as first parameter
+   */
+  async cleanUp(
+    keymaps: Keymap[],
+    layer: number,
+    keyboardId: number,
+  ): Promise<void> {
+    const ids = keymaps.map((keymap) => keymap.id!);
+    console.log("Will remove keymaps of keyboard", keyboardId, ids);
+    const query = this.#db(Keymap.table)
+      .where("keyboardId", keyboardId)
+      .where("layer", layer)
+      .whereNotIn(
+        "id",
+        keymaps.map((keymap) => keymap.id!),
+      )
+      .del();
+
+    try {
+      await query;
+    } catch (error: unknown) {
+      throw new DatabaseError(
+        "Keymaps Cleanup failed on keyboard",
+        query,
+        error as Error,
+      );
+    }
+  }
 }
