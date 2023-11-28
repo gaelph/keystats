@@ -10,10 +10,13 @@ export declare const keyboardIdParam: z.ZodObject<{
 export type KeyboardIdParam = z.infer<typeof keyboardIdParam>;
 export declare const filterQuery: z.ZodObject<{
     date: z.ZodOptional<z.ZodEffects<z.ZodType<dayjs.Dayjs, z.ZodTypeDef, dayjs.Dayjs>, dayjs.Dayjs, unknown>>;
+    period: z.ZodOptional<z.ZodTuple<[z.ZodEffects<z.ZodType<dayjs.Dayjs, z.ZodTypeDef, dayjs.Dayjs>, dayjs.Dayjs, unknown>, z.ZodEffects<z.ZodType<dayjs.Dayjs, z.ZodTypeDef, dayjs.Dayjs>, dayjs.Dayjs, unknown>], null>>;
 }, "strip", z.ZodTypeAny, {
     date?: dayjs.Dayjs | undefined;
+    period?: [dayjs.Dayjs, dayjs.Dayjs] | undefined;
 }, {
     date?: unknown;
+    period?: [unknown, unknown] | undefined;
 }>;
 export type FilterQuery = z.infer<typeof filterQuery>;
 export declare function serializeFilterQuery(query: FilterQuery): Record<string, string>;

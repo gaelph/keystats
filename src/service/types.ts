@@ -9,7 +9,7 @@ export interface Coordinates {
 
 export interface FilterOptions {
   date?: Dayjs;
-  period?: Dayjs[];
+  period?: [Dayjs, Dayjs];
   after?: Dayjs;
   before?: Dayjs;
   type?: KeymapType;

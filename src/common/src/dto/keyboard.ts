@@ -16,6 +16,7 @@ export type KeyboardIdParam = z.infer<typeof keyboardIdParam>;
 
 export const filterQuery = z.object({
   date: z.optional(dayJs()),
+  period: z.optional(z.tuple([dayJs(), dayJs()])),
 });
 
 export type FilterQuery = z.infer<typeof filterQuery>;

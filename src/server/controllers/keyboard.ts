@@ -22,13 +22,11 @@ import {
 import {
   validateQuery,
   validateParams,
-  validateBody,
   validateResponse,
 } from "../dto/keyboardsDto.js";
 import * as Keycodes from "../../lib/keycodes.js";
 import { formatKeyCode } from "../../lib/formatKeycodes.js";
 import { RecordCount } from "../../service/repository/recordRepo.js";
-import { AUTH } from "sqlite3";
 
 type KeyboardRequest = Request<KeyboardIdParam, any, any, FilterQuery>;
 type KeyboardListRequest = Request<{}, any, any, {}>;
