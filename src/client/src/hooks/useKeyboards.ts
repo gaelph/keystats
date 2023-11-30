@@ -1,39 +1,28 @@
-import { useReducer, useCallback, useEffect } from "react";
+import { useReducer, useCallback, useEffect, useState } from "react";
 import { setLoading, setError, setData } from "../store/actions.js";
 import dataReducer, { State } from "../store/reducer.js";
 
 import { listKeyboards } from "../lib/api.js";
+import { useFetchActions } from "~/state/fetch.js";
 
 type Data = Awaited<ReturnType<typeof listKeyboards>>;
 
-export default function useData(): [
-  Data | null,
-  boolean,
-  Error | null,
-  () => Promise<void>,
-] {
-  const [state, dispatch] = useReducer<typeof dataReducer<Data>, State<Data>>(
-    dataReducer,
-    {
-      loading: false,
-      error: null,
-      data: null,
-    },
-    (state) => state,
-  );
+export default function useData(): [Data | null, () => Promise<void>] {
+  const [state, setState] = useState<Data>([]);
+  const { setLoading, addError } = useFetchActions();
 
   const fetchData = useCallback(async () => {
-    dispatch(setLoading(true));
+    setLoading(true);
     try {
       const data = await listKeyboards();
-      dispatch(setData(data));
+      setState(data);
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        dispatch(setError(error));
+        addError(error);
       }
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
   }, []);
 
@@ -41,5 +30,5 @@ export default function useData(): [
     fetchData();
   }, [fetchData]);
 
-  return [state.data, state.loading, state.error, fetchData];
+  return [state, fetchData];
 }

@@ -1,46 +1,38 @@
 import dayjs from "dayjs";
-import { useReducer, useCallback, useEffect } from "react";
-import { setLoading, setError, setData } from "../store/actions.js";
-import dataReducer, { State } from "../store/reducer.js";
+import { useCallback, useEffect, useState } from "react";
 
 import { getCharacterCounts, Keyboard } from "../lib/api.js";
 import { FilterQuery } from "keystats-common/dto/keyboard";
+import { useFetchActions } from "~/state/fetch.js";
 
 type Data = Awaited<ReturnType<typeof getCharacterCounts>>;
 
 export default function useCharacters(
   keyboard: Keyboard | null,
   date?: dayjs.Dayjs | null,
-): [Data | null, boolean, Error | null, () => Promise<void>] {
-  const [state, dispatch] = useReducer<typeof dataReducer<Data>, State<Data>>(
-    dataReducer,
-    {
-      loading: false,
-      error: null,
-      data: null,
-    },
-    (state) => state,
-  );
+): [Data | null, () => Promise<void>] {
+  const [state, setState] = useState<Data | null>(null);
+  const { setLoading, addError } = useFetchActions();
 
   const fetchData = useCallback(async () => {
     if (!keyboard) {
       return;
     }
-    dispatch(setLoading(true));
+    setLoading(true);
     try {
       const filters: FilterQuery = {};
       if (date) {
         filters.date = date;
       }
       const data = await getCharacterCounts(keyboard.id, filters);
-      dispatch(setData(data));
+      setState(data);
     } catch (error) {
       console.error(error);
       if (error instanceof Error) {
-        dispatch(setError(error));
+        addError(error);
       }
     } finally {
-      dispatch(setLoading(false));
+      setLoading(false);
     }
   }, [date, keyboard]);
 
@@ -48,5 +40,5 @@ export default function useCharacters(
     fetchData();
   }, [fetchData]);
 
-  return [state.data, state.loading, state.error, fetchData];
+  return [state, fetchData];
 }

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import dayjs from "dayjs";
 import dayjsen from "dayjs/locale/en.js";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore.js";
+import { useDatesActions, useDatesContext } from "~/state/date.js";
 dayjs.extend(isSameOrBefore);
 dayjs.locale("en-europe", { ...dayjsen, weekStart: 1 });
 
@@ -216,41 +217,29 @@ function DatePicker({
               />
             </tbody>
           </table>
-        </div>{" "}
+        </div>
       </div>
     </button>
   );
 }
 
-interface DatesProps {
-  dates: dayjs.Dayjs[];
-  selectedDate: dayjs.Dayjs | null;
-  onChange: (date: dayjs.Dayjs | null) => void;
-}
+export default function Dates(): React.ReactElement | null {
+  const { dates, date: selectedDate } = useDatesContext();
+  const { setDate } = useDatesActions();
 
-export default function Dates({
-  dates,
-  selectedDate,
-  onChange,
-}: DatesProps): React.ReactElement<DatesProps> {
-  const handleDateClick = useCallback(
-    (date: dayjs.Dayjs | null) => {
-      onChange && onChange(date);
-    },
-    [onChange],
-  );
+  if (!dates) return null;
 
   return (
     <div className="dates">
       <DatePicker
         className={selectedDate ? "active" : ""}
         selected={selectedDate}
-        onChange={(date) => handleDateClick(date)}
+        onChange={(date) => setDate(date)}
         includeDates={dates}
       />
       <button
         className={!selectedDate ? "active" : ""}
-        onClick={() => handleDateClick(null)}
+        onClick={() => setDate(null)}
       >
         All Time
       </button>
