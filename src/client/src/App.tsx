@@ -2,7 +2,7 @@ import React from "react";
 import "material-symbols/sharp.css";
 import "./App.css";
 
-import KeymapsCompenent from "~/components/Keymaps.js";
+import KeymapsComponent from "~/components/Keymaps.js";
 import StatsComponent from "~/components/Stats.js";
 import Dates from "~/components/Dates.js";
 import ApplicationStateProvider from "./state/appState.js";
@@ -15,7 +15,7 @@ function App() {
         <Header />
         <Dates />
         <div className="content-container">
-          <KeymapsCompenent />
+          <KeymapsComponent />
           <StatsComponent />
         </div>
       </div>
