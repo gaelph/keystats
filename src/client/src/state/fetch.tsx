@@ -94,7 +94,6 @@ export function FetchContextProvider({
   const actions = useMemo(() => {
     return {
       setLoading: (loading: boolean) => {
-        console.trace("setting loading", loading);
         dispatch({ type: "SET_LOADING", payload: loading });
       },
       addError: (error: Error) =>

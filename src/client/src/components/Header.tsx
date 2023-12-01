@@ -29,18 +29,21 @@ export default function Header(): React.ReactElement {
           onChange={(kb) => setKeyboard(kb)}
         />
       </div>
-      {pendingCount !== 0 ? (
-        <div>Loading...</div>
-      ) : (
-        <button onClick={refresh}>Refresh</button>
-      )}
-      {errors.length !== 0 ? (
-        <ul className="error">
-          {errors.map((error, idx) => (
-            <li key={`${error.message}-${idx}`}>error.message</li>
-          ))}
-        </ul>
-      ) : null}
+      <div>
+        {pendingCount !== 0 ? (
+          <div>Loading...</div>
+        ) : (
+          <button onClick={refresh}>Refresh</button>
+        )}
+      </div>
+      <ul className="error">
+        {errors.map((error, idx) => (
+          <li key={`${error.message}-${idx}`}>
+            <span className="material-symbols-sharp">error</span>
+            <span className="error-message">{error.message}</span>
+          </li>
+        ))}
+      </ul>
     </header>
   );
 }
