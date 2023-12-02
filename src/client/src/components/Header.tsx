@@ -5,6 +5,8 @@ import { useKeyboardDataActions } from "~/state/keyboardData.js";
 import { useKeyboardsContext } from "~/state/keyboards.js";
 import KeyboardSelector from "./KeyboardSelector.js";
 
+import * as classes from "./Header.module.css";
+
 export default function Header(): React.ReactElement {
   const { pendingCount, errors } = useFetchContext();
   const keyboards = useKeyboardsContext();
@@ -29,12 +31,10 @@ export default function Header(): React.ReactElement {
           onChange={(kb) => setKeyboard(kb)}
         />
       </div>
-      <div>
-        {pendingCount !== 0 ? (
-          <div>Loading...</div>
-        ) : (
-          <button onClick={refresh}>Refresh</button>
-        )}
+      <div className={classes.refreshButton}>
+        <button role="button" disabled={pendingCount !== 0} onClick={refresh}>
+          {pendingCount === 0 ? "Refresh" : "Loading…"}
+        </button>
       </div>
       <ul className="error">
         {errors.map((error, idx) => (

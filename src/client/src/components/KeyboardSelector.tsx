@@ -1,5 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { Keyboard } from "~/lib/api.js";
+
+import * as classes from "./KeyboardSelector.module.css";
 
 interface KeyboardSelectorProps {
   selectedKeyboard: Keyboard | null;
@@ -12,11 +14,13 @@ export default function KeyboardSelector({
   keyboards,
   onChange,
 }: KeyboardSelectorProps): React.ReactElement<KeyboardSelectorProps> {
+  const self = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
   return (
     <div
-      className="keyboard-selector"
+      ref={self}
+      className={classes.keyboardSelector}
       tabIndex={0}
       role="listbox"
       onClick={() => {
@@ -24,21 +28,26 @@ export default function KeyboardSelector({
       }}
       onBlur={() => setVisible(false)}
     >
-      <div className="container">
-        <div className="button select">
+      <div className={classes.container}>
+        <div className={classes.select}>
           {selectedKeyboard ? <h1>{selectedKeyboard.name}</h1> : <h1>---</h1>}
           <span className="material-symbols-sharp">keyboard_arrow_down</span>
         </div>
-        <div className="options" aria-hidden={!visible}>
+        <div className={classes.options} aria-hidden={!visible}>
           {keyboards.map((kb) => (
             <div
+              key={`kb-selector-option-${kb.id}`}
               tabIndex={-1}
               role="option"
               aria-selected={selectedKeyboard?.id === kb.id}
-              className={`option ${
-                selectedKeyboard?.id === kb.id ? "selected" : ""
+              className={`${classes.option} ${
+                selectedKeyboard?.id === kb.id ? classes.selected : ""
               }`}
-              onClick={() => onChange(kb)}
+              onClick={() => {
+                onChange(kb);
+                const el = document.activeElement as HTMLElement | null;
+                el?.blur();
+              }}
             >
               {kb.name}
             </div>

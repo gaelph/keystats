@@ -38,17 +38,16 @@ export function Tabs(props: TabsProps): React.ReactElement<TabsProps> | null {
 
   return (
     <div className="tabs">
-      <div className="tabs-button">
+      <div role="group">
         {tabs.map((child, idx) => (
           <button
             key={child.props.title}
-            className={`tab-button ${idx === activeTab ? "active" : ""}`}
+            className={`${idx === activeTab ? "active" : ""}`}
             onClick={(e) => {
               e.preventDefault();
               setActiveTab(idx);
             }}
           >
-            {idx === activeTab ? "• " : ""}
             {child.props.title}
           </button>
         ))}

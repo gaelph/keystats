@@ -3,6 +3,9 @@ import dayjs from "dayjs";
 import dayjsen from "dayjs/locale/en.js";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore.js";
 import { useDatesActions, useDatesContext } from "~/state/date.js";
+
+import * as classes from "./Dates.module.css";
+
 dayjs.extend(isSameOrBefore);
 dayjs.locale("en-europe", { ...dayjsen, weekStart: 1 });
 
@@ -74,9 +77,9 @@ function DateCell({
       disabled={disabled}
       aria-disabled={disabled}
       onClick={() => current && !disabled && onSelectDate(day)}
-      className={`date-picker-day ${selected ? "selected" : ""} ${
-        !current ? "out-of-month" : ""
-      } ${disabled ? "disabled" : ""}`}
+      className={`date-picker-day ${selected ? classes.selected : ""} ${
+        !current ? classes.outOfMonth : ""
+      } ${disabled ? classes.disabled : ""}`}
     >
       {day.format("D")}
     </button>
@@ -153,7 +156,7 @@ function DatePicker({
     [setDate],
   );
 
-  const self = useRef<HTMLButtonElement | null>(null);
+  const self = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const listener = ({ target }: MouseEvent) => {
       if (target === self.current) {
@@ -168,10 +171,11 @@ function DatePicker({
     };
   }, []);
 
+  console.log(classes);
+
   return (
     <button
-      ref={self}
-      className={"date-picker " + className}
+      className={classes.datePicker + " " + className}
       onClick={() => {
         self.current?.focus();
       }}
@@ -179,30 +183,31 @@ function DatePicker({
         self.current?.blur();
       }}
     >
-      <div className="date-picker-button">
+      <div ref={self} className={classes.datePickerButton}>
         <span className="material-symbols-sharp">today</span>
         {selected !== null && (
-          <span className="date-picker-button-date">
+          <span className={classes.datePickerButtonDate}>
             {selectedDate.format("DD/MM/YYYY")}
           </span>
         )}
-        <div className="date-picker-pane">
-          <div className="date-picker-header">
-            <div
+        <div className={classes.datePickerPane}>
+          <div className={classes.datePickerHeader}>
+            <span
+              className="material-symbols-sharp"
               tabIndex={0}
               onClick={() => changeMonth(date.subtract(1, "month"))}
             >
-              &lt;
-            </div>
+              chevron_left
+            </span>
             <span>{monthAndYear}</span>
-            <button
-              type="button"
+            <span
+              className="material-symbols-sharp"
+              tabIndex={0}
               onClick={() => changeMonth(date.add(1, "month"))}
-              disabled={date.isSame(dayjs(), "month")}
               aria-disabled={date.isSame(dayjs(), "month")}
             >
-              &gt;
-            </button>
+              chevron_right
+            </span>
           </div>
           <table>
             <thead>
@@ -230,11 +235,15 @@ export default function Dates(): React.ReactElement | null {
   if (!dates) return null;
 
   return (
-    <div className="dates">
+    <div className={classes.dates} role="group">
       <DatePicker
         className={selectedDate ? "active" : ""}
         selected={selectedDate}
-        onChange={(date) => setDate(date)}
+        onChange={(date) => {
+          setDate(date);
+          const el = document.activeElement as HTMLElement | null;
+          el?.blur();
+        }}
         includeDates={dates}
       />
       <button

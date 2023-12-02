@@ -9,6 +9,7 @@ const buildOptions = {
   minify: true,
   outfile: "build/static/main.js",
   format: "esm",
+  metafile: true,
   treeShaking: true,
   sourcemap: true,
   loader: {
@@ -16,6 +17,7 @@ const buildOptions = {
     ".ts": "tsx",
     ".woff2": "dataurl",
     ".woff": "dataurl",
+    ".module.css": "local-css",
   },
   jsx: "automatic",
   define: {

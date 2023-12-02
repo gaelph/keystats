@@ -1,0 +1,119 @@
+.dates {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 1em auto;
+
+  button {
+    appearance: none;
+    padding: 0.5em 1em;
+  }
+}
+
+.datePicker {
+  position: relative;
+
+  &:focus-within .datePickerPane {
+    display: block;
+    z-index: 1000;
+    color: black;
+    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  button {
+    background-color: transparent;
+    border: 0 !important;
+    cursor: pointer;
+  }
+
+  table {
+    margin-bottom: 0;
+  }
+
+  th {
+    font-weight: bold;
+  }
+
+  th,
+  td {
+    border-bottom: 0;
+    text-align: center;
+    padding: 0.125rem;
+  }
+
+  td button,
+  th span {
+    display: flex;
+    position: relative;
+    width: 32px;
+    height: 32px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  td button {
+    font-weight: 500;
+    padding: 0;
+    margin: 0;
+  }
+
+  td button.selected {
+    color: white;
+    font-weight: bold;
+    z-index: 10;
+  }
+  td button.outOfMonth,
+  td button.outOfMonth.disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    font-weight: 400;
+  }
+  td button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  td button.selected::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+    background-color: purple;
+    z-index: -1;
+  }
+}
+
+.datePickerButton {
+  display: flex;
+  align-items: center;
+}
+
+.datePickerButtonDate {
+  margin-left: 0.5em;
+}
+
+.datePickerPane {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.25em;
+  background-color: white;
+  padding: 1em;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  color: black;
+}
+
+.datePickerHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
