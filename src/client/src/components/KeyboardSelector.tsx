@@ -37,7 +37,7 @@ export default function KeyboardSelector({
           {keyboards.map((kb) => (
             <div
               key={`kb-selector-option-${kb.id}`}
-              tabIndex={-1}
+              tabIndex={0}
               role="option"
               aria-selected={selectedKeyboard?.id === kb.id}
               className={`${classes.option} ${

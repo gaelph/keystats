@@ -8,6 +8,8 @@ import {
 } from "keystats-common/dto/keyboard";
 import { useKeyboardData } from "~/state/keyboardData.js";
 
+import * as classes from "./Stats.module.css";
+
 const numberFormater = new Intl.NumberFormat("en-US", {});
 function formatNumber(n: number): string {
   return numberFormater.format(n || 0);
@@ -76,7 +78,7 @@ export default function StatsComponent(): React.ReactElement {
   }, [handUsage]);
 
   return (
-    <div className="stats-container">
+    <div className={classes.statsContainer}>
       <Tabs>
         <Tab title="Keypress Statistics">
           <div>

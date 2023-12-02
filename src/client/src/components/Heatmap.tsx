@@ -5,6 +5,8 @@ import * as Heatmap from "heatmap.js";
 import IconOrChar from "./IconOrChar.js";
 import { Keymap } from "keystats-common/dto/keyboard";
 
+import * as classes from "./Heatmap.module.css";
+
 const KEY_WIDTH = 60;
 
 function formatData(
@@ -106,22 +108,13 @@ export default function HeatmapComponent({
   return (
     <>
       <h3>Layer #{layerId}</h3>
-      <div id="heatmap" ref={canvasRef}>
-        <div
-          style={{
-            position: "absolute",
-            zIndex: 10,
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-          }}
-        >
+      <div className={classes.heatmap} ref={canvasRef}>
+        <div>
           {layer.map((layerRow, r) => (
-            <div className="row" key={`${layerId}_${r}`}>
+            <div className={classes.row} key={`${layerId}_${r}`}>
               {layerRow.map((char, c) => (
                 <div
-                  className="key"
+                  className={classes.key}
                   key={`${layerId}_${r}_${c}`}
                   title={percent(data[layerId]?.[r]?.[c] || 0) + "%"}
                 >

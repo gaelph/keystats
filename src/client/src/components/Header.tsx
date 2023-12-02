@@ -22,6 +22,8 @@ export default function Header(): React.ReactElement {
     }
   }, [keyboard, keyboards]);
 
+  const loading = pendingCount !== 0;
+
   return (
     <header>
       <div>
@@ -32,15 +34,20 @@ export default function Header(): React.ReactElement {
         />
       </div>
       <div className={classes.refreshButton}>
-        <button role="button" disabled={pendingCount !== 0} onClick={refresh}>
-          {pendingCount === 0 ? "Refresh" : "Loading…"}
+        <button
+          role="button"
+          disabled={loading}
+          aria-busy={loading}
+          onClick={refresh}
+        >
+          {loading ? "Loading…" : "Refresh"}
         </button>
       </div>
-      <ul className="error">
+      <ul className={classes.error}>
         {errors.map((error, idx) => (
           <li key={`${error.message}-${idx}`}>
             <span className="material-symbols-sharp">error</span>
-            <span className="error-message">{error.message}</span>
+            <span className={classes.errorMessage}>{error.message}</span>
           </li>
         ))}
       </ul>

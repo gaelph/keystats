@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import * as classes from "./Tabs.module.css";
+
 interface TabProps {
   title?: string;
   children?: React.ReactNode;
@@ -15,7 +17,11 @@ export function Tab({
   children,
   active,
 }: TabProps): React.ReactElement<TabProps> {
-  return <li className={`tab ${active ? "active" : ""}`}>{children}</li>;
+  return (
+    <li className={`${classes.tab} ${active ? classes.active : ""}`}>
+      {children}
+    </li>
+  );
 }
 
 export function Tabs(props: TabsProps): React.ReactElement<TabsProps> | null {

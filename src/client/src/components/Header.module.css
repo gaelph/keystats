@@ -1,8 +1,30 @@
 header {
+  margin-top: 1em;
   padding: 0.5em;
   text-align: center;
 }
 
 .refreshButton {
   font-size: 0.8%;
+}
+
+.error {
+  li {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0.5em 1em;
+    margin: 1em auto;
+
+    background-color: hsl(355, 100%, 96%);
+    color: hsl(355, 100%, 61%);
+    border-color: hsl(355, 100%, 81%);
+    border-radius: 4px;
+    border-width: 1px;
+    border-style: solid;
+
+    .errorMessage {
+      margin-left: 0.375em;
+    }
+  }
 }
