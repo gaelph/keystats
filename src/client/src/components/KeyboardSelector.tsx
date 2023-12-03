@@ -78,7 +78,7 @@ export default function KeyboardSelector({
       }}
       onKeyUp={onKeyUp}
       onBlur={(e) => {
-        if (e.relatedTarget.getAttribute("role") !== "option") {
+        if (e.relatedTarget?.getAttribute("role") !== "option") {
           setVisible(false);
         }
       }}
