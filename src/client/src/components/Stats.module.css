@@ -1,6 +1,6 @@
 .statsContainer {
-  padding-left: 1em;
-  padding-right: 3em;
+  /* padding-left: 1em; */
+  /* padding-right: 0em; */
 
   h4 {
     margin-top: 3em;
@@ -10,5 +10,55 @@
   h5 {
     margin-top: 1rem;
     margin-bottom: 0.125rem;
+  }
+
+  p {
+    text-align: justify;
+  }
+
+  [role="table"] {
+    display: table;
+    width: 100%;
+
+    [role="row"] {
+      display: table-row;
+      height: 1.5rem;
+
+      [role="cell"] {
+        display: table-cell;
+        height: 1.5rem;
+        vertical-align: middle;
+        line-height: 1.5rem;
+
+        &:not(meter) {
+          padding-left: 1rem;
+        }
+
+        &:first-child {
+          font-weight: 500;
+          width: 25%;
+          padding-left: 0rem;
+        }
+      }
+    }
+  }
+
+  meter {
+    --background: #f3f3f6;
+    --optimum: var(--accent);
+    background: var(--background);
+    border: 0;
+    height: 1.5rem;
+    width: 100%;
+  }
+
+  /* The green (optimum) bar in Firefox */
+  meter:-moz-meter-optimum::-moz-meter-bar {
+    background: var(--optimum);
+  }
+
+  /* The green (optimum) bar in Chrome etc. */
+  meter::-webkit-meter-optimum-value {
+    background: var(--optimum);
   }
 }

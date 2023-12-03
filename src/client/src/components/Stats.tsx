@@ -89,46 +89,85 @@ export default function StatsComponent(): React.ReactElement {
               the same key, etc.
             </p>
             <h4>Layer usage</h4>
-            <ul>
+            <ul role="table">
               {Object.entries(layer).map(([key, value]) => (
-                <li key={`keypress-layer-${key}`}>
-                  <span>
+                <li key={`keypress-layer-${key}`} role="row">
+                  <span role="cell">
                     <strong>Layer #{key}:</strong>{" "}
                   </span>
-                  <span>{percent(value || 0)}%</span>
+                  <meter
+                    role="cell"
+                    min={0}
+                    max={100}
+                    value={percent(value || 0)}
+                  >
+                    {percent(value || 0)}
+                  </meter>
+                  <span role="cell">{percent(value || 0)}%</span>
                 </li>
               ))}
             </ul>
             <h4>Row usage</h4>
-            <ul>
+            <ul role="table">
               {ROW_NAMES.map((name, idx) => (
-                <li key={name}>
-                  <span>
+                <li key={name} role="row">
+                  <span role="cell">
                     <strong>{name}:</strong>{" "}
                   </span>
-                  <span>{percent(row[idx])}%</span>
+                  <meter
+                    role="cell"
+                    min={0}
+                    max={100}
+                    value={percent(row[idx])}
+                  >
+                    {percent(row[idx])}
+                  </meter>
+                  <span role="cell">{percent(row[idx])}%</span>
                 </li>
               ))}
             </ul>
             <h4>Hand usage</h4>
-            <ul>
-              <li>
-                <span>
-                  <strong>Left:</strong> {percent(hand.left)}%
+            <ul role="table">
+              <li role="row">
+                <span role="cell">
+                  <strong>Left:</strong>
                 </span>
+                <meter role="cell" min={0} max={100} value={percent(hand.left)}>
+                  {percent(hand.left)}%
+                </meter>
+                <span role="cell">{percent(hand.left)}%</span>
               </li>
-              <li>
-                <span>
-                  <strong>Right:</strong> {percent(hand.right)}%
+              <li role="row">
+                <span role="cell">
+                  <strong>Right:</strong>
                 </span>
+                <meter
+                  role="cell"
+                  min={0}
+                  max={100}
+                  value={percent(hand.right)}
+                >
+                  {percent(hand.right)}%
+                </meter>
+                <span role="cell">{percent(hand.right)}%</span>
               </li>
             </ul>
             <h4>Finger usage</h4>
-            <ul>
+            <ul role="table">
               {FINGER_NAMES.map((name, idx) => (
-                <li key={name}>
-                  <span>
-                    <strong>{name}:</strong>{" "}
+                <li key={name} role="row">
+                  <span role="cell">
+                    <strong>{name}:</strong>
+                  </span>
+                  <meter
+                    role="cell"
+                    min={0}
+                    max={100}
+                    value={percent(finger[idx as keyof typeof finger])}
+                  >
+                    {percent(finger[idx as keyof typeof finger])}
+                  </meter>
+                  <span role="cell">
                     {percent(finger[idx as keyof typeof finger])}%
                   </span>
                 </li>
@@ -147,18 +186,33 @@ export default function StatsComponent(): React.ReactElement {
                   {fingerUsage.map((f, idx) => (
                     <li key={`same-finger-use-${idx}`}>
                       <h5>{FINGER_NAMES[idx]}</h5>
-                      <ul>
+                      <ul role="table">
                         {f.map(
                           (count, ntimes) =>
                             parseFloat(
                               p(count, fingerUsageSumPerFinger[idx]),
                             ) >= 1 &&
                             ntimes >= 2 && (
-                              <li key={`same-finger-use-${idx}-${ntimes}`}>
-                                <span>
-                                  <strong>Used {ntimes} times in a row:</strong>
-                                </span>{" "}
-                                <span>
+                              <li
+                                key={`same-finger-use-${idx}-${ntimes}`}
+                                role="row"
+                              >
+                                <span role="cell">
+                                  {ntimes == 1 ? (
+                                    <strong>Once:</strong>
+                                  ) : ntimes == 2 ? (
+                                    <strong>Twice:</strong>
+                                  ) : (
+                                    <strong>{ntimes} times:</strong>
+                                  )}
+                                </span>
+                                <meter
+                                  role="cell"
+                                  min={0}
+                                  max={100}
+                                  value={p(count, fingerUsageSumPerFinger[idx])}
+                                ></meter>
+                                <span role="cell">
                                   {p(count, fingerUsageSumPerFinger[idx])}%
                                 </span>
                               </li>
@@ -186,16 +240,31 @@ export default function StatsComponent(): React.ReactElement {
                 <ul>
                   <li>
                     <h5>Left Hand</h5>
-                    <ul>
+                    <ul role="table">
                       {handUsage[0].map(
                         (count, ntimes) =>
                           parseFloat(p(count, handUsageSumPerHand[0])) >= 1 &&
                           ntimes >= 2 && (
-                            <li key={`left_hand_same_use_${ntimes}_${count}`}>
-                              <span>
-                                <strong>Used {ntimes} times in a row:</strong>
-                              </span>{" "}
-                              <span>{p(count, handUsageSumPerHand[0])}%</span>
+                            <li
+                              role="row"
+                              key={`left_hand_same_use_${ntimes}_${count}`}
+                            >
+                              <span role="cell">
+                                {ntimes == 2 ? (
+                                  <strong>Twice:</strong>
+                                ) : (
+                                  <strong>{ntimes} times:</strong>
+                                )}
+                              </span>
+                              <meter
+                                role="cell"
+                                min={0}
+                                max={100}
+                                value={p(count, handUsageSumPerHand[0])}
+                              ></meter>
+                              <span role="cell">
+                                {p(count, handUsageSumPerHand[0])}%
+                              </span>
                             </li>
                           ),
                       )}
@@ -203,16 +272,31 @@ export default function StatsComponent(): React.ReactElement {
                   </li>
                   <li>
                     <h5>Right Hand</h5>
-                    <ul>
+                    <ul role="table">
                       {handUsage[1].map(
                         (count, ntimes) =>
                           parseFloat(p(count, handUsageSumPerHand[1])) >= 1 &&
                           ntimes >= 2 && (
-                            <li key={`right_hand_same_use_${ntimes}_${count}`}>
-                              <span>
-                                <strong>Used {ntimes} times in a row:</strong>
-                              </span>{" "}
-                              <span>{p(count, handUsageSumPerHand[1])}%</span>
+                            <li
+                              key={`right_hand_same_use_${ntimes}_${count}`}
+                              role="row"
+                            >
+                              <span role="cell">
+                                {ntimes === 2 ? (
+                                  <strong>Twice:</strong>
+                                ) : (
+                                  <strong>{ntimes} times:</strong>
+                                )}
+                              </span>
+                              <meter
+                                role="cell"
+                                min={0}
+                                max={100}
+                                value={p(count, handUsageSumPerHand[1])}
+                              ></meter>
+                              <span role="cell">
+                                {p(count, handUsageSumPerHand[1])}%
+                              </span>
                             </li>
                           ),
                       )}
@@ -236,19 +320,23 @@ export default function StatsComponent(): React.ReactElement {
                         title={`Entered ${counts} times`}
                         key={`tr-${character}-${counts}-${idx}`}
                       >
-                        <th>
+                        <th style={{ width: "5%" }}>
                           <div
                             style={{
                               display: "flex",
                               alignItems: "center",
                               marginTop: 5,
                               marginBottom: 5,
-                              minWidth: 100,
                             }}
                           >
                             <IconOrChar>{character}</IconOrChar>
                           </div>
                         </th>
+                        <td>
+                          <meter min={0} max={totalCharacters} value={counts}>
+                            {(100 * counts) / totalCharacters}
+                          </meter>
+                        </td>
                         <td>
                           <div
                             style={{

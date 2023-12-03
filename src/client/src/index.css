@@ -53,14 +53,18 @@ code {
   flex-direction: row;
   justify-content: center;
   padding-bottom: 4em;
+  max-width: 1280px;
+  margin: auto;
 }
 
 .content-container > div:first-child {
   width: 60%;
+  padding-right: 1em;
 }
 
 .content-container > div:nth-child(2) {
   width: 40%;
+  padding-left: 1em;
 }
 
 ul {
