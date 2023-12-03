@@ -13,12 +13,17 @@ interface TabsProps {
 }
 
 export function Tab({
-  title: _title,
+  title,
   children,
   active,
 }: TabProps): React.ReactElement<TabProps> {
   return (
-    <li className={`${classes.tab} ${active ? classes.active : ""}`}>
+    <li
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby={`tab-${title}`}
+      hidden={!active}
+    >
       {children}
     </li>
   );
@@ -44,10 +49,14 @@ export function Tabs(props: TabsProps): React.ReactElement<TabsProps> | null {
 
   return (
     <div className="tabs">
-      <div role="group">
+      <div role="tablist" aria-label="Statistics Tabs">
         {tabs.map((child, idx) => (
           <button
+            role="tab"
+            aria-selected={idx === activeTab}
+            tabIndex={idx === activeTab ? 0 : -1}
             key={child.props.title}
+            id={`tab-${child.props.title}`}
             className={`${idx === activeTab ? "active" : ""}`}
             onClick={(e) => {
               e.preventDefault();

@@ -1,18 +1,31 @@
-div[role="group"] button {
-  display: inline-block;
+[role="tablist"],
+[role="group"] {
+  [role="tab"],
+  button {
+    display: inline-block;
+
+    & :not(:first-child):not(:last-child) {
+      border-radius: 0px;
+    }
+  }
+
+  & > [role="tab"]:first-child,
+  & > button:first-child {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    border-right-color: #ccc;
+  }
+
+  & > [role="tab"]:last-child,
+  & > button:last-child {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
 }
 
-div[role="group"] > button:not(:first-child):not(:last-child) {
-  border-radius: 0px;
-}
-
-div[role="group"] > button:first-child {
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 0;
-  border-right-color: #ccc;
-}
-
-div[role="group"] > button:last-child {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
+[role="tabpanel"] {
+  display: block;
+  &[hidden="true"] {
+    display: none;
+  }
 }
