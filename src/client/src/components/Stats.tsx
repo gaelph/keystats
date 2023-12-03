@@ -100,6 +100,7 @@ export default function StatsComponent(): React.ReactElement {
                     min={0}
                     max={100}
                     value={percent(value || 0)}
+                    title={value.toString()}
                   >
                     {percent(value || 0)}
                   </meter>
@@ -119,6 +120,7 @@ export default function StatsComponent(): React.ReactElement {
                     min={0}
                     max={100}
                     value={percent(row[idx])}
+                    title={(row[idx] || 0).toString()}
                   >
                     {percent(row[idx])}
                   </meter>
@@ -132,7 +134,13 @@ export default function StatsComponent(): React.ReactElement {
                 <span role="cell">
                   <strong>Left:</strong>
                 </span>
-                <meter role="cell" min={0} max={100} value={percent(hand.left)}>
+                <meter
+                  role="cell"
+                  min={0}
+                  max={100}
+                  value={percent(hand.left)}
+                  title={hand.left.toString()}
+                >
                   {percent(hand.left)}%
                 </meter>
                 <span role="cell">{percent(hand.left)}%</span>
@@ -146,6 +154,7 @@ export default function StatsComponent(): React.ReactElement {
                   min={0}
                   max={100}
                   value={percent(hand.right)}
+                  title={hand.right.toString()}
                 >
                   {percent(hand.right)}%
                 </meter>
@@ -153,6 +162,12 @@ export default function StatsComponent(): React.ReactElement {
               </li>
             </ul>
             <h4>Finger usage</h4>
+            <p>
+              Represents the number of times a finger has been used over the
+              total number of key presses.
+              <br />
+              <em>Includes repetions</em>
+            </p>
             <ul role="table">
               {FINGER_NAMES.map((name, idx) => (
                 <li key={name} role="row">
@@ -164,6 +179,7 @@ export default function StatsComponent(): React.ReactElement {
                     min={0}
                     max={100}
                     value={percent(finger[idx as keyof typeof finger])}
+                    title={finger[idx as keyof typeof finger].toString()}
                   >
                     {percent(finger[idx as keyof typeof finger])}
                   </meter>
@@ -177,11 +193,14 @@ export default function StatsComponent(): React.ReactElement {
               <>
                 <h4>Same finger Use</h4>
                 <p>
+                  Number of times the same finger was used twice or more in a
+                  row, over the total number of key presses for that finger.
+                </p>
+                <p>
                   Includes double letters (as in “ll”), repetively typing on the
                   same key (e.g. “backspace”), etc.
-                  <br />
-                  Counts below 1% are discarded.
                 </p>
+                <p>Counts below 1% are discarded.</p>
                 <ul>
                   {fingerUsage.map((f, idx) => (
                     <li key={`same-finger-use-${idx}`}>
@@ -211,6 +230,7 @@ export default function StatsComponent(): React.ReactElement {
                                   min={0}
                                   max={100}
                                   value={p(count, fingerUsageSumPerFinger[idx])}
+                                  title={count.toString()}
                                 ></meter>
                                 <span role="cell">
                                   {p(count, fingerUsageSumPerFinger[idx])}%
@@ -261,6 +281,7 @@ export default function StatsComponent(): React.ReactElement {
                                 min={0}
                                 max={100}
                                 value={p(count, handUsageSumPerHand[0])}
+                                title={count.toString()}
                               ></meter>
                               <span role="cell">
                                 {p(count, handUsageSumPerHand[0])}%
@@ -293,6 +314,7 @@ export default function StatsComponent(): React.ReactElement {
                                 min={0}
                                 max={100}
                                 value={p(count, handUsageSumPerHand[1])}
+                                title={count.toString()}
                               ></meter>
                               <span role="cell">
                                 {p(count, handUsageSumPerHand[1])}%
@@ -333,7 +355,12 @@ export default function StatsComponent(): React.ReactElement {
                           </div>
                         </th>
                         <td>
-                          <meter min={0} max={totalCharacters} value={counts}>
+                          <meter
+                            min={0}
+                            max={totalCharacters}
+                            value={counts}
+                            title={counts.toString()}
+                          >
                             {(100 * counts) / totalCharacters}
                           </meter>
                         </td>
