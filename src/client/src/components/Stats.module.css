@@ -30,15 +30,25 @@
         vertical-align: middle;
         line-height: 1.5rem;
 
-        &:not(meter) {
-          padding-left: 1rem;
-        }
-
         &:first-child {
           font-weight: 500;
           width: 25%;
           padding-left: 0rem;
         }
+
+        &:nth-child(2) {
+          width: 100%;
+        }
+
+        &:nth-child(3) {
+          width: 25%;
+        }
+      }
+
+      meter + [role="cell"] {
+        padding-left: 0.5rem;
+        font-size: 0.8rem;
+        opacity: 0.6;
       }
     }
   }
