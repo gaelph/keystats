@@ -29,6 +29,7 @@ export default function KeyboardSelector({
 
   const onKeyUp = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
+      console.log(event);
       event.preventDefault();
       event.stopPropagation();
       const el = event.target as HTMLDivElement;
@@ -50,10 +51,26 @@ export default function KeyboardSelector({
             setHovered(keyboards[index - 1].id);
           }
           break;
+        case "Tab":
+          if (event.shiftKey) {
+            if (index - 1 >= 0) {
+              setHovered(keyboards[index - 1].id);
+            }
+          } else {
+            if (index + 1 < keyboards.length) {
+              setHovered(keyboards[index + 1].id);
+            }
+          }
+          break;
         case "Enter":
           onChange(keyboards[index]);
           setVisible(false);
           el?.blur();
+          break;
+
+        case " ":
+          setVisible(true);
+          self.current?.focus();
           break;
 
         case "Escape":
@@ -71,24 +88,26 @@ export default function KeyboardSelector({
       tabIndex={0}
       role="listbox"
       onClick={(e) => {
-        if (e.target.getAttribute("role") != "option") {
+        if (e.target.getAttribute("role") !== "menuitem") {
           setVisible(true);
           self.current?.focus();
+          const item = self.current?.querySelector("[role='menuitem']");
+          item?.focus();
         }
       }}
       onKeyUp={onKeyUp}
       onBlur={(e) => {
-        if (e.relatedTarget?.getAttribute("role") !== "option") {
+        if (e.relatedTarget?.getAttribute("role") !== "menuitem") {
           setVisible(false);
         }
       }}
     >
       <div className={classes.container}>
-        <div className={classes.select}>
+        <div role="button">
           {selectedKeyboard ? <h1>{selectedKeyboard.name}</h1> : <h1>---</h1>}
           <span className="material-symbols-sharp">keyboard_arrow_down</span>
         </div>
-        <div className={classes.options} aria-hidden={!visible}>
+        <div role="menu" aria-hidden={!visible}>
           {keyboards.map((kb, index) => (
             <div
               ref={(el) => {
@@ -100,12 +119,10 @@ export default function KeyboardSelector({
                 }
               }}
               key={`kb-selector-option-${kb.id}`}
-              tabIndex={-1}
-              role="option"
+              tabIndex={0}
+              role="menuitem"
               aria-selected={selectedKeyboard?.id === kb.id}
-              className={`${classes.option} ${
-                selectedKeyboard?.id === kb.id ? classes.selected : ""
-              } ${kb.id === hovered ? classes.hover : ""}`}
+              className={`${kb.id === hovered ? classes.hover : ""}`}
               onMouseEnter={() => {
                 setHovered(kb.id);
               }}

@@ -193,8 +193,6 @@ function DatePicker({
     [date],
   );
 
-  console.log(document.activeElement);
-
   return (
     <button
       ref={self}
@@ -207,7 +205,6 @@ function DatePicker({
       }}
       onKeyUp={onKeyUp}
       onBlur={(e) => {
-        console.log("LS -> src/components/Dates.tsx:208 -> e: ", e);
         if (
           e.relatedTarget?.getAttribute("role") !== "button" &&
           e.target?.getAttribute("role") !== "button"
@@ -225,16 +222,16 @@ function DatePicker({
         )}
         <div className={classes.datePickerPane} aria-hidden={!visible}>
           <div className={classes.datePickerHeader}>
-            <span
+            <button
               className="material-symbols-sharp"
               tabIndex={0}
               role="button"
               onClick={() => changeMonth(date.subtract(1, "month"))}
             >
               chevron_left
-            </span>
+            </button>
             <span>{monthAndYear}</span>
-            <span
+            <button
               className="material-symbols-sharp"
               tabIndex={0}
               role="button"
@@ -242,7 +239,7 @@ function DatePicker({
               aria-disabled={date.isSame(dayjs(), "month")}
             >
               chevron_right
-            </span>
+            </button>
           </div>
           <table>
             <thead>

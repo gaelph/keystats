@@ -26,11 +26,17 @@
     opacity: 0;
   }
 
-  .select {
+  [role="button"] {
     padding: 0 2em;
     display: flex;
     flex-direction: row;
     align-items: center;
+    background-color: transparent;
+    border: 0;
+
+    &:focus {
+      box-shadow: var(--box-shadow);
+    }
 
     span {
       font-size: 1.7em !important;
@@ -39,7 +45,7 @@
     }
   }
 
-  .options {
+  [role="menu"] {
     display: block;
     transition: opacity 0.2s ease;
     position: absolute;
@@ -54,7 +60,7 @@
     border: 1px solid #ddd;
     box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
 
-    .option {
+    [role="menuitem"] {
       padding: 0.75em 1em;
       transition: background-color 0.2s ease;
 
@@ -64,10 +70,14 @@
 
       &:hover,
       &.hover {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: rgba(0, 0, 0, 0.01);
       }
 
-      &.selected {
+      &:focus {
+        box-shadow: var(--box-shadow);
+      }
+
+      &[aria-selected="true"] {
         background-color: rgba(0, 0, 0, 0.03);
         font-weight: bold;
       }

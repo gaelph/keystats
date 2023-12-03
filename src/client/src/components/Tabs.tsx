@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 
-import * as classes from "./Tabs.module.css";
-
 interface TabProps {
   title?: string;
   children?: React.ReactNode;
@@ -48,16 +46,15 @@ export function Tabs(props: TabsProps): React.ReactElement<TabsProps> | null {
   );
 
   return (
-    <div className="tabs">
+    <>
       <div role="tablist" aria-label="Statistics Tabs">
         {tabs.map((child, idx) => (
           <button
             role="tab"
             aria-selected={idx === activeTab}
-            tabIndex={idx === activeTab ? 0 : -1}
+            tabIndex={0}
             key={child.props.title}
             id={`tab-${child.props.title}`}
-            className={`${idx === activeTab ? "active" : ""}`}
             onClick={(e) => {
               e.preventDefault();
               setActiveTab(idx);
@@ -68,7 +65,7 @@ export function Tabs(props: TabsProps): React.ReactElement<TabsProps> | null {
         ))}
       </div>
 
-      <ul className="tabs-content">{tabs}</ul>
-    </div>
+      <ul>{tabs}</ul>
+    </>
   );
 }

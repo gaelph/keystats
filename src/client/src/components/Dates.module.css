@@ -129,9 +129,11 @@
   align-items: center;
   margin-bottom: 1em;
 
-  span[role="button"] {
+  & > button[role="button"] {
     background-color: transparent;
     border: 0;
+    padding: 0;
+    margin: 0;
 
     &[aria-disabled="true"] {
       opacity: 0.5;

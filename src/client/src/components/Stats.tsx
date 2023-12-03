@@ -98,11 +98,11 @@ export default function StatsComponent(): React.ReactElement {
                   <meter
                     role="cell"
                     min={0}
-                    max={100}
-                    value={percent(value || 0)}
+                    max={totalKeypresses}
+                    value={value}
                     title={value.toString()}
                   >
-                    {percent(value || 0)}
+                    {value} / {totalKeypresses}
                   </meter>
                   <span role="cell">{percent(value || 0)}%</span>
                 </li>
@@ -118,11 +118,11 @@ export default function StatsComponent(): React.ReactElement {
                   <meter
                     role="cell"
                     min={0}
-                    max={100}
-                    value={percent(row[idx])}
+                    max={totalKeypresses}
+                    value={row[idx] || 0}
                     title={(row[idx] || 0).toString()}
                   >
-                    {percent(row[idx])}
+                    {row[idx] || 0} / {totalKeypresses}
                   </meter>
                   <span role="cell">{percent(row[idx])}%</span>
                 </li>
@@ -137,11 +137,11 @@ export default function StatsComponent(): React.ReactElement {
                 <meter
                   role="cell"
                   min={0}
-                  max={100}
-                  value={percent(hand.left)}
+                  max={totalKeypresses}
+                  value={hand.left}
                   title={hand.left.toString()}
                 >
-                  {percent(hand.left)}%
+                  {hand.left} / {totalKeypresses}
                 </meter>
                 <span role="cell">{percent(hand.left)}%</span>
               </li>
@@ -152,11 +152,11 @@ export default function StatsComponent(): React.ReactElement {
                 <meter
                   role="cell"
                   min={0}
-                  max={100}
-                  value={percent(hand.right)}
+                  max={totalKeypresses}
+                  value={hand.right}
                   title={hand.right.toString()}
                 >
-                  {percent(hand.right)}%
+                  {hand.right} / {totalKeypresses}
                 </meter>
                 <span role="cell">{percent(hand.right)}%</span>
               </li>
@@ -177,11 +177,11 @@ export default function StatsComponent(): React.ReactElement {
                   <meter
                     role="cell"
                     min={0}
-                    max={100}
-                    value={percent(finger[idx as keyof typeof finger])}
+                    max={totalKeypresses}
+                    value={finger[idx as keyof typeof finger]}
                     title={finger[idx as keyof typeof finger].toString()}
                   >
-                    {percent(finger[idx as keyof typeof finger])}
+                    {finger[idx as keyof typeof finger]} / {totalKeypresses}
                   </meter>
                   <span role="cell">
                     {percent(finger[idx as keyof typeof finger])}%
@@ -228,10 +228,12 @@ export default function StatsComponent(): React.ReactElement {
                                 <meter
                                   role="cell"
                                   min={0}
-                                  max={100}
-                                  value={p(count, fingerUsageSumPerFinger[idx])}
+                                  max={fingerUsageSumPerFinger[idx]}
+                                  value={count}
                                   title={count.toString()}
-                                ></meter>
+                                >
+                                  {count} / {fingerUsageSumPerFinger[idx]}
+                                </meter>
                                 <span role="cell">
                                   {p(count, fingerUsageSumPerFinger[idx])}%
                                 </span>
