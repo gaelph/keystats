@@ -74,6 +74,7 @@ function DateCell({
 }: DateCellProps): React.ReactElement<DateCellProps> {
   return (
     <button
+      role="button"
       disabled={disabled || !current}
       aria-disabled={disabled || !current}
       onClick={(e) => {
@@ -205,8 +206,14 @@ function DatePicker({
         }
       }}
       onKeyUp={onKeyUp}
-      onBlur={() => {
-        setVisible(false);
+      onBlur={(e) => {
+        console.log("LS -> src/components/Dates.tsx:208 -> e: ", e);
+        if (
+          e.relatedTarget?.getAttribute("role") !== "button" &&
+          e.target?.getAttribute("role") !== "button"
+        ) {
+          setVisible(false);
+        }
       }}
     >
       <div className={classes.datePickerButton}>

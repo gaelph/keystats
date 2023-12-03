@@ -70,12 +70,18 @@ export default function KeyboardSelector({
       className={classes.keyboardSelector}
       tabIndex={0}
       role="listbox"
-      onClick={() => {
-        setVisible(true);
-        self.current?.focus();
+      onClick={(e) => {
+        if (e.target.getAttribute("role") != "option") {
+          setVisible(true);
+          self.current?.focus();
+        }
       }}
       onKeyUp={onKeyUp}
-      onBlur={() => setVisible(false)}
+      onBlur={(e) => {
+        if (e.relatedTarget.getAttribute("role") !== "option") {
+          setVisible(false);
+        }
+      }}
     >
       <div className={classes.container}>
         <div className={classes.select}>
@@ -108,8 +114,7 @@ export default function KeyboardSelector({
               }}
               onClick={() => {
                 onChange(kb);
-                const el = document.activeElement as HTMLElement | null;
-                el?.blur();
+                setVisible(false);
               }}
             >
               {kb.name}
