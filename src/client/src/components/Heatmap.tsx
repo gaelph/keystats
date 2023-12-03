@@ -94,6 +94,16 @@ export default function HeatmapComponent({
       heatmap.current = Heatmap.create({
         container: canvasRef.current,
         radius: KEY_WIDTH,
+        // gradient: {
+        //   "0": "#ffffd9",
+        //   ".10": "#edf8b1",
+        //   ".20": "#c7e9b4",
+        //   ".30": "#7fcdbb",
+        //   ".55": "#41b6c4",
+        //   ".65": "#1d91c0",
+        //   ".75": "#225ea3",
+        //   "1": "#0c2c84",
+        // },
       });
 
       heatmap.current.setData(formatData(matrix, total));

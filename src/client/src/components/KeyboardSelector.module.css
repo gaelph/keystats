@@ -2,6 +2,8 @@
   cursor: pointer;
   display: inline-block;
   margin-bottom: 1rem;
+  background-color: transparent;
+  border: 0;
 
   .container {
     position: relative;
@@ -14,11 +16,14 @@
     }
   }
 
-  &:focus-within {
-    .options {
-      visibility: visible;
-      opacity: 1;
-    }
+  & [aria-hidden="false"] {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  & [aria-hidden="true"] {
+    visibility: hidden;
+    opacity: 0;
   }
 
   .select {
@@ -36,8 +41,6 @@
 
   .options {
     display: block;
-    visibility: hidden;
-    opacity: 0;
     transition: opacity 0.2s ease;
     position: absolute;
     z-index: 1000;
@@ -59,7 +62,8 @@
         border-bottom: 1px solid rgba(0, 0, 0, 0.15);
       }
 
-      &:hover {
+      &:hover,
+      &.hover {
         background-color: rgba(0, 0, 0, 0.03);
       }
 

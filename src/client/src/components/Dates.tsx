@@ -74,9 +74,12 @@ function DateCell({
 }: DateCellProps): React.ReactElement<DateCellProps> {
   return (
     <button
-      disabled={disabled}
-      aria-disabled={disabled}
-      onClick={() => current && !disabled && onSelectDate(day)}
+      disabled={disabled || !current}
+      aria-disabled={disabled || !current}
+      onClick={(e) => {
+        e.preventDefault();
+        current && !disabled && onSelectDate(day);
+      }}
       className={`date-picker-day ${selected ? classes.selected : ""} ${
         !current ? classes.outOfMonth : ""
       } ${disabled ? classes.disabled : ""}`}
@@ -144,6 +147,7 @@ function DatePicker({
   // we set the initial date to the middle of the cusrent month
   // to avoid skipping february
   const [date, setDate] = useState(dayjs().startOf("month").add(15, "day"));
+  const [visible, setVisible] = useState(false);
   const selectedDate = dayjs(selected);
   const monthAndYear = date.format("MMMM YYYY");
 
@@ -156,45 +160,68 @@ function DatePicker({
     [setDate],
   );
 
-  const self = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const listener = ({ target }: MouseEvent) => {
-      if (target === self.current) {
-        self.current?.blur();
+  const handleChange = useCallback(
+    (date: dayjs.Dayjs) => {
+      onChange(date);
+      setVisible(false);
+    },
+    [onChange],
+  );
+
+  const self = useRef<HTMLButtonElement | null>(null);
+
+  const onKeyUp = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      switch (e.key) {
+        case "ArrowLeft":
+        case "h":
+        case "m":
+          changeMonth(date.subtract(1, "month"));
+          break;
+        case "ArrowRight":
+        case "l":
+        case "i":
+          changeMonth(date.add(1, "month"));
+          break;
+        case "Escape":
+          setVisible(false);
+          document.body.focus();
+          break;
       }
-    };
+    },
+    [date],
+  );
 
-    document.addEventListener("click", listener);
-
-    return () => {
-      document.removeEventListener("click", listener);
-    };
-  }, []);
-
-  console.log(classes);
+  console.log(document.activeElement);
 
   return (
     <button
+      ref={self}
       className={classes.datePicker + " " + className}
-      onClick={() => {
-        self.current?.focus();
+      onClick={(e: React.MouseEvent<HTMLElement>) => {
+        if (!e.defaultPrevented) {
+          setVisible(true);
+          self.current?.focus();
+        }
       }}
+      onKeyUp={onKeyUp}
       onBlur={() => {
-        self.current?.blur();
+        setVisible(false);
       }}
     >
-      <div ref={self} className={classes.datePickerButton}>
+      <div className={classes.datePickerButton}>
         <span className="material-symbols-sharp">today</span>
         {selected !== null && (
           <span className={classes.datePickerButtonDate}>
             {selectedDate.format("DD/MM/YYYY")}
           </span>
         )}
-        <div className={classes.datePickerPane}>
+        <div className={classes.datePickerPane} aria-hidden={!visible}>
           <div className={classes.datePickerHeader}>
             <span
               className="material-symbols-sharp"
               tabIndex={0}
+              role="button"
               onClick={() => changeMonth(date.subtract(1, "month"))}
             >
               chevron_left
@@ -203,6 +230,7 @@ function DatePicker({
             <span
               className="material-symbols-sharp"
               tabIndex={0}
+              role="button"
               onClick={() => changeMonth(date.add(1, "month"))}
               aria-disabled={date.isSame(dayjs(), "month")}
             >
@@ -218,7 +246,7 @@ function DatePicker({
                 currentDate={date}
                 includeDates={includeDates}
                 selected={selectedDate}
-                onSelectDate={onChange}
+                onSelectDate={handleChange}
               />
             </tbody>
           </table>
@@ -241,8 +269,7 @@ export default function Dates(): React.ReactElement | null {
         selected={selectedDate}
         onChange={(date) => {
           setDate(date);
-          const el = document.activeElement as HTMLElement | null;
-          el?.blur();
+          document.body.focus();
         }}
         includeDates={dates}
       />

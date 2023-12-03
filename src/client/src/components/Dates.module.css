@@ -13,12 +13,22 @@
 .datePicker {
   position: relative;
 
-  &:focus-within .datePickerPane {
-    display: block;
-    z-index: 1000;
-    color: black;
-    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
+  & [aria-hidden="true"] {
+    visibility: hidden;
+    opacity: 0;
   }
+
+  & [aria-hidden="false"] {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* &:focus-within .datePickerPane { */
+  /*   display: block; */
+  /*   z-index: 1000; */
+  /*   color: black; */
+  /*   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05); */
+  /* } */
 
   button {
     background-color: transparent;
@@ -58,7 +68,7 @@
   }
 
   td button.selected {
-    color: white;
+    color: var(--accent-inverse);
     font-weight: bold;
     z-index: 10;
   }
@@ -82,7 +92,7 @@
     width: 100%;
     height: 100%;
     border-radius: 100%;
-    background-color: purple;
+    background-color: var(--accent);
     z-index: -1;
   }
 }
@@ -97,7 +107,7 @@
 }
 
 .datePickerPane {
-  display: none;
+  display: block;
   position: absolute;
   top: 100%;
   left: 50%;
@@ -108,6 +118,8 @@
   border: 1px solid #ddd;
   border-radius: 5px;
   color: black;
+  z-index: 1000;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
 }
 
 .datePickerHeader {
@@ -116,4 +128,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1em;
+
+  span[role="button"] {
+    background-color: transparent;
+    border: 0;
+
+    &[aria-disabled="true"] {
+      opacity: 0.5;
+    }
+  }
 }
