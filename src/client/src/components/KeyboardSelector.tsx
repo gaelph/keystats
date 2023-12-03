@@ -23,6 +23,10 @@ export default function KeyboardSelector({
 
   useEffect(() => {
     if (visible) {
+      const item = self.current?.querySelector(
+        "[role='menuitem']:not([tabindex='-1'])",
+      );
+      item?.focus();
       setHovered(selectedKeyboard?.id || null);
     }
   }, [selectedKeyboard, visible]);
@@ -35,6 +39,9 @@ export default function KeyboardSelector({
       const el = event.target as HTMLDivElement;
       const kb = keyboards.find((kb) => kb.id === hovered);
       const index = keyboards.indexOf(kb);
+      const item = self.current?.querySelector(
+        "[role='menuitem']:not([tabindex='-1'])",
+      );
 
       switch (event.key) {
         case "ArrowDown":
@@ -55,22 +62,23 @@ export default function KeyboardSelector({
           if (event.shiftKey) {
             if (index - 1 >= 0) {
               setHovered(keyboards[index - 1].id);
+              options.current?.[index - 1]?.focus();
             }
           } else {
             if (index + 1 < keyboards.length) {
               setHovered(keyboards[index + 1].id);
+              options.current?.[index + 1]?.focus();
             }
           }
           break;
         case "Enter":
           onChange(keyboards[index]);
           setVisible(false);
-          el?.blur();
           break;
 
         case " ":
           setVisible(true);
-          self.current?.focus();
+          item?.focus();
           break;
 
         case "Escape":
@@ -79,6 +87,22 @@ export default function KeyboardSelector({
       }
     },
     [visible, keyboards, hovered],
+  );
+
+  const menuItemOnKeyUp = useCallback(
+    (kb: Keyboard) => {
+      return (event: React.KeyboardEvent<HTMLDivElement>) => {
+        console.log("MI PRESS", event);
+        event.preventDefault();
+        event.stopPropagation();
+        switch (event.key) {
+          case " ":
+          case "Enter":
+            onChange(kb);
+        }
+      };
+    },
+    [onChange],
   );
 
   return (
@@ -90,8 +114,10 @@ export default function KeyboardSelector({
       onClick={(e) => {
         if (e.target.getAttribute("role") !== "menuitem") {
           setVisible(true);
-          self.current?.focus();
-          const item = self.current?.querySelector("[role='menuitem']");
+          // self.current?.focus();
+          const item = self.current?.querySelector(
+            "[role='menuitem']:not([tabindex='-1'])",
+          );
           item?.focus();
         }
       }}
@@ -109,17 +135,14 @@ export default function KeyboardSelector({
         </div>
         <div role="menu" aria-hidden={!visible}>
           {keyboards.map((kb, index) => (
-            <div
+            <button
               ref={(el) => {
                 if (el) {
-                  kMap.current.set(kb.id, el);
                   options.current[index] = el;
-                } else if (kMap.current.has(kb.id)) {
-                  kMap.current.delete(kb.id);
                 }
               }}
               key={`kb-selector-option-${kb.id}`}
-              tabIndex={0}
+              tabIndex={selectedKeyboard?.id === kb.id ? -1 : 0}
               role="menuitem"
               aria-selected={selectedKeyboard?.id === kb.id}
               className={`${kb.id === hovered ? classes.hover : ""}`}
@@ -133,9 +156,10 @@ export default function KeyboardSelector({
                 onChange(kb);
                 setVisible(false);
               }}
+              onKeyUp={menuItemOnKeyUp(kb)}
             >
               {kb.name}
-            </div>
+            </button>
           ))}
         </div>
       </div>
