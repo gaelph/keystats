@@ -1,14 +1,11 @@
 import React, { useCallback, useMemo } from "react";
 import { Tabs, Tab } from "./Tabs.js";
 import IconOrChar from "./IconOrChar.js";
-import {
-  Character,
-  // RepetitionsBody,
-  // TotalCountBody,
-} from "keystats-common/dto/keyboard";
-import { useKeyboardData } from "~/state/keyboardData.js";
+import { Character } from "keystats-common/dto/keyboard";
 
 import * as classes from "./Stats.module.css";
+import useCharacters from "~/hooks/useCharacters.js";
+import useCounts from "~/hooks/useCounts.js";
 
 const numberFormater = new Intl.NumberFormat("en-US", {});
 function formatNumber(n: number): string {
@@ -33,11 +30,8 @@ const ROW_NAMES = ["Top row", "Home row", "Bottom row", "Thumb row"];
 const p = (v: number, total: number): string => ((100 * v) / total).toFixed(2);
 
 export default function StatsComponent(): React.ReactElement {
-  const {
-    counts: totals,
-    characters,
-    handAndFingerUsage: repetitions,
-  } = useKeyboardData();
+  const { characters } = useCharacters();
+  const { counts: totals, handAndFingerUsage: repetitions } = useCounts();
   const { totalKeypresses } = totals;
   let records: Character[] = [];
   let totalCharacters = 0;

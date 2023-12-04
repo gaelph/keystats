@@ -8,7 +8,7 @@ const buildOptions = {
   bundle: true,
   minify: true,
   outfile: "build/static/main.js",
-  format: "esm",
+  format: "cjs",
   metafile: true,
   treeShaking: true,
   sourcemap: true,

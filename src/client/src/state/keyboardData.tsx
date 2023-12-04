@@ -1,82 +1,38 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-} from "react";
-import useCharacters from "~/hooks/useCharacters.js";
-import useCounts from "~/hooks/useCounts.js";
-import useHandAndFingerUsage from "~/hooks/useHandAndFingerUsage.js";
-import useKeymaps from "~/hooks/useKeymaps.js";
+import { FilterQuery } from "keystats-common/dto/keyboard";
+import { StateCreator } from "zustand";
 import {
   getCharacterCounts,
   getHandAndFingerUsage,
   getKeyboardKeymaps,
   getTotalCounts,
 } from "~/lib/api.js";
-import { useDatesActions, useDatesContext } from "./date.js";
-import { useKeyboardContext } from "./keyboard.js";
+import { DateState } from "./date.js";
+import { FetchState } from "./fetch.js";
+import { KeyboardState } from "./keyboard.js";
 
-interface KeyboardDataContextType {
-  keymaps: Awaited<ReturnType<typeof getKeyboardKeymaps>>;
-  characters: Awaited<ReturnType<typeof getCharacterCounts>>;
-  counts: Awaited<ReturnType<typeof getTotalCounts>>;
-  handAndFingerUsage: Awaited<ReturnType<typeof getHandAndFingerUsage>>;
+type Keymaps = Awaited<ReturnType<typeof getKeyboardKeymaps>>;
+type Characters = Awaited<ReturnType<typeof getCharacterCounts>>;
+type Counts = Awaited<ReturnType<typeof getTotalCounts>>;
+type HandAndFingerUsage = Awaited<ReturnType<typeof getHandAndFingerUsage>>;
+
+export interface KeyboardDataState {
+  keymaps: Keymaps;
+  characters: Characters;
+  counts: Counts;
+  handAndFingerUsage: HandAndFingerUsage;
+  fetchKeymaps: () => Promise<void>;
+  fetchCaracters: () => Promise<void>;
+  fetchCounts: () => Promise<void>;
+  fetchHandAndFingerUsage: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
-interface SetKeymapsAction {
-  type: "SET_KEYMAPS";
-  payload: Awaited<ReturnType<typeof getKeyboardKeymaps>>;
-}
-
-interface SetCharactersAction {
-  type: "SET_CHARACTERS";
-  payload: Awaited<ReturnType<typeof getCharacterCounts>>;
-}
-
-interface SetCounts {
-  type: "SET_COUNTS";
-  payload: Awaited<ReturnType<typeof getTotalCounts>>;
-}
-
-interface SetHandAndFingerUsage {
-  type: "SET_HAND_AND_FINGER_USAGE";
-  payload: Awaited<ReturnType<typeof getHandAndFingerUsage>>;
-}
-
-type KeyboardDataActionType =
-  | SetKeymapsAction
-  | SetCharactersAction
-  | SetCounts
-  | SetHandAndFingerUsage;
-
-interface KeyboardDataActionsType {
-  setKeymaps: (keymaps: Awaited<ReturnType<typeof getKeyboardKeymaps>>) => void;
-  setCharacters: (
-    characters: Awaited<ReturnType<typeof getCharacterCounts>>,
-  ) => void;
-  setCounts: (counts: Awaited<ReturnType<typeof getTotalCounts>>) => void;
-  setHandAndFingerUsage: (
-    handAndFingerUsage: Awaited<ReturnType<typeof getHandAndFingerUsage>>,
-  ) => void;
-  refresh: () => void;
-}
-
-const KeyboardDataActions = createContext<KeyboardDataActionsType>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setKeymaps: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setCharacters: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setCounts: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setHandAndFingerUsage: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  refresh: () => {},
-});
-
-const DEFAULT_KEYBOARD_DATA = {
+export const keyboardDataStore: StateCreator<
+  KeyboardDataState & FetchState & KeyboardState & DateState,
+  [],
+  [],
+  KeyboardDataState
+> = (set, get) => ({
   keymaps: [],
   characters: { records: [], totalCharacters: 0 },
   counts: {
@@ -105,125 +61,86 @@ const DEFAULT_KEYBOARD_DATA = {
     handRepetitions: [[], []],
     fingerRepetitions: [],
   },
-};
+  fetchKeymaps: async () => {
+    const { setLoading, addError, keyboard } = get();
+    if (keyboard === null) return;
 
-const KeyboardDataContext = createContext<KeyboardDataContextType>(
-  DEFAULT_KEYBOARD_DATA,
-);
-
-export function useKeyboardData() {
-  return useContext(KeyboardDataContext);
-}
-
-export function useKeyboardDataActions() {
-  return useContext(KeyboardDataActions);
-}
-
-function keyboardDataReducer(
-  state: KeyboardDataContextType,
-  action: KeyboardDataActionType,
-): KeyboardDataContextType {
-  switch (action.type) {
-    case "SET_KEYMAPS":
-      return {
-        ...state,
-        keymaps: action.payload,
-      };
-
-    case "SET_CHARACTERS":
-      return {
-        ...state,
-        characters: action.payload,
-      };
-
-    case "SET_COUNTS":
-      return {
-        ...state,
-        counts: action.payload,
-      };
-
-    case "SET_HAND_AND_FINGER_USAGE":
-      return {
-        ...state,
-        handAndFingerUsage: action.payload,
-      };
-  }
-
-  return state;
-}
-
-export function KeyboardDataProvider({
-  children,
-}: React.PropsWithChildren): React.ReactElement {
-  const [data, dispatch] = useReducer(
-    keyboardDataReducer,
-    DEFAULT_KEYBOARD_DATA,
-  );
-
-  const keyboard = useKeyboardContext();
-  const { date } = useDatesContext();
-  const { refresh: refreshDates } = useDatesActions();
-
-  const [keymaps, refreshKeymaps] = useKeymaps(keyboard);
-  const [characters, refreshCharacters] = useCharacters(keyboard, date);
-  const [counts, refreshCounts] = useCounts(keyboard, date);
-  const [handAndFingerUsage, refreshHandAndFingerUsage] =
-    useHandAndFingerUsage(keyboard);
-
-  const actions = useMemo(() => {
-    return {
-      setKeymaps: (keymaps: Awaited<ReturnType<typeof getKeyboardKeymaps>>) => {
-        dispatch({ type: "SET_KEYMAPS", payload: keymaps });
-      },
-      setCharacters: (
-        characters: Awaited<ReturnType<typeof getCharacterCounts>>,
-      ) => {
-        dispatch({ type: "SET_CHARACTERS", payload: characters });
-      },
-      setCounts: (counts: Awaited<ReturnType<typeof getTotalCounts>>) => {
-        dispatch({ type: "SET_COUNTS", payload: counts });
-      },
-      setHandAndFingerUsage: (
-        handAndFingerUsage: Awaited<ReturnType<typeof getHandAndFingerUsage>>,
-      ) => {
-        dispatch({
-          type: "SET_HAND_AND_FINGER_USAGE",
-          payload: handAndFingerUsage,
-        });
-      },
-      refresh: () => {
-        refreshDates();
-        refreshKeymaps();
-        refreshCharacters();
-        refreshCounts();
-        refreshHandAndFingerUsage();
-      },
-    };
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (keymaps) actions.setKeymaps(keymaps);
-  }, [keymaps, actions]);
-
-  useEffect(() => {
-    if (characters) actions.setCharacters(characters);
-  }, [characters, actions]);
-
-  useEffect(() => {
-    if (counts) actions.setCounts(counts);
-  }, [counts, actions]);
-
-  useEffect(() => {
-    if (handAndFingerUsage) {
-      actions.setHandAndFingerUsage(handAndFingerUsage);
+    try {
+      setLoading(true);
+      const data = await getKeyboardKeymaps(keyboard.id);
+      set(() => ({ keymaps: data }));
+    } catch (error) {
+      if (error instanceof Error) {
+        addError(error);
+      }
+    } finally {
+      setLoading(false);
     }
-  }, [handAndFingerUsage, actions]);
+  },
+  fetchCaracters: async () => {
+    const { setLoading, addError, keyboard, date } = get();
+    if (keyboard === null) return;
 
-  return (
-    <KeyboardDataContext.Provider value={data}>
-      <KeyboardDataActions.Provider value={actions}>
-        {children}
-      </KeyboardDataActions.Provider>
-    </KeyboardDataContext.Provider>
-  );
-}
+    const filters: FilterQuery = {};
+    if (date) {
+      filters.date = date;
+    }
+    try {
+      setLoading(true);
+      const data = await getCharacterCounts(keyboard.id, filters);
+      set(() => ({ characters: data }));
+    } catch (error) {
+      if (error instanceof Error) {
+        addError(error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  },
+  fetchCounts: async () => {
+    const { setLoading, addError, keyboard, date } = get();
+    if (keyboard === null) return;
+
+    const filters: FilterQuery = {};
+    if (date) {
+      filters.date = date;
+    }
+    try {
+      setLoading(true);
+      const data = await getTotalCounts(keyboard.id, filters);
+      set(() => ({ counts: data }));
+    } catch (error) {
+      if (error instanceof Error) {
+        addError(error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  },
+  fetchHandAndFingerUsage: async () => {
+    const { setLoading, addError, keyboard, date } = get();
+    if (keyboard === null) return;
+
+    const filters: FilterQuery = {};
+    if (date) {
+      filters.date = date;
+    }
+    try {
+      setLoading(true);
+      const data = await getHandAndFingerUsage(keyboard.id, filters);
+      set(() => ({ handAndFingerUsage: data }));
+    } catch (error) {
+      if (error instanceof Error) {
+        addError(error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  },
+  refresh: async () => {
+    const { fetchCaracters, fetchCounts, fetchHandAndFingerUsage } = get();
+    fetchCaracters();
+    fetchCounts();
+    fetchHandAndFingerUsage();
+  },
+});

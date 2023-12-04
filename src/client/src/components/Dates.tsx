@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import dayjs from "dayjs";
 import dayjsen from "dayjs/locale/en.js";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore.js";
-import { useDatesActions, useDatesContext } from "~/state/date.js";
 
 import * as classes from "./Dates.module.css";
+import useDates from "~/hooks/useDates.js";
 
 dayjs.extend(isSameOrBefore);
 dayjs.locale("en-europe", { ...dayjsen, weekStart: 1 });
@@ -261,8 +261,7 @@ function DatePicker({
 }
 
 export default function Dates(): React.ReactElement | null {
-  const { dates, date: selectedDate } = useDatesContext();
-  const { setDate } = useDatesActions();
+  const { date: selectedDate, dates, setDate } = useDates();
 
   if (!dates) return null;
 

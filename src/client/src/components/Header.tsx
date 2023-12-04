@@ -1,28 +1,22 @@
 import React, { useEffect } from "react";
-import { useFetchContext } from "~/state/fetch.js";
-import { useKeyboardActions, useKeyboardContext } from "~/state/keyboard.js";
-import { useKeyboardDataActions } from "~/state/keyboardData.js";
-import { useKeyboardsContext } from "~/state/keyboards.js";
 import KeyboardSelector from "./KeyboardSelector.js";
+
+import useKeyboards from "~/hooks/useKeyboards.js";
+import useFetchStatus from "~/hooks/useFetchStatus.js";
 
 import * as classes from "./Header.module.css";
 
 export default function Header(): React.ReactElement {
-  const { pendingCount, errors } = useFetchContext();
-  const keyboards = useKeyboardsContext();
-  const keyboard = useKeyboardContext();
-  const { setKeyboard } = useKeyboardActions();
-  const { refresh } = useKeyboardDataActions();
+  const { loading, errors, refresh } = useFetchStatus();
+  const { keyboard, keyboards, setKeyboard } = useKeyboards();
 
   // Set the first keyboard of the list as the default
-  // TODO: use LocalStorage to keep that setting between page reloads
+  // If there were non in the storage
   useEffect(() => {
     if (!keyboard && keyboards && keyboards.length !== 0) {
       setKeyboard(keyboards[0]);
     }
   }, [keyboard, keyboards]);
-
-  const loading = pendingCount !== 0;
 
   return (
     <header>

@@ -1,34 +1,16 @@
-import { useReducer, useCallback, useEffect, useState } from "react";
-import { setLoading, setError, setData } from "../store/actions.js";
-import dataReducer, { State } from "../store/reducer.js";
+import { KeyboardState } from "~/state/keyboard.js";
+import { useAppState } from "~/state/appState.js";
+import { KeyboardsState } from "~/state/keyboards.js";
 
-import { listKeyboards } from "../lib/api.js";
-import { useFetchActions } from "~/state/fetch.js";
+export default function useKeyboards(): Pick<
+  KeyboardState & KeyboardsState,
+  "keyboard" | "keyboards" | "setKeyboard"
+> {
+  const keyboards = useAppState((state) => state.keyboards);
+  const [keyboard, setKeyboard] = useAppState((state) => [
+    state.keyboard,
+    state.setKeyboard,
+  ]);
 
-type Data = Awaited<ReturnType<typeof listKeyboards>>;
-
-export default function useData(): [Data | null, () => Promise<void>] {
-  const [state, setState] = useState<Data>([]);
-  const { setLoading, addError } = useFetchActions();
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await listKeyboards();
-      setState(data);
-    } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        addError(error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return [state, fetchData];
+  return { keyboard, keyboards, setKeyboard };
 }

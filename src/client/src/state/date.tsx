@@ -1,111 +1,45 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-} from "react";
 import dayjs from "dayjs";
-import { useKeyboardContext } from "./keyboard.js";
-import useDates from "~/hooks/useDates.js";
+import { KeyboardState } from "./keyboard.js";
+import { StateCreator } from "zustand";
+import { FetchState } from "./fetch.js";
+import { getDates } from "~/lib/api.js";
 
-interface DateContextType {
-  dates: dayjs.Dayjs[];
+export interface DateState {
   date: dayjs.Dayjs | null;
-}
-
-interface SetDatesAction {
-  type: "SET_DATES";
-  payload: dayjs.Dayjs[];
-}
-
-interface SetDateAction {
-  type: "SET_DATE";
-  payload: dayjs.Dayjs | null;
-}
-
-type DateActionType = SetDatesAction | SetDateAction;
-
-interface DateActionsType {
-  setDates: (dates: dayjs.Dayjs[]) => void;
+  dates: dayjs.Dayjs[];
   setDate: (date: dayjs.Dayjs | null) => void;
-  refresh: () => void;
+  setDates: (dates: dayjs.Dayjs[]) => void;
+  fetchDates: () => Promise<void>;
 }
 
-const DateContext = createContext<DateContextType>({ dates: [], date: null });
-const DateActionsContext = createContext<DateActionsType>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setDates: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setDate: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  refresh: () => {},
+export const dateStore: StateCreator<
+  DateState & FetchState & KeyboardState,
+  [],
+  [],
+  DateState
+> = (set, get) => ({
+  date: null,
+  dates: [],
+  setDate: (date: dayjs.Dayjs | null) => {
+    set(() => ({ date }));
+  },
+  setDates: (dates: dayjs.Dayjs[]) => {
+    set(() => ({ dates }));
+  },
+  async fetchDates(): Promise<void> {
+    const { setLoading, addError, keyboard } = get();
+    if (keyboard === null) return;
+
+    try {
+      setLoading(true);
+      const data = await getDates(keyboard.id);
+      set(() => ({ dates: data.map((date) => dayjs(date)) }));
+    } catch (error) {
+      if (error instanceof Error) {
+        addError(error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  },
 });
-
-export function useDatesContext() {
-  return useContext(DateContext);
-}
-
-export function useDatesActions() {
-  return useContext(DateActionsContext);
-}
-
-function dateReducer(
-  state: DateContextType,
-  action: DateActionType,
-): DateContextType {
-  switch (action.type) {
-    case "SET_DATES":
-      return {
-        ...state,
-        dates: action.payload,
-      };
-
-    case "SET_DATE":
-      return {
-        ...state,
-        date: action.payload,
-      };
-  }
-
-  return state;
-}
-
-export function DatesProvider({
-  children,
-}: React.PropsWithChildren): React.ReactElement {
-  const [state, dispatch] = useReducer(dateReducer, {
-    dates: [],
-    date: null,
-  });
-
-  const keyboard = useKeyboardContext();
-
-  const [dates, refreshDates] = useDates(keyboard);
-
-  const actions = useMemo(() => {
-    return {
-      setDates(dates: dayjs.Dayjs[]) {
-        dispatch({ type: "SET_DATES", payload: dates });
-      },
-      setDate(date: dayjs.Dayjs | null) {
-        dispatch({ type: "SET_DATE", payload: date });
-      },
-      refresh() {
-        refreshDates();
-      },
-    };
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (dates) actions.setDates(dates);
-  }, [dates, actions]);
-
-  return (
-    <DateContext.Provider value={state}>
-      <DateActionsContext.Provider value={actions}>
-        {children}
-      </DateActionsContext.Provider>
-    </DateContext.Provider>
-  );
-}

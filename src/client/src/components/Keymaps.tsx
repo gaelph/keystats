@@ -1,11 +1,13 @@
 import React from "react";
-import { useKeyboardData } from "~/state/keyboardData.js";
+import useCounts from "~/hooks/useCounts.js";
+import useKeymaps from "~/hooks/useKeymaps.js";
 import HeatmapComponent from "./Heatmap.js";
 
 import * as classes from "./Keymaps.module.css";
 
 export default function Keymaps() {
-  const { counts, keymaps } = useKeyboardData();
+  const { counts } = useCounts();
+  const { keymaps } = useKeymaps();
 
   return (
     <div className={classes.layerContainer}>

@@ -106,7 +106,11 @@ export default function HeatmapComponent({
         // },
       });
 
-      heatmap.current.setData(formatData(matrix, total));
+      try {
+        heatmap.current.setData(formatData(matrix, total));
+      } catch (error) {
+        console.error(error);
+      }
     }
   }, [matrix, total]);
 

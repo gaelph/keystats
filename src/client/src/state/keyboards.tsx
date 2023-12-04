@@ -1,27 +1,32 @@
-import React, { createContext, useContext, useEffect } from "react";
-import { Keyboard } from "~/lib/api.js";
-import useKeyboards from "~/hooks/useKeyboards.js";
-import { useFetchActions } from "./fetch.js";
+import { listKeyboards } from "~/lib/api.js";
+import { StateCreator } from "zustand";
+import { FetchState } from "./fetch.js";
 
-type KeyboardsContextType = Keyboard[];
-const DEFAULT_KEYBOARDS_CONTEXT: Keyboard[] = [];
-
-const KeyboardsContext = createContext<KeyboardsContextType>(
-  DEFAULT_KEYBOARDS_CONTEXT,
-);
-
-export function useKeyboardsContext() {
-  return useContext(KeyboardsContext);
+export interface KeyboardsState {
+  keyboards: Awaited<ReturnType<typeof listKeyboards>>;
+  fetchKeyboards: () => Promise<void>;
 }
 
-export function KeyboardsProvider({
-  children,
-}: React.PropsWithChildren): React.ReactElement {
-  const [keyboards] = useKeyboards();
-
-  return (
-    <KeyboardsContext.Provider value={keyboards || []}>
-      {children}
-    </KeyboardsContext.Provider>
-  );
-}
+export const keyboardsStore: StateCreator<
+  KeyboardsState & FetchState,
+  [],
+  [],
+  KeyboardsState
+> = (set, get) => ({
+  keyboards: [],
+  async fetchKeyboards() {
+    get().setLoading(true);
+    try {
+      const data = await listKeyboards();
+      set(() => ({
+        keyboards: data,
+      }));
+    } catch (error) {
+      if (error instanceof Error) {
+        get().addError(error);
+      }
+    } finally {
+      get().setLoading(false);
+    }
+  },
+});

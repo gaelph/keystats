@@ -14,16 +14,15 @@ export default function KeyboardSelector({
   keyboards,
   onChange,
 }: KeyboardSelectorProps): React.ReactElement<KeyboardSelectorProps> {
-  const self = useRef<HTMLDivElement | null>(null);
-  const kMap = useRef<Map<number, HTMLDivElement>>(new Map());
-  const options = useRef<Array<HTMLDivElement>>([]);
+  const self = useRef<HTMLButtonElement | null>(null);
+  const options = useRef<Array<HTMLButtonElement>>([]);
   const [visible, setVisible] = useState(false);
 
   const [hovered, setHovered] = useState<number | null>(null);
 
   useEffect(() => {
     if (visible) {
-      const item = self.current?.querySelector(
+      const item = self.current?.querySelector<HTMLElement>(
         "[role='menuitem']:not([tabindex='-1'])",
       );
       item?.focus();
@@ -32,14 +31,14 @@ export default function KeyboardSelector({
   }, [selectedKeyboard, visible]);
 
   const onKeyUp = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
+    (event: React.KeyboardEvent<HTMLButtonElement>) => {
       console.log(event);
       event.preventDefault();
       event.stopPropagation();
       const el = event.target as HTMLDivElement;
       const kb = keyboards.find((kb) => kb.id === hovered);
-      const index = keyboards.indexOf(kb);
-      const item = self.current?.querySelector(
+      const index = keyboards.indexOf(kb!);
+      const item = self.current?.querySelector<HTMLElement>(
         "[role='menuitem']:not([tabindex='-1'])",
       );
 
@@ -91,7 +90,7 @@ export default function KeyboardSelector({
 
   const menuItemOnKeyUp = useCallback(
     (kb: Keyboard) => {
-      return (event: React.KeyboardEvent<HTMLDivElement>) => {
+      return (event: React.KeyboardEvent<HTMLElement>) => {
         console.log("MI PRESS", event);
         event.preventDefault();
         event.stopPropagation();
@@ -111,11 +110,11 @@ export default function KeyboardSelector({
       className={classes.keyboardSelector}
       tabIndex={0}
       role="listbox"
-      onClick={(e) => {
-        if (e.target.getAttribute("role") !== "menuitem") {
+      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+        const target = e.target as HTMLButtonElement;
+        if (target.getAttribute("role") !== "menuitem") {
           setVisible(true);
-          // self.current?.focus();
-          const item = self.current?.querySelector(
+          const item = self.current?.querySelector<HTMLElement>(
             "[role='menuitem']:not([tabindex='-1'])",
           );
           item?.focus();
@@ -150,7 +149,7 @@ export default function KeyboardSelector({
                 setHovered(kb.id);
               }}
               onMouseOut={() => {
-                setHovered(selectedKeyboard?.id);
+                setHovered(selectedKeyboard?.id || null);
               }}
               onClick={() => {
                 onChange(kb);

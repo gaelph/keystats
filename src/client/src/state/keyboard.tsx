@@ -1,33 +1,5 @@
-import React, { createContext, useContext, useMemo, useReducer } from "react";
+import { StateCreator } from "zustand";
 import { Keyboard } from "~/lib/api.js";
-
-interface SetKeybaordAction {
-  type: "SET_KEYBOARD";
-  payload: Keyboard;
-}
-
-const KeyboardContext = createContext<Keyboard | null>(null);
-const KeyboardActions = createContext<{
-  setKeyboard: (keyboard: Keyboard) => void;
-}>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setKeyboard: () => {},
-});
-
-export function useKeyboardContext() {
-  return useContext(KeyboardContext);
-}
-
-export function useKeyboardActions() {
-  return useContext(KeyboardActions);
-}
-
-function keyboardReducer(
-  state: Keyboard | null,
-  action: SetKeybaordAction,
-): Keyboard | null {
-  return action.type === "SET_KEYBOARD" ? action.payload : state;
-}
 
 const LS_KEY = "keystats:keyboard";
 function readFromLocalStorage(): Keyboard | null {
@@ -55,28 +27,22 @@ function writeToLocalStorage(keyboard: Keyboard | null) {
   }
 }
 
-export function KeyboardProvider({
-  children,
-}: React.PropsWithChildren): React.ReactElement {
-  const [keyboard, dispatch] = useReducer(
-    keyboardReducer,
-    readFromLocalStorage(),
-  );
-
-  const actions = useMemo(() => {
-    return {
-      setKeyboard(keyboard: Keyboard) {
-        dispatch({ type: "SET_KEYBOARD", payload: keyboard });
-        writeToLocalStorage(keyboard);
-      },
-    };
-  }, [dispatch]);
-
-  return (
-    <KeyboardContext.Provider value={keyboard}>
-      <KeyboardActions.Provider value={actions}>
-        {children}
-      </KeyboardActions.Provider>
-    </KeyboardContext.Provider>
-  );
+export interface KeyboardState {
+  keyboard: Keyboard | null;
+  setKeyboard: (keyboard: Keyboard) => void;
 }
+
+export const keyboardStore: StateCreator<
+  KeyboardState,
+  [],
+  [],
+  KeyboardState
+> = (set) => ({
+  keyboard: readFromLocalStorage(),
+  setKeyboard(keyboard: Keyboard) {
+    set(() => {
+      writeToLocalStorage(keyboard);
+      return { keyboard: keyboard };
+    });
+  },
+});
