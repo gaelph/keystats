@@ -7,6 +7,10 @@
     & :not(:first-child):not(:last-child) {
       border-radius: 0px;
     }
+
+    &[aria-selected="true"] {
+      background-color: var(--primary-active);
+    }
   }
 
   & > [role="tab"]:first-child,
