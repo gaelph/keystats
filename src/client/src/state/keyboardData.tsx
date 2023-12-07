@@ -138,9 +138,11 @@ export const keyboardDataStore: StateCreator<
     }
   },
   refresh: async () => {
-    const { fetchCaracters, fetchCounts, fetchHandAndFingerUsage } = get();
+    const { fetchCaracters, fetchCounts, fetchDates, fetchHandAndFingerUsage } =
+      get();
     fetchCaracters();
     fetchCounts();
     fetchHandAndFingerUsage();
+    fetchDates();
   },
 });
