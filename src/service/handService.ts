@@ -13,6 +13,7 @@ type CurrentCount = [number, number];
 export default class HandService {
   #handUsageRepo: HandUsageRepo;
   #keysRepo: KeysRepo;
+  #timeout?: NodeJS.Timeout;
   currentCount: CurrentCount = [0, 0];
   currentHand: number = 1;
 
@@ -21,6 +22,27 @@ export default class HandService {
   constructor() {
     this.#handUsageRepo = new HandUsageRepo();
     this.#keysRepo = new KeysRepo();
+  }
+
+  async saveCount(keyboardId: number): Promise<void> {
+    for (const finger in this.currentCount) {
+      const count = this.currentCount[finger];
+
+      // only count actual repetition
+      if (count > 0) {
+        this.#logger.debug(
+          "incrementing hand usage for " + finger + " of " + count + "repeats",
+        );
+
+        await this.#handUsageRepo.incrementHandUsage(
+          keyboardId,
+          parseInt(finger, 10),
+          count,
+        );
+      }
+    }
+
+    this.currentCount = [0, 0];
   }
 
   async incrementHandUsage(
@@ -36,49 +58,18 @@ export default class HandService {
       return;
     }
 
+    if (this.#timeout) {
+      clearTimeout(this.#timeout);
+    }
+
+    const self = this;
+
     this.currentCount[key.hand] += 1;
 
-    // If we changed hands, increment the hand usage for the previously
-    // used hand, my the amount stored in the current count
-    if (this.currentHand === -1) {
-      try {
-        await this.#handUsageRepo.incrementHandUsage(keyboardId, key.hand, 1);
-        this.currentHand = key.hand;
-      } catch (error: unknown) {
-        this.#logger.error(error);
-      }
-      return;
-    }
-
-    this.#logger.debug("current left count: " + this.currentCount[LEFT]);
-    this.#logger.debug("current right count: " + this.currentCount[RIGHT]);
-
-    if (this.currentHand !== key.hand) {
-      const otherHand = this.currentHand;
-      this.currentHand = key.hand;
-      const otherCount = this.currentCount[otherHand];
-
-      if (otherCount > 0) {
-        this.#logger.debug(
-          "incrementing hand usage for " +
-            otherHand +
-            " of " +
-            otherCount +
-            "repeats",
-        );
-
-        try {
-          await this.#handUsageRepo.incrementHandUsage(
-            keyboardId,
-            otherHand,
-            otherCount,
-          );
-          this.currentCount[otherHand] = 0;
-        } catch (error: unknown) {
-          this.#logger.error(error);
-        }
-      }
-    }
+    // Save the counts afer 1 second has elapsed
+    setTimeout(() => {
+      self.saveCount(keyboardId);
+    }, 1000);
   }
 
   async getHandUsage(

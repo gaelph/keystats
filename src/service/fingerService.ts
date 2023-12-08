@@ -33,6 +33,7 @@ type CurrentCount = [
 export default class FingerService {
   #fingerUsageRepo: FingerUsageRepo;
   #keysRepo: KeysRepo;
+  #timeout?: NodeJS.Timeout = undefined;
   currentCount: CurrentCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   currentFinger: number = -1;
 
@@ -43,12 +44,42 @@ export default class FingerService {
     this.#keysRepo = new KeysRepo();
   }
 
+  async saveCount(keyboardId: number): Promise<void> {
+    for (const finger in this.currentCount) {
+      const count = this.currentCount[finger];
+
+      // only count actual repetitions
+      if (count > 1) {
+        this.#logger.debug(
+          "incrementing finger usage for " +
+            finger +
+            " of " +
+            count +
+            "repeats",
+        );
+
+        await this.#fingerUsageRepo.incrementFingerUsage(
+          keyboardId,
+          parseInt(finger, 10),
+          count,
+        );
+      }
+    }
+
+    this.currentCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  }
+
   async incrementFingerUsage(
     keyboardId: number,
     column: number,
     row: number,
   ): Promise<void> {
     let key: Key;
+
+    if (this.#timeout) {
+      clearTimeout(this.#timeout);
+    }
+    const self = this;
 
     try {
       key = await this.#keysRepo.getAtCoordinates(keyboardId, column, row);
@@ -59,50 +90,10 @@ export default class FingerService {
 
     this.currentCount[key.finger] = this.currentCount[key.finger] + 1;
 
-    // If we changed fingers, increment the finger usage for the previously
-    // used finger, my the amount stored in the current count
-    if (this.currentFinger === -1) {
-      try {
-        await this.#fingerUsageRepo.incrementFingerUsage(
-          keyboardId,
-          key.finger,
-          1,
-        );
-        this.currentFinger = key.finger;
-      } catch (err: unknown) {
-        this.#logger.error(err);
-      }
-      return;
-    }
-
-    this.#logger.debug("current fingers count: ", this.currentCount);
-
-    if (this.currentFinger !== key.finger) {
-      const otherFinger = this.currentFinger;
-      this.currentFinger = key.finger;
-      const otherCount = this.currentCount[otherFinger];
-
-      if (otherCount > 0) {
-        this.#logger.debug(
-          "incrementing finger usage for " +
-            otherFinger +
-            " of " +
-            otherCount +
-            "repeats",
-        );
-
-        try {
-          await this.#fingerUsageRepo.incrementFingerUsage(
-            keyboardId,
-            otherFinger,
-            otherCount,
-          );
-          this.currentCount[otherFinger] = 0;
-        } catch (err: unknown) {
-          this.#logger.error(err);
-        }
-      }
-    }
+    // Save the counts after 1 second
+    setTimeout(() => {
+      self.saveCount(keyboardId);
+    }, 1000);
   }
 
   async getFingerUsage(
