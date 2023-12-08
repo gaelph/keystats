@@ -88,12 +88,19 @@ export default class FingerService {
       return;
     }
 
-    this.currentCount[key.finger] = this.currentCount[key.finger] + 1;
+    // If we change finger save the current count and reset
+    if (this.currentFinger >= 0 && this.currentFinger !== key.finger) {
+      await self.saveCount(keyboardId);
+    }
+    this.currentFinger = key.finger;
+
+    this.currentCount[this.currentFinger] =
+      this.currentCount[this.currentFinger] + 1;
 
     // Save the counts after 1 second
     setTimeout(() => {
       self.saveCount(keyboardId);
-    }, 1000);
+    }, 200);
   }
 
   async getFingerUsage(

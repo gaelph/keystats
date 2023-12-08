@@ -25,18 +25,18 @@ export default class HandService {
   }
 
   async saveCount(keyboardId: number): Promise<void> {
-    for (const finger in this.currentCount) {
-      const count = this.currentCount[finger];
+    for (const hand in this.currentCount) {
+      const count = this.currentCount[hand];
 
       // only count actual repetition
       if (count > 0) {
         this.#logger.debug(
-          "incrementing hand usage for " + finger + " of " + count + "repeats",
+          "incrementing hand usage for " + hand + " of " + count + "repeats",
         );
 
         await this.#handUsageRepo.incrementHandUsage(
           keyboardId,
-          parseInt(finger, 10),
+          parseInt(hand, 10),
           count,
         );
       }
@@ -64,7 +64,13 @@ export default class HandService {
 
     const self = this;
 
-    this.currentCount[key.hand] += 1;
+    // If we change hande save the current count and reset
+    if (this.currentHand >= 0 && this.currentHand !== key.hand) {
+      await self.saveCount(keyboardId);
+    }
+    this.currentHand = key.hand;
+
+    this.currentCount[this.currentHand] += 1;
 
     // Save the counts afer 1 second has elapsed
     setTimeout(() => {
