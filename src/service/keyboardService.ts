@@ -221,7 +221,7 @@ export default class KeyboardService {
     );
 
     this.#keyHandler.on("key", (event) => {
-      this.#logger.info("key", event);
+      this.#logger.debug("key", event);
 
       this.addKeyboardRecord({
         keycode: event.keycode,

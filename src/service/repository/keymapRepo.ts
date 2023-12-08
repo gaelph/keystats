@@ -172,8 +172,6 @@ export default class KeymapRepository extends Repository<Keymap> {
     layer: number,
     keyboardId: number,
   ): Promise<void> {
-    const ids = keymaps.map((keymap) => keymap.id!);
-    console.log("Will remove keymaps of keyboard", keyboardId, ids);
     const query = this.#db(Keymap.table)
       .where("keyboardId", keyboardId)
       .where("layer", layer)
