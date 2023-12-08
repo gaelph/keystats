@@ -14,7 +14,7 @@
     "build:dependencies": "npm run build:common && npm run build:client",
     "bundle": "node esbuild.js",
     "clean": "rm -rf ./build",
-    "pkg": "pkg --plublic -t node18-macos-arm64 -C Brotli --output ./bin/keystats .",
+    "pkg": "pkg -t node18-macos-arm64 -C Brotli --output ./bin/keystats .",
     "pkg:debug": "pkg --debug --public -t node18-macos-arm64 --output ./bin/keystats .",
     "start": "nodemon",
     "start:client": "cd src/client && npm run start"
