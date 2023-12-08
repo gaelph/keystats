@@ -28,8 +28,7 @@ export default class HandService {
     for (const hand in this.currentCount) {
       const count = this.currentCount[hand];
 
-      // only count actual repetition
-      if (count > 0) {
+      if (count > 1) {
         this.#logger.debug(
           "incrementing hand usage for " + hand + " of " + count + "repeats",
         );

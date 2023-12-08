@@ -48,8 +48,7 @@ export default class FingerService {
     for (const finger in this.currentCount) {
       const count = this.currentCount[finger];
 
-      // only count actual repetitions
-      if (count > 1) {
+      if (count > 0) {
         this.#logger.debug(
           "incrementing finger usage for " +
             finger +
