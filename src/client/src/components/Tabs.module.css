@@ -29,8 +29,7 @@
 
 [role="tabpanel"] {
   display: block;
-
-  &[aria-hidden="true"] {
+  &[hidden] {
     display: none;
   }
 }

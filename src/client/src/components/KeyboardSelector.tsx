@@ -1,7 +1,12 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
+import useClickOutside from "~/hooks/useClickOutside.js";
+import useKeybindings from "~/hooks/useKeybindings.js";
+import useKeyboardPicker from "~/hooks/useKeyboardPicker.js";
 import { Keyboard } from "~/lib/api.js";
 
 import * as classes from "./KeyboardSelector.module.css";
+
+import KeyboardArrowDown from "@material-symbols/svg-400/sharp/keyboard_arrow_down.svg";
 
 interface KeyboardSelectorProps {
   selectedKeyboard: Keyboard | null;
@@ -14,154 +19,73 @@ export default function KeyboardSelector({
   keyboards,
   onChange,
 }: KeyboardSelectorProps): React.ReactElement<KeyboardSelectorProps> {
-  const self = useRef<HTMLButtonElement | null>(null);
-  const options = useRef<Array<HTMLButtonElement>>([]);
-  const [visible, setVisible] = useState(false);
+  const self = useRef<HTMLDivElement | null>(null);
+  const button = useRef<HTMLButtonElement | null>(null);
+  const { opened, open, close } = useKeyboardPicker();
 
-  const [hovered, setHovered] = useState<number | null>(null);
-
+  // For accessibility, the first available option must focus on open
   useEffect(() => {
-    if (visible) {
+    if (opened) {
       const item = self.current?.querySelector<HTMLElement>(
         "[role='menuitem']:not([tabindex='-1'])",
       );
       item?.focus();
-      setHovered(selectedKeyboard?.id || null);
+    } else {
+      button.current?.focus();
     }
-  }, [selectedKeyboard, visible]);
+  }, [opened]);
 
-  const onKeyUp = useCallback(
-    (event: React.KeyboardEvent<HTMLButtonElement>) => {
-      console.log(event);
-      event.preventDefault();
-      event.stopPropagation();
-      const el = event.target as HTMLDivElement;
-      const kb = keyboards.find((kb) => kb.id === hovered);
-      const index = keyboards.indexOf(kb!);
-      const item = self.current?.querySelector<HTMLElement>(
-        "[role='menuitem']:not([tabindex='-1'])",
-      );
+  // Close the menu when clicking outside
+  const toggleClickOutside = useClickOutside(self, close, [close]);
 
-      switch (event.key) {
-        case "ArrowDown":
-        case "j":
-        case "n":
-          if (index + 1 < keyboards.length) {
-            setHovered(keyboards[index + 1].id);
-          }
-          break;
-        case "ArrowUp":
-        case "k":
-        case "e":
-          if (index - 1 >= 0) {
-            setHovered(keyboards[index - 1].id);
-          }
-          break;
-        case "Tab":
-          if (event.shiftKey) {
-            if (index - 1 >= 0) {
-              setHovered(keyboards[index - 1].id);
-              options.current?.[index - 1]?.focus();
-            }
-          } else {
-            if (index + 1 < keyboards.length) {
-              setHovered(keyboards[index + 1].id);
-              options.current?.[index + 1]?.focus();
-            }
-          }
-          break;
-        case "Enter":
-          onChange(keyboards[index]);
-          setVisible(false);
-          break;
+  // User Input Handlers
+  const handleButtonClick = useCallback(() => {
+    opened ? close() : open();
+    toggleClickOutside();
+  }, [open, opened, close, toggleClickOutside]);
 
-        case " ":
-          setVisible(true);
-          item?.focus();
-          break;
-
-        case "Escape":
-          setVisible(false);
-          el?.blur();
-      }
-    },
-    [visible, keyboards, hovered],
-  );
-
-  const menuItemOnKeyUp = useCallback(
+  const handleUserSelection = useCallback(
     (kb: Keyboard) => {
-      return (event: React.KeyboardEvent<HTMLElement>) => {
-        console.log("MI PRESS", event);
-        event.preventDefault();
-        event.stopPropagation();
-        switch (event.key) {
-          case " ":
-          case "Enter":
-            onChange(kb);
-        }
-      };
+      onChange(kb);
+      close();
     },
-    [onChange],
+    [close, onChange],
   );
+
+  const keyHandler = useKeybindings({
+    " ": handleUserSelection,
+    Enter: handleUserSelection,
+    Escape: close,
+  });
 
   return (
-    <button
-      ref={self}
-      className={classes.keyboardSelector}
-      tabIndex={0}
-      role="listbox"
-      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-        const target = e.target as HTMLButtonElement;
-        if (target.getAttribute("role") !== "menuitem") {
-          setVisible(true);
-          const item = self.current?.querySelector<HTMLElement>(
-            "[role='menuitem']:not([tabindex='-1'])",
-          );
-          item?.focus();
-        }
-      }}
-      onKeyUp={onKeyUp}
-      onBlur={(e) => {
-        if (e.relatedTarget?.getAttribute("role") !== "menuitem") {
-          setVisible(false);
-        }
-      }}
-    >
+    <div ref={self} className={classes.keyboardSelector} role="listbox">
       <div className={classes.container}>
-        <div role="button">
+        <button
+          ref={button}
+          role="button"
+          onClick={handleButtonClick}
+          aria-haspopup="menu"
+        >
           {selectedKeyboard ? <h1>{selectedKeyboard.name}</h1> : <h1>---</h1>}
-          <span className="material-symbols-sharp">keyboard_arrow_down</span>
-        </div>
-        <div role="menu" aria-hidden={!visible}>
-          {keyboards.map((kb, index) => (
+          <KeyboardArrowDown />
+        </button>
+        <div role="menu" aria-hidden={!opened}>
+          {keyboards.map((kb) => (
             <button
-              ref={(el) => {
-                if (el) {
-                  options.current[index] = el;
-                }
-              }}
               key={`kb-selector-option-${kb.id}`}
               tabIndex={selectedKeyboard?.id === kb.id ? -1 : 0}
+              aria-disabled={selectedKeyboard?.id === kb.id}
               role="menuitem"
               aria-selected={selectedKeyboard?.id === kb.id}
-              className={`${kb.id === hovered ? classes.hover : ""}`}
-              onMouseEnter={() => {
-                setHovered(kb.id);
-              }}
-              onMouseOut={() => {
-                setHovered(selectedKeyboard?.id || null);
-              }}
-              onClick={() => {
-                onChange(kb);
-                setVisible(false);
-              }}
-              onKeyUp={menuItemOnKeyUp(kb)}
+              onClick={() => handleUserSelection(kb)}
+              onKeyUp={keyHandler(kb)}
             >
               {kb.name}
             </button>
           ))}
         </div>
       </div>
-    </button>
+    </div>
   );
 }

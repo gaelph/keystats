@@ -1,10 +1,16 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import dayjsen from "dayjs/locale/en.js";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore.js";
 
-import * as classes from "./Dates.module.css";
 import useDates from "~/hooks/useDates.js";
+
+import Today from "@material-symbols/svg-400/sharp/today.svg";
+import ChevronLeft from "@material-symbols/svg-400/sharp/chevron_left.svg";
+import ChevronRight from "@material-symbols/svg-400/sharp/chevron_right.svg";
+import * as classes from "./Dates.module.css";
+import useDatePicker from "~/hooks/useDatePicker.js";
+import useKeybindings from "~/hooks/useKeybindings.js";
 
 dayjs.extend(isSameOrBefore);
 dayjs.locale("en-europe", { ...dayjsen, weekStart: 1 });
@@ -63,6 +69,7 @@ interface DateCellProps {
   onSelectDate: (day: dayjs.Dayjs) => void;
   selected: boolean;
   disabled: boolean;
+  parentRef: React.MutableRefObject<HTMLButtonElement | null>;
 }
 
 function DateCell({
@@ -71,21 +78,26 @@ function DateCell({
   onSelectDate,
   selected,
   disabled,
+  parentRef,
 }: DateCellProps): React.ReactElement<DateCellProps> {
+  const isToday = dayjs().isSame(day, "day");
+
   return (
     <button
+      ref={isToday ? parentRef : undefined}
       role="button"
       disabled={disabled || !current}
       aria-disabled={disabled || !current}
+      aria-selected={selected}
+      aria-current={isToday ? "date" : undefined}
       onClick={(e) => {
         e.preventDefault();
-        current && !disabled && onSelectDate(day);
+        !disabled && onSelectDate(day);
       }}
-      className={`date-picker-day ${selected ? classes.selected : ""} ${
-        !current ? classes.outOfMonth : ""
-      } ${disabled ? classes.disabled : ""}`}
+      className={`${!current ? classes.outOfMonth : ""}`}
+      aria-label={day.format("DD MMM YYYY")}
     >
-      {day.format("D")}
+      <time dateTime={day.format("YYYY-MM-DD")}>{day.format("D")}</time>
     </button>
   );
 }
@@ -94,6 +106,7 @@ interface DateBodyProps {
   currentDate: dayjs.Dayjs;
   selected: dayjs.Dayjs;
   includeDates?: dayjs.Dayjs[];
+  todayButton: React.MutableRefObject<HTMLButtonElement | null>;
   onSelectDate: (day: dayjs.Dayjs) => void;
 }
 
@@ -101,6 +114,7 @@ function DateBody({
   currentDate,
   selected,
   includeDates,
+  todayButton,
   onSelectDate,
 }: DateBodyProps): React.ReactElement<DateBodyProps> {
   const datesInMonth = getDaysInMonth(currentDate);
@@ -118,6 +132,7 @@ function DateBody({
           <td key={day.format()}>
             <DateCell
               day={day}
+              parentRef={todayButton}
               current={current}
               onSelectDate={onSelectDate}
               selected={day.isSame(selected, "date")}
@@ -140,123 +155,109 @@ interface DatePickerProps {
 }
 
 function DatePicker({
-  className,
   selected,
   onChange,
   includeDates,
 }: DatePickerProps): React.ReactElement<DatePickerProps> {
-  // we set the initial date to the middle of the cusrent month
-  // to avoid skipping february
-  const [date, setDate] = useState(dayjs().startOf("month").add(15, "day"));
-  const [visible, setVisible] = useState(false);
+  const { date, incrementMonth, decrementMonth, opened, open, close } =
+    useDatePicker();
   const selectedDate = dayjs(selected);
   const monthAndYear = date.format("MMMM YYYY");
 
-  const changeMonth = useCallback(
-    (candidate: dayjs.Dayjs) => {
-      if (candidate.isSameOrBefore(dayjs(), "month")) {
-        setDate(candidate);
-      }
-    },
-    [setDate],
-  );
+  const self = useRef<HTMLButtonElement | null>(null);
+  const todayButton = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!opened) {
+      self.current?.focus();
+    } else {
+      todayButton.current?.focus();
+    }
+  }, [opened]);
+
+  const keyHandler = useKeybindings({
+    ArrowLeft: () => decrementMonth(),
+    h: () => decrementMonth(),
+    m: () => decrementMonth(),
+    ArrowRight: () => incrementMonth(),
+    l: () => incrementMonth(),
+    i: () => incrementMonth(),
+    Escape: () => close(),
+  });
+
+  const handleButtonClick = useCallback(() => {
+    opened ? close() : open();
+  }, []);
 
   const handleChange = useCallback(
     (date: dayjs.Dayjs) => {
       onChange(date);
-      setVisible(false);
+      close();
     },
     [onChange],
   );
 
-  const self = useRef<HTMLButtonElement | null>(null);
-
-  const onKeyUp = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      switch (e.key) {
-        case "ArrowLeft":
-        case "h":
-        case "m":
-          changeMonth(date.subtract(1, "month"));
-          break;
-        case "ArrowRight":
-        case "l":
-        case "i":
-          changeMonth(date.add(1, "month"));
-          break;
-        case "Escape":
-          setVisible(false);
-          document.body.focus();
-          break;
-      }
-    },
-    [date],
-  );
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLButtonElement>) => {
+    if (
+      e.relatedTarget?.getAttribute("role") !== "button" &&
+      e.target?.getAttribute("role") !== "button"
+    ) {
+      close();
+    }
+  }, []);
 
   return (
-    <button
-      ref={self}
-      className={classes.datePicker + " " + className}
-      onClick={(e: React.MouseEvent<HTMLElement>) => {
-        if (!e.defaultPrevented) {
-          setVisible(true);
-          self.current?.focus();
-        }
-      }}
-      onKeyUp={onKeyUp}
-      onBlur={(e) => {
-        if (
-          e.relatedTarget?.getAttribute("role") !== "button" &&
-          e.target?.getAttribute("role") !== "button"
-        ) {
-          setVisible(false);
-        }
-      }}
-    >
-      <div className={classes.datePickerButton}>
-        <span className="material-symbols-sharp">today</span>
+    <div className={classes.datePicker} onKeyUp={keyHandler()}>
+      <button
+        aria-label="Choose Date"
+        aria-haspopup="dialog"
+        aria-selected={selected !== null}
+        ref={self}
+        onClick={handleButtonClick}
+        onBlur={handleBlur}
+      >
+        <Today className="small" />
         {selected !== null && (
-          <span className={classes.datePickerButtonDate}>
+          <time dateTime={selectedDate.format("YYYY-MM-DD")}>
             {selectedDate.format("DD/MM/YYYY")}
-          </span>
+          </time>
         )}
-        <div className={classes.datePickerPane} aria-hidden={!visible}>
-          <div className={classes.datePickerHeader}>
-            <button
-              className="material-symbols-sharp"
-              tabIndex={0}
-              role="button"
-              onClick={() => changeMonth(date.subtract(1, "month"))}
-            >
-              chevron_left
-            </button>
-            <span>{monthAndYear}</span>
-            <button
-              className="material-symbols-sharp"
-              tabIndex={0}
-              role="button"
-              onClick={() => changeMonth(date.add(1, "month"))}
-              aria-disabled={date.isSame(dayjs(), "month")}
-            >
-              chevron_right
-            </button>
-          </div>
-          <table>
-            <thead>
-              <DateHeader />
-            </thead>
-            <tbody>
-              <DateBody
-                currentDate={date}
-                includeDates={includeDates}
-                selected={selectedDate}
-                onSelectDate={handleChange}
-              />
-            </tbody>
-          </table>
+      </button>
+      <div role="dialog" aria-hidden={!opened} aria-modal="true">
+        <div role="group">
+          <button
+            aria-label="Previous Month"
+            role="button"
+            onClick={() => decrementMonth()}
+          >
+            <ChevronLeft className="small" />
+          </button>
+          <span>{monthAndYear}</span>
+          <button
+            aria-label="Next Month"
+            role="button"
+            onClick={() => incrementMonth()}
+            aria-disabled={date.isSame(dayjs(), "month")}
+          >
+            <ChevronRight className="small" />
+          </button>
         </div>
+        <table>
+          <thead>
+            <DateHeader />
+          </thead>
+          <tbody>
+            <DateBody
+              currentDate={date}
+              includeDates={includeDates}
+              selected={selectedDate}
+              onSelectDate={handleChange}
+              todayButton={todayButton}
+            />
+          </tbody>
+        </table>
       </div>
-    </button>
+    </div>
   );
 }
 

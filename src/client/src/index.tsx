@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import "@picocss/pico";
+import "@picocss/pico/css/pico.slim.min.css";
 import "~/index.css";
 import "~/style/button-group.css";
 

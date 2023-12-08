@@ -1,5 +1,4 @@
 import React from "react";
-import "material-symbols/sharp.css";
 import "./App.css";
 
 import KeymapsComponent from "~/components/Keymaps.js";

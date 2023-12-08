@@ -4,6 +4,7 @@ import KeyboardSelector from "./KeyboardSelector.js";
 import useKeyboards from "~/hooks/useKeyboards.js";
 import useFetchStatus from "~/hooks/useFetchStatus.js";
 
+import ErrorIcon from "@material-symbols/svg-400/sharp/error.svg";
 import * as classes from "./Header.module.css";
 
 export default function Header(): React.ReactElement {
@@ -40,7 +41,7 @@ export default function Header(): React.ReactElement {
       <ul className={classes.error}>
         {errors.map((error, idx) => (
           <li key={`${error.message}-${idx}`}>
-            <span className="material-symbols-sharp">error</span>
+            <ErrorIcon className="small" />
             <span className={classes.errorMessage}>{error.message}</span>
           </li>
         ))}

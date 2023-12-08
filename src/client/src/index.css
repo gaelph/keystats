@@ -1,5 +1,5 @@
 :root {
-  --color: hsl(205, 22, 20.6) !important;
+  --color: #293640 !important;
   --font-size: 16px !important;
   --primary: #eaebeb !important;
   --primary-inverse: hsl(205, 22, 20.6) !important;
@@ -18,10 +18,29 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: var(--line-height);
 
   h3 {
     margin-top: 2rem;
     margin-bottom: 1rem;
+  }
+
+  svg {
+    width: 26px;
+    height: 26px;
+    margin: 0.5rem;
+
+    path {
+      stroke-width: 14px;
+      stroke: #293640;
+      fill: #293640;
+    }
+
+    &.small {
+      width: 1em;
+      height: 1em;
+      margin: 0.125em;
+    }
   }
 
   button {

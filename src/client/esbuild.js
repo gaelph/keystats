@@ -1,12 +1,14 @@
 import { Command } from "commander";
 import Esbuild from "esbuild";
 import { copy } from "esbuild-plugin-copy";
+import svgr from "esbuild-plugin-svgr";
 
 /** @type {import("esbuild").BuildOptions} */
 const buildOptions = {
   entryPoints: ["src/index.tsx"],
   bundle: true,
   minify: true,
+  target: ["chrome58", "firefox57", "safari20", "es2020"],
   outfile: "build/static/main.js",
   format: "cjs",
   metafile: true,
@@ -18,6 +20,7 @@ const buildOptions = {
     ".woff2": "dataurl",
     ".woff": "dataurl",
     ".module.css": "local-css",
+    // ".css": "local-css",
   },
   jsx: "automatic",
   define: {
@@ -30,6 +33,7 @@ const buildOptions = {
         to: "../",
       },
     }),
+    svgr(),
   ],
 };
 

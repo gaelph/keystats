@@ -5,7 +5,6 @@
   margin: 1em auto;
 
   button {
-    appearance: none;
     padding: 0.5em 1em;
   }
 }
@@ -13,130 +12,141 @@
 .datePicker {
   position: relative;
 
+  & > button:first-child {
+    padding: 0.5em 1em;
+    height: calc(100% - 1em);
+    border-top-right-radius: inherit;
+    border-bottom-right-radius: inherit;
+    display: flex;
+    align-items: center;
+
+    *:last-child:not(:first-child) {
+      margin-left: 0.5em;
+    }
+  }
+
   & [aria-hidden="true"] {
     visibility: hidden;
     opacity: 0;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s 0.2s linear;
   }
 
   & [aria-hidden="false"] {
     visibility: visible;
     opacity: 1;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s 0s linear;
   }
 
-  /* &:focus-within .datePickerPane { */
-  /*   display: block; */
-  /*   z-index: 1000; */
-  /*   color: black; */
-  /*   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05); */
-  /* } */
+  [role="dialog"] {
+    display: block;
+    position: absolute;
+    top: calc(100% - 1em);
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.25em;
+    background-color: white;
+    padding: 1em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: black;
+    z-index: 1000;
+    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
 
-  button {
-    background-color: transparent;
-    border: 0 !important;
-    cursor: pointer;
+    button {
+      background-color: transparent;
+      border: 0 !important;
+      cursor: pointer;
+    }
+
+    [role="group"] {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1em;
+
+      & > button[role="button"] {
+        background-color: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+
+        &[aria-disabled="true"] {
+          opacity: 0.5;
+        }
+      }
+    }
   }
 
   table {
     margin-bottom: 0;
-  }
 
-  th {
-    font-weight: bold;
-  }
+    th {
+      font-weight: bold;
+    }
 
-  th,
-  td {
-    border-bottom: 0;
-    text-align: center;
-    padding: 0.125rem;
-  }
+    th,
+    td {
+      border-bottom: 0;
+      text-align: center;
+      padding: 0.125rem;
 
-  td button,
-  th span {
-    display: flex;
-    position: relative;
-    width: 32px;
-    height: 32px;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-  }
-  td button {
-    font-weight: 500;
-    padding: 0;
-    margin: 0;
-  }
+      button,
+      span {
+        display: flex;
+        position: relative;
+        width: 32px;
+        height: 32px;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      }
+    }
 
-  td button.selected {
-    color: var(--accent-inverse);
-    font-weight: bold;
-    z-index: 10;
-  }
-  td button.outOfMonth,
-  td button.outOfMonth.disabled {
-    opacity: 0.2;
-    cursor: not-allowed;
-    font-weight: 400;
-  }
-  td button.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+    td {
+      button {
+        font-weight: 500;
+        padding: 0;
+        margin: 0;
 
-  td button.selected::before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 100%;
-    background-color: var(--accent);
-    z-index: -1;
-  }
-}
+        &[aria-selected="true"] {
+          color: var(--accent-inverse) !important;
+          font-weight: bold;
+          z-index: 10;
 
-.datePickerButton {
-  display: flex;
-  align-items: center;
-}
+          &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            background-color: var(--accent);
+            z-index: -1;
+          }
+        }
 
-.datePickerButtonDate {
-  margin-left: 0.5em;
-}
+        &[aria-current="date"] {
+          color: var(--accent);
+          font-weight: bold;
+        }
 
-.datePickerPane {
-  display: block;
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 0.25em;
-  background-color: white;
-  padding: 1em;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: black;
-  z-index: 1000;
-  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
-}
+        &.outOfMonth {
+          opacity: 0.2 !important;
+          font-weight: 400;
+        }
 
-.datePickerHeader {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1em;
-
-  & > button[role="button"] {
-    background-color: transparent;
-    border: 0;
-    padding: 0;
-    margin: 0;
-
-    &[aria-disabled="true"] {
-      opacity: 0.5;
+        &[disabled] {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
     }
   }
 }

@@ -18,6 +18,12 @@
     top: 1px;
   }
 
+  svg {
+    width: 1em;
+    height: 1em;
+    margin: 0.125em;
+  }
+
   .row {
     height: 60px;
     display: flex;

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import "./Tabs.module.css";
+
 interface TabProps {
   title?: string;
   children?: React.ReactNode;
@@ -16,12 +18,7 @@ export function Tab({
   active,
 }: TabProps): React.ReactElement<TabProps> {
   return (
-    <li
-      role="tabpanel"
-      tabIndex={0}
-      aria-labelledby={`tab-${title}`}
-      hidden={!active}
-    >
+    <li role="tabpanel" aria-labelledby={`tab-${title}`} hidden={!active}>
       {children}
     </li>
   );
@@ -51,8 +48,8 @@ export function Tabs(props: TabsProps): React.ReactElement<TabsProps> | null {
         {tabs.map((child, idx) => (
           <button
             role="tab"
+            aria-label={child.props.title}
             aria-selected={idx === activeTab}
-            tabIndex={0}
             key={child.props.title}
             id={`tab-${child.props.title}`}
             onClick={(e) => {

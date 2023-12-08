@@ -1,5 +1,30 @@
 import React from "react";
 
+import ArrowBack from "@material-symbols/svg-400/sharp/arrow_back.svg";
+import ArrowDownward from "@material-symbols/svg-400/sharp/arrow_downward.svg";
+import ArrowForward from "@material-symbols/svg-400/sharp/arrow_forward.svg";
+import ArrowUpward from "@material-symbols/svg-400/sharp/arrow_upward.svg";
+import Backspace from "@material-symbols/svg-400/sharp/backspace.svg";
+import BrightnessHigh from "@material-symbols/svg-400/sharp/brightness_high.svg";
+import BrightnessLow from "@material-symbols/svg-400/sharp/brightness_low.svg";
+import KeyboardCommandKey from "@material-symbols/svg-400/sharp/keyboard_command_key.svg";
+import KeyboardControlKey from "@material-symbols/svg-400/sharp/keyboard_control_key.svg";
+import KeyboardDoubleArrowDown from "@material-symbols/svg-400/sharp/keyboard_double_arrow_down.svg";
+import KeyboardDoubleArrowUp from "@material-symbols/svg-400/sharp/keyboard_double_arrow_up.svg";
+import KeyboardOptionKey from "@material-symbols/svg-400/sharp/keyboard_option_key.svg";
+import KeyboardReturn from "@material-symbols/svg-400/sharp/keyboard_return.svg";
+import KeyboardTab from "@material-symbols/svg-400/sharp/keyboard_tab.svg";
+import PlayPause from "@material-symbols/svg-400/sharp/play_pause.svg";
+import RestartAlt from "@material-symbols/svg-400/sharp/restart_alt.svg";
+import Shift from "@material-symbols/svg-400/sharp/shift.svg";
+import SkipNext from "@material-symbols/svg-400/sharp/skip_next.svg";
+import SkipPrevious from "@material-symbols/svg-400/sharp/skip_previous.svg";
+import SpaceBar from "@material-symbols/svg-400/sharp/space_bar.svg";
+import Stop from "@material-symbols/svg-400/sharp/stop.svg";
+import VolumeDown from "@material-symbols/svg-400/sharp/volume_down.svg";
+import VolumeOff from "@material-symbols/svg-400/sharp/volume_off.svg";
+import VolumeUp from "@material-symbols/svg-400/sharp/volume_up.svg";
+
 interface IconOrCharProps {
   children: string | undefined;
 }
@@ -19,156 +44,56 @@ export default function IconOrChar({
         .map((char) => {
           switch (char) {
             case "BKSP":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  backspace
-                </span>
-              );
+              return <Backspace key={char} />;
             case "DEL":
-              return (
-                <span key={char} className="material-symbols-sharp flip-x">
-                  backspace
-                </span>
-              );
+              return <Backspace className="flip-x" key={char} />;
             case "ENTER":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_return
-                </span>
-              );
+              return <KeyboardReturn key={char} />;
             case "TAB":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_tab
-                </span>
-              );
+              return <KeyboardTab key={char} />;
             case "SPACE":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  space_bar
-                </span>
-              );
+              return <SpaceBar key={char} />;
             case "SHIFT":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  shift
-                </span>
-              );
+              return <Shift key={char} />;
             case "CTRL":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_control_key
-                </span>
-              );
+              return <KeyboardControlKey key={char} />;
             case "CMD":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_command_key
-                </span>
-              );
+              return <KeyboardCommandKey key={char} />;
             case "ALT":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_option_key
-                </span>
-              );
+              return <KeyboardOptionKey key={char} />;
             case "PAGE_UP":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_double_arrow_up
-                </span>
-              );
+              return <KeyboardDoubleArrowUp key={char} />;
             case "PAGE_DOWN":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  keyboard_double_arrow_down
-                </span>
-              );
+              return <KeyboardDoubleArrowDown key={char} />;
 
             case "RIGHT":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  arrow_forward
-                </span>
-              );
+              return <ArrowForward key={char} />;
             case "LEFT":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  arrow_back
-                </span>
-              );
+              return <ArrowBack key={char} />;
             case "UP":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  arrow_upward
-                </span>
-              );
+              return <ArrowUpward key={char} />;
             case "DOWN":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  arrow_downward
-                </span>
-              );
+              return <ArrowDownward key={char} />;
             case "BRIGHTNESS_DOWN":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  brightness_low
-                </span>
-              );
+              return <BrightnessLow key={char} />;
             case "BRIGHTNESS_UP":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  brightness_high
-                </span>
-              );
+              return <BrightnessHigh key={char} />;
             case "AUDIO_MUTE":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  volume_off
-                </span>
-              );
+              return <VolumeOff key={char} />;
             case "AUDIO_VOL_DOWN":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  volume_down
-                </span>
-              );
+              return <VolumeDown key={char} />;
             case "AUDIO_VOL_UP":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  volume_up
-                </span>
-              );
+              return <VolumeUp key={char} />;
             case "MEDIA_NEXT_TRACK":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  skip_next
-                </span>
-              );
+              return <SkipNext key={char} />;
             case "MEDIA_PREV_TRACK":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  skip_previous
-                </span>
-              );
+              return <SkipPrevious key={char} />;
             case "MEDIA_STOP":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  stop
-                </span>
-              );
+              return <Stop key={char} />;
             case "MEDIA_PLAY_PAUSE":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  play_pause
-                </span>
-              );
+              return <PlayPause key={char} />;
             case "BOOT":
-              return (
-                <span key={char} className="material-symbols-sharp">
-                  restart_alt
-                </span>
-              );
+              return <RestartAlt key={char} />;
 
             default:
               return (

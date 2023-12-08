@@ -352,6 +352,7 @@ export default function StatsComponent(): React.ReactElement {
                         </th>
                         <td>
                           <meter
+                            role="cell"
                             min={0}
                             max={totalCharacters}
                             value={counts}

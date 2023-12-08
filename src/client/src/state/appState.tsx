@@ -5,15 +5,22 @@ import { FetchState, fetchStore } from "./fetch.js";
 import { KeyboardState, keyboardStore } from "./keyboard.js";
 import { KeyboardDataState, keyboardDataStore } from "./keyboardData.js";
 import { KeyboardsState, keyboardsStore } from "./keyboards.js";
+import { UiState, uiStore } from "./ui.js";
 
 export const useAppState = create<
-  FetchState & KeyboardsState & KeyboardState & KeyboardDataState & DateState
+  FetchState &
+    KeyboardsState &
+    KeyboardState &
+    KeyboardDataState &
+    DateState &
+    UiState
 >()((...a) => ({
   ...fetchStore(...a),
   ...keyboardsStore(...a),
   ...keyboardStore(...a),
   ...keyboardDataStore(...a),
   ...dateStore(...a),
+  ...uiStore(...a),
 }));
 
 export function useStoreInit() {

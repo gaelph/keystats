@@ -16,16 +16,6 @@
     }
   }
 
-  & [aria-hidden="false"] {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  & [aria-hidden="true"] {
-    visibility: hidden;
-    opacity: 0;
-  }
-
   [role="button"] {
     padding: 0 2em;
     display: flex;
@@ -46,8 +36,6 @@
   }
 
   [role="menu"] {
-    display: block;
-    transition: opacity 0.2s ease;
     position: absolute;
     z-index: 1000;
     top: 100%;
@@ -60,6 +48,24 @@
     border: 1px solid #ddd;
     box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.05);
 
+    &[aria-hidden="false"] {
+      display: block;
+      visibility: visible;
+      opacity: 1;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s 0s linear;
+      /* transition: opacity 3.2s ease; */
+    }
+
+    &[aria-hidden="true"] {
+      opacity: 0;
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s 0.2s linear;
+    }
     [role="menuitem"] {
       background-color: transparent;
       padding: 0.75em 1em;
