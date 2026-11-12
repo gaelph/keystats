@@ -8,6 +8,10 @@
     "keystats": "./build/keystats.cjs"
   },
   "scripts": {
+    "pretest": "npm run build:common",
+    "test": "node --test tests/*.test.cjs",
+    "pretypecheck": "npm run build:common",
+    "typecheck": "tsc --noEmit && tsc -p src/client/tsconfig.json --noEmit",
     "build": "npm run clean && npm run build:dependencies && npm run bundle && npm run pkg",
     "build:client": "cd src/client && npm run build && cd ../.. && mkdir build && cp -R 'src/client/build' 'build/client'",
     "build:common": "cd src/common && npm run build && cd ../..",

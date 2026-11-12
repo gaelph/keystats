@@ -1,0 +1,55 @@
+.layout-comparison { padding: 1rem 1rem 4rem; margin: auto; }
+.projection-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; row-gap: 1rem; margin-top: 1rem; }
+.projection-panels > section { display: grid; grid-template-rows: subgrid; grid-row: span 8; min-width: 0; }
+.projection-panels h3 { margin-top: 0; }
+.projection-panel-heading { display: grid; grid-template-rows: auto 1fr auto; }
+.projection-panel-heading p:last-child { margin-bottom: 0; }
+.projection-unavailable { grid-row: span 7; }
+.projection-notice { color: var(--color); }
+.projection-controls, .projection-legend { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; margin: .75rem 0; }
+.projection-controls { gap: 0; }
+.projection-controls > span { margin-right: .75rem; }
+.projection-controls button { margin: 0; }
+.projection-target-control { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; margin: 1rem 0; }
+.projection-target-control label, .projection-target-control select { margin: 0; }
+.projection-target-control select { width: auto; min-width: 12rem; max-width: 100%; }
+.projection-availability p, .projection-profile-notes p { overflow-wrap: anywhere; }
+.projection-gradient { height: 1rem; width: min(260px, 40vw); border: 1px solid var(--muted-border-color, #ccc); }
+.projection-loaded { font-size: .85rem; }
+.projection-diagram-scroll { overflow-x: auto; padding: .15rem; }
+.projection-keyboard { width: 100%; height: auto; margin: .75rem 0; overflow: visible; }
+.projection-key { cursor: pointer; }
+.projection-key rect, .projection-key polygon { fill: none; stroke: black; stroke-width: .0167; }
+.projection-key text { fill: var(--color); font: .15px -apple-system, BlinkMacSystemFont, sans-serif; text-anchor: middle; pointer-events: none; }
+.projection-key:focus { outline: none; }
+.projection-key:focus rect, .projection-key:focus polygon,
+.projection-key[aria-pressed="true"] rect, .projection-key[aria-pressed="true"] polygon { stroke: var(--accent); stroke-width: .05; }
+.projection-heatmap-image { pointer-events: none; }
+.projection-key-detail { min-height: 6rem; margin: 1rem 0; }
+.projection-key-detail li { padding: .35rem 0; overflow-wrap: anywhere; }
+.projection-usage { display: grid; grid-template-rows: subgrid; grid-row: span 5; min-width: 0; }
+.projection-usage .projection-distribution h4 { margin: .5rem 0; }
+.projection-usage-intro p, .projection-usage-notes p { margin-bottom: 0; }
+.projection-usage [role="table"] { padding: 0; table-layout: fixed; }
+.projection-usage [role="table"] [role="row"] > [role="cell"]:first-child { width: 35%; padding-right: .5rem; }
+.projection-usage [role="table"] [role="row"] > [role="cell"]:nth-child(2) { width: auto; }
+.projection-usage [role="table"] [role="row"] > [role="cell"]:last-child { width: 4rem; padding-left: .5rem; font-size: .8rem; opacity: .6; white-space: nowrap; }
+.projection-summary p { margin: .75rem 0; }
+.projection-table-scroll { overflow-x: auto; max-height: 24rem; }
+.projection-table-scroll th, .projection-table-scroll td { padding: .4rem; font-size: .85rem; }
+.projection-table-scroll code { overflow-wrap: anywhere; }
+.projection-observed-diagram { display: flex; align-items: center; min-width: 0; }
+.projection-observed-diagram > .projection-diagram-scroll { width: 100%; }
+.projection-observed-fit { width: 80%; max-width: 720px; margin: auto; position: relative; }
+.projection-view-controls { display: flex; max-width: 1280px; margin: 1rem auto; padding: 0 1rem; }
+.projection-view-controls button:focus-visible, .projection-controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 1000px) {
+  .projection-panels { grid-template-columns: minmax(0, 1fr); }
+  .projection-panels > section, .projection-usage { display: block; grid-row: auto; }
+  .projection-usage { margin: 1.5rem 0; }
+  .projection-usage .projection-distribution h4 { margin-top: 1.5rem; }
+}
+@media (max-width: 600px) {
+  .projection-keyboard { min-width: 570px; }
+  .projection-observed-fit { min-width: 456px; }
+}

@@ -1,52 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useRef, useEffect, useCallback } from "react";
-// @ts-ignore
 import * as Heatmap from "heatmap.js";
 import IconOrChar from "./IconOrChar.js";
 import { Keymap } from "keystats-common/dto/keyboard";
 
 import * as classes from "./Heatmap.module.css";
-
-const KEY_WIDTH = 60;
-
-function formatData(
-  matrix: number[][],
-  total: number,
-): {
-  max: number;
-  min: number;
-  data: { x: number; y: number; value: number }[];
-} {
-  let entries: { x: number; y: number; value: number }[] = [];
-  let max = total;
-
-  Object.entries(matrix).forEach(([r, row]) => {
-    Object.entries(row || {}).forEach(([c, col]) => {
-      const entry = {
-        x: (parseInt(c) + 1) * 60 - 30,
-        y: (parseInt(r) + 1) * 60 - 30,
-        value: col,
-      };
-      // if (entry.value > max) max = entry.value;
-
-      entries.push(entry);
-    });
-  });
-
-  entries = entries.map((e) => {
-    e.value = e.value > 0 ? e.value / max : 0.001;
-    e.value = 1 + Math.log(e.value / 0.5 + 0.01);
-    return e;
-  });
-  max = entries.map((e) => e.value).reduce((m, e) => (e > m ? e : m), 0);
-  const min = entries.map((e) => e.value).reduce((m, e) => (e < m ? e : m), 0);
-
-  return {
-    max,
-    min,
-    data: entries,
-  };
-}
+import { KEY_WIDTH, HEATMAP_GRADIENT, observedHeatmapData, comparisonHeatmapData,
+  matrixHeatmapPoints, type ComparisonHeatmapScale } from "~/lib/heatmap.js";
 
 function Char({ codes }: { codes: Keymap[] }) {
   const plain = codes.find((c) => c.type === "plain");
@@ -68,6 +28,8 @@ interface HeatmapProps {
   matrix: number[][];
   layer: Keymap[][][];
   total: number;
+  showTitle?: boolean;
+  normalization?: ComparisonHeatmapScale;
 }
 
 export default function HeatmapComponent({
@@ -76,10 +38,11 @@ export default function HeatmapComponent({
   matrix,
   layer,
   total,
+  showTitle = true,
+  normalization,
 }: HeatmapProps): JSX.Element {
   const canvasRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const heatmap = useRef<any | null>();
+  const heatmap = useRef<Heatmap.HeatmapInstance | null>(null);
   useEffect(() => {
     if (
       canvasRef.current &&
@@ -94,34 +57,27 @@ export default function HeatmapComponent({
       heatmap.current = Heatmap.create({
         container: canvasRef.current,
         radius: KEY_WIDTH,
-        // gradient: {
-        //   "0": "#ffffd9",
-        //   ".10": "#edf8b1",
-        //   ".20": "#c7e9b4",
-        //   ".30": "#7fcdbb",
-        //   ".55": "#41b6c4",
-        //   ".65": "#1d91c0",
-        //   ".75": "#225ea3",
-        //   "1": "#0c2c84",
-        // },
+        gradient: HEATMAP_GRADIENT,
       });
 
       try {
-        heatmap.current.setData(formatData(matrix, total));
+        heatmap.current.setData(normalization
+          ? comparisonHeatmapData(matrixHeatmapPoints(matrix), normalization)
+          : observedHeatmapData(matrix, total));
       } catch (error) {
         console.error(error);
       }
     }
-  }, [matrix, total]);
+  }, [matrix, total, normalization]);
 
   const percent = useCallback(
-    (n: number): string => ((100 * n) / total).toFixed(2),
+    (n: number): string => (total ? (100 * n) / total : 0).toFixed(2),
     [total],
   );
 
   return (
     <>
-      <h3>Layer #{layerId}</h3>
+      {showTitle && <h3>Layer #{layerId}</h3>}
       <div className={classes.heatmap} ref={canvasRef}>
         <div>
           {layer.map((layerRow, r) => (

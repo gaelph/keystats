@@ -1,4 +1,5 @@
 import { KeyboardDTO } from "keystats-common";
+import { projectionSource, type ProjectionSource } from "keystats-common/dto/projection";
 import type {
   FilterQuery,
   KeyboardListBody,
@@ -50,6 +51,13 @@ export async function listKeyboards(): Promise<Keyboard[]> {
     console.error(e);
     throw new Error(`Api response is invalid: ${responseJson}`);
   }
+}
+
+export async function getProjectionSource(keyboardId: number, date: string | null): Promise<ProjectionSource> {
+  const url = toUrl("/api/keyboards/:keyboardId/projection-source", { keyboardId }, date ? { date } : undefined);
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Error fetching projection: ${response.status}`);
+  return projectionSource.parse(await response.json());
 }
 
 export async function getDates(keyboardId: number): Promise<Date[]> {

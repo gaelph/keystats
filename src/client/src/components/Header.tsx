@@ -6,10 +6,17 @@ import useFetchStatus from "~/hooks/useFetchStatus.js";
 
 import ErrorIcon from "@material-symbols/svg-400/sharp/error.svg";
 import * as classes from "./Header.module.css";
+import { useProjectionStore } from "~/state/projection.js";
+import { useAppState } from "~/state/appState.js";
 
 export default function Header(): React.ReactElement {
   const { loading, errors, refresh } = useFetchStatus();
   const { keyboard, keyboards, setKeyboard } = useKeyboards();
+  const view = useProjectionStore((state) => state.view);
+  const projectionRequest = useProjectionStore((state) => state.request);
+  const loadProjection = useProjectionStore((state) => state.load);
+  const date = useAppState((state) => state.date);
+  const busy = loading || (view === "comparison" && projectionRequest.status === "loading");
 
   // Set the first keyboard of the list as the default
   // If there were non in the storage
@@ -31,11 +38,14 @@ export default function Header(): React.ReactElement {
       <div className={classes.refreshButton}>
         <button
           role="button"
-          disabled={loading}
-          aria-busy={loading}
-          onClick={refresh}
+          disabled={busy}
+          aria-busy={busy}
+          onClick={() => {
+            refresh();
+             if (view === "comparison" && keyboard) void loadProjection({ keyboardId: keyboard.id, date: date?.format("YYYY-MM-DD") || null }, true);
+          }}
         >
-          {loading ? "Loading…" : "Refresh"}
+          {busy ? "Loading…" : "Refresh"}
         </button>
       </div>
       <ul className={classes.error}>
