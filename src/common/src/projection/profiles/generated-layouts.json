@@ -1,0 +1,3712 @@
+{
+  "french" : {
+    "inputSourceID" : "com.apple.keylayout.French",
+    "keyboardType" : 41,
+    "outputs" : [
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "q",
+        "modifiers" : 0,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Q",
+        "modifiers" : 2,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‡",
+        "modifiers" : 4,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ω",
+        "modifiers" : 6,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "b",
+        "modifiers" : 0,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "B",
+        "modifiers" : 2,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ß",
+        "modifiers" : 4,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∫",
+        "modifiers" : 6,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "c",
+        "modifiers" : 0,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "C",
+        "modifiers" : 2,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "©",
+        "modifiers" : 4,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¢",
+        "modifiers" : 6,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "d",
+        "modifiers" : 0,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "D",
+        "modifiers" : 2,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∂",
+        "modifiers" : 4,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∆",
+        "modifiers" : 6,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "e",
+        "modifiers" : 0,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "E",
+        "modifiers" : 2,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ê",
+        "modifiers" : 4,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ê",
+        "modifiers" : 6,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "f",
+        "modifiers" : 0,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "F",
+        "modifiers" : 2,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ƒ",
+        "modifiers" : 4,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "·",
+        "modifiers" : 6,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "g",
+        "modifiers" : 0,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "G",
+        "modifiers" : 2,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ﬁ",
+        "modifiers" : 4,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ﬂ",
+        "modifiers" : 6,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "h",
+        "modifiers" : 0,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "H",
+        "modifiers" : 2,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ì",
+        "modifiers" : 4,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Î",
+        "modifiers" : 6,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "i",
+        "modifiers" : 0,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "I",
+        "modifiers" : 2,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "î",
+        "modifiers" : 4,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ï",
+        "modifiers" : 6,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "j",
+        "modifiers" : 0,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "J",
+        "modifiers" : 2,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ï",
+        "modifiers" : 4,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Í",
+        "modifiers" : 6,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "k",
+        "modifiers" : 0,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "K",
+        "modifiers" : 2,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "È",
+        "modifiers" : 4,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ë",
+        "modifiers" : 6,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "l",
+        "modifiers" : 0,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "L",
+        "modifiers" : 2,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¬",
+        "modifiers" : 4,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "|",
+        "modifiers" : 6,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ",",
+        "modifiers" : 0,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "?",
+        "modifiers" : 2,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∞",
+        "modifiers" : 4,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¿",
+        "modifiers" : 6,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "n",
+        "modifiers" : 0,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "N",
+        "modifiers" : 2,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "~",
+        "modifiers" : 4,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ı",
+        "modifiers" : 6,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "o",
+        "modifiers" : 0,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "O",
+        "modifiers" : 2,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "œ",
+        "modifiers" : 4,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Œ",
+        "modifiers" : 6,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "p",
+        "modifiers" : 0,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "P",
+        "modifiers" : 2,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "π",
+        "modifiers" : 4,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∏",
+        "modifiers" : 6,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "a",
+        "modifiers" : 0,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "A",
+        "modifiers" : 2,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "æ",
+        "modifiers" : 4,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Æ",
+        "modifiers" : 6,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "r",
+        "modifiers" : 0,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "R",
+        "modifiers" : 2,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "®",
+        "modifiers" : 4,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‚",
+        "modifiers" : 6,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "s",
+        "modifiers" : 0,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "S",
+        "modifiers" : 2,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ò",
+        "modifiers" : 4,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∑",
+        "modifiers" : 6,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "t",
+        "modifiers" : 0,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "T",
+        "modifiers" : 2,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "†",
+        "modifiers" : 4,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "™",
+        "modifiers" : 6,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "u",
+        "modifiers" : 0,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "U",
+        "modifiers" : 2,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "º",
+        "modifiers" : 4,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ª",
+        "modifiers" : 6,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "v",
+        "modifiers" : 0,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "V",
+        "modifiers" : 2,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "◊",
+        "modifiers" : 4,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "√",
+        "modifiers" : 6,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "z",
+        "modifiers" : 0,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Z",
+        "modifiers" : 2,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Â",
+        "modifiers" : 4,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Å",
+        "modifiers" : 6,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "x",
+        "modifiers" : 0,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "X",
+        "modifiers" : 2,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≈",
+        "modifiers" : 4,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "⁄",
+        "modifiers" : 6,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "y",
+        "modifiers" : 0,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Y",
+        "modifiers" : 2,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ú",
+        "modifiers" : 4,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ÿ",
+        "modifiers" : 6,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "w",
+        "modifiers" : 0,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "W",
+        "modifiers" : 2,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‹",
+        "modifiers" : 4,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "›",
+        "modifiers" : 6,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "&",
+        "modifiers" : 0,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 2,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "",
+        "modifiers" : 4,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "´",
+        "modifiers" : 6,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "é",
+        "modifiers" : 0,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 2,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ë",
+        "modifiers" : 4,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "„",
+        "modifiers" : 6,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\"",
+        "modifiers" : 0,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 2,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "“",
+        "modifiers" : 4,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "”",
+        "modifiers" : 6,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "'",
+        "modifiers" : 0,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 2,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‘",
+        "modifiers" : 4,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "’",
+        "modifiers" : 6,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "(",
+        "modifiers" : 0,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 2,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "{",
+        "modifiers" : 4,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "[",
+        "modifiers" : 6,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "§",
+        "modifiers" : 0,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 2,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¶",
+        "modifiers" : 4,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "å",
+        "modifiers" : 6,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "è",
+        "modifiers" : 0,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 2,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "«",
+        "modifiers" : 4,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "»",
+        "modifiers" : 6,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "!",
+        "modifiers" : 0,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 2,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¡",
+        "modifiers" : 4,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Û",
+        "modifiers" : 6,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ç",
+        "modifiers" : 0,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 2,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ç",
+        "modifiers" : 4,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Á",
+        "modifiers" : 6,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "à",
+        "modifiers" : 0,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 2,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ø",
+        "modifiers" : 4,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ø",
+        "modifiers" : 6,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 0,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 2,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 4,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 6,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ")",
+        "modifiers" : 0,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "°",
+        "modifiers" : 2,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "}",
+        "modifiers" : 4,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "]",
+        "modifiers" : 6,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 0,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "_",
+        "modifiers" : 2,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "—",
+        "modifiers" : 4,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "–",
+        "modifiers" : 6,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "^",
+        "modifiers" : 0,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "¨",
+        "modifiers" : 2,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ô",
+        "modifiers" : 4,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ô",
+        "modifiers" : 6,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "$",
+        "modifiers" : 0,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 2,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "€",
+        "modifiers" : 4,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¥",
+        "modifiers" : 6,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "`",
+        "modifiers" : 0,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "£",
+        "modifiers" : 2,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "@",
+        "modifiers" : 4,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "#",
+        "modifiers" : 6,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "`",
+        "modifiers" : 0,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "£",
+        "modifiers" : 2,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "@",
+        "modifiers" : 4,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "#",
+        "modifiers" : 6,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "m",
+        "modifiers" : 0,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "M",
+        "modifiers" : 2,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "µ",
+        "modifiers" : 4,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ó",
+        "modifiers" : 6,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ù",
+        "modifiers" : 0,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "%",
+        "modifiers" : 2,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ù",
+        "modifiers" : 4,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‰",
+        "modifiers" : 6,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "@",
+        "modifiers" : 0,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "#",
+        "modifiers" : 2,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "•",
+        "modifiers" : 4,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ÿ",
+        "modifiers" : 6,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ";",
+        "modifiers" : 0,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 2,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "…",
+        "modifiers" : 4,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "•",
+        "modifiers" : 6,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ":",
+        "modifiers" : 0,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 2,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "÷",
+        "modifiers" : 4,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\\",
+        "modifiers" : 6,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 0,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 2,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≠",
+        "modifiers" : 4,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "±",
+        "modifiers" : 6,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 0,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 2,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 4,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 6,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 0,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 2,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 4,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 6,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 0,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 2,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 4,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 6,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 0,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 2,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 4,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 6,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 0,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 2,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 4,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 6,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 0,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 2,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 4,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 6,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 0,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 2,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 4,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 6,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 0,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 2,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 4,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 6,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 0,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 2,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 4,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 6,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 0,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 2,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 4,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 6,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 0,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 2,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 4,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 6,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 0,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 2,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 4,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 6,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 0,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 2,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 4,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 6,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 0,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 2,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 4,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 6,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ",",
+        "modifiers" : 0,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 2,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ",",
+        "modifiers" : 4,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 6,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "<",
+        "modifiers" : 0,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ">",
+        "modifiers" : 2,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≤",
+        "modifiers" : 4,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≥",
+        "modifiers" : 6,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 0,
+        "usage" : 103
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 2,
+        "usage" : 103
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 4,
+        "usage" : 103
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 6,
+        "usage" : 103
+      }
+    ]
+  },
+  "os" : "Version 27.2 (Build 26B118)",
+  "provenance" : "UCKeyTranslate, key-down, dead-key state reset per probe; dead glyph verified by unmodified Space",
+  "us" : {
+    "inputSourceID" : "com.apple.keylayout.US",
+    "keyboardType" : 40,
+    "outputs" : [
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "a",
+        "modifiers" : 0,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "A",
+        "modifiers" : 2,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "å",
+        "modifiers" : 4,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Å",
+        "modifiers" : 6,
+        "usage" : 4
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "b",
+        "modifiers" : 0,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "B",
+        "modifiers" : 2,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∫",
+        "modifiers" : 4,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ı",
+        "modifiers" : 6,
+        "usage" : 5
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "c",
+        "modifiers" : 0,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "C",
+        "modifiers" : 2,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ç",
+        "modifiers" : 4,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ç",
+        "modifiers" : 6,
+        "usage" : 6
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "d",
+        "modifiers" : 0,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "D",
+        "modifiers" : 2,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∂",
+        "modifiers" : 4,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Î",
+        "modifiers" : 6,
+        "usage" : 7
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "e",
+        "modifiers" : 0,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "E",
+        "modifiers" : 2,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "´",
+        "modifiers" : 4,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "´",
+        "modifiers" : 6,
+        "usage" : 8
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "f",
+        "modifiers" : 0,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "F",
+        "modifiers" : 2,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ƒ",
+        "modifiers" : 4,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ï",
+        "modifiers" : 6,
+        "usage" : 9
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "g",
+        "modifiers" : 0,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "G",
+        "modifiers" : 2,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "©",
+        "modifiers" : 4,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "˝",
+        "modifiers" : 6,
+        "usage" : 10
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "h",
+        "modifiers" : 0,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "H",
+        "modifiers" : 2,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "˙",
+        "modifiers" : 4,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ó",
+        "modifiers" : 6,
+        "usage" : 11
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "i",
+        "modifiers" : 0,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "I",
+        "modifiers" : 2,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "ˆ",
+        "modifiers" : 4,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ˆ",
+        "modifiers" : 6,
+        "usage" : 12
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "j",
+        "modifiers" : 0,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "J",
+        "modifiers" : 2,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∆",
+        "modifiers" : 4,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ô",
+        "modifiers" : 6,
+        "usage" : 13
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "k",
+        "modifiers" : 0,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "K",
+        "modifiers" : 2,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "˚",
+        "modifiers" : 4,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "",
+        "modifiers" : 6,
+        "usage" : 14
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "l",
+        "modifiers" : 0,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "L",
+        "modifiers" : 2,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¬",
+        "modifiers" : 4,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ò",
+        "modifiers" : 6,
+        "usage" : 15
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "m",
+        "modifiers" : 0,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "M",
+        "modifiers" : 2,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "µ",
+        "modifiers" : 4,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Â",
+        "modifiers" : 6,
+        "usage" : 16
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "n",
+        "modifiers" : 0,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "N",
+        "modifiers" : 2,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "˜",
+        "modifiers" : 4,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "˜",
+        "modifiers" : 6,
+        "usage" : 17
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "o",
+        "modifiers" : 0,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "O",
+        "modifiers" : 2,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ø",
+        "modifiers" : 4,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ø",
+        "modifiers" : 6,
+        "usage" : 18
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "p",
+        "modifiers" : 0,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "P",
+        "modifiers" : 2,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "π",
+        "modifiers" : 4,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∏",
+        "modifiers" : 6,
+        "usage" : 19
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "q",
+        "modifiers" : 0,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Q",
+        "modifiers" : 2,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "œ",
+        "modifiers" : 4,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Œ",
+        "modifiers" : 6,
+        "usage" : 20
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "r",
+        "modifiers" : 0,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "R",
+        "modifiers" : 2,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "®",
+        "modifiers" : 4,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‰",
+        "modifiers" : 6,
+        "usage" : 21
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "s",
+        "modifiers" : 0,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "S",
+        "modifiers" : 2,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ß",
+        "modifiers" : 4,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Í",
+        "modifiers" : 6,
+        "usage" : 22
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "t",
+        "modifiers" : 0,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "T",
+        "modifiers" : 2,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "†",
+        "modifiers" : 4,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ˇ",
+        "modifiers" : 6,
+        "usage" : 23
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "u",
+        "modifiers" : 0,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "U",
+        "modifiers" : 2,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "¨",
+        "modifiers" : 4,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¨",
+        "modifiers" : 6,
+        "usage" : 24
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "v",
+        "modifiers" : 0,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "V",
+        "modifiers" : 2,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "√",
+        "modifiers" : 4,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "◊",
+        "modifiers" : 6,
+        "usage" : 25
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "w",
+        "modifiers" : 0,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "W",
+        "modifiers" : 2,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∑",
+        "modifiers" : 4,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "„",
+        "modifiers" : 6,
+        "usage" : 26
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "x",
+        "modifiers" : 0,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "X",
+        "modifiers" : 2,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≈",
+        "modifiers" : 4,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "˛",
+        "modifiers" : 6,
+        "usage" : 27
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "y",
+        "modifiers" : 0,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Y",
+        "modifiers" : 2,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¥",
+        "modifiers" : 4,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Á",
+        "modifiers" : 6,
+        "usage" : 28
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "z",
+        "modifiers" : 0,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Z",
+        "modifiers" : 2,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ω",
+        "modifiers" : 4,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¸",
+        "modifiers" : 6,
+        "usage" : 29
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 0,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "!",
+        "modifiers" : 2,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¡",
+        "modifiers" : 4,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "⁄",
+        "modifiers" : 6,
+        "usage" : 30
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 0,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "@",
+        "modifiers" : 2,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "™",
+        "modifiers" : 4,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "€",
+        "modifiers" : 6,
+        "usage" : 31
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 0,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "#",
+        "modifiers" : 2,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "£",
+        "modifiers" : 4,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‹",
+        "modifiers" : 6,
+        "usage" : 32
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 0,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "$",
+        "modifiers" : 2,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¢",
+        "modifiers" : 4,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "›",
+        "modifiers" : 6,
+        "usage" : 33
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 0,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "%",
+        "modifiers" : 2,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "∞",
+        "modifiers" : 4,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ﬁ",
+        "modifiers" : 6,
+        "usage" : 34
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 0,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "^",
+        "modifiers" : 2,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "§",
+        "modifiers" : 4,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ﬂ",
+        "modifiers" : 6,
+        "usage" : 35
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 0,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "&",
+        "modifiers" : 2,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¶",
+        "modifiers" : 4,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‡",
+        "modifiers" : 6,
+        "usage" : 36
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 0,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 2,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "•",
+        "modifiers" : 4,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "°",
+        "modifiers" : 6,
+        "usage" : 37
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 0,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "(",
+        "modifiers" : 2,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "ª",
+        "modifiers" : 4,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "·",
+        "modifiers" : 6,
+        "usage" : 38
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 0,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ")",
+        "modifiers" : 2,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "º",
+        "modifiers" : 4,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‚",
+        "modifiers" : 6,
+        "usage" : 39
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 0,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 2,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 4,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : " ",
+        "modifiers" : 6,
+        "usage" : 44
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 0,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "_",
+        "modifiers" : 2,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "–",
+        "modifiers" : 4,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "—",
+        "modifiers" : 6,
+        "usage" : 45
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 0,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 2,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≠",
+        "modifiers" : 4,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "±",
+        "modifiers" : 6,
+        "usage" : 46
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "[",
+        "modifiers" : 0,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "{",
+        "modifiers" : 2,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "“",
+        "modifiers" : 4,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "”",
+        "modifiers" : 6,
+        "usage" : 47
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "]",
+        "modifiers" : 0,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "}",
+        "modifiers" : 2,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "‘",
+        "modifiers" : 4,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "’",
+        "modifiers" : 6,
+        "usage" : 48
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\\",
+        "modifiers" : 0,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "|",
+        "modifiers" : 2,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "«",
+        "modifiers" : 4,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "»",
+        "modifiers" : 6,
+        "usage" : 49
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\\",
+        "modifiers" : 0,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "|",
+        "modifiers" : 2,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "«",
+        "modifiers" : 4,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "»",
+        "modifiers" : 6,
+        "usage" : 50
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ";",
+        "modifiers" : 0,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ":",
+        "modifiers" : 2,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "…",
+        "modifiers" : 4,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Ú",
+        "modifiers" : 6,
+        "usage" : 51
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "'",
+        "modifiers" : 0,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\"",
+        "modifiers" : 2,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "æ",
+        "modifiers" : 4,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "Æ",
+        "modifiers" : 6,
+        "usage" : 52
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "`",
+        "modifiers" : 0,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "~",
+        "modifiers" : 2,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : true,
+        "dead" : true,
+        "glyph" : "`",
+        "modifiers" : 4,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "`",
+        "modifiers" : 6,
+        "usage" : 53
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ",",
+        "modifiers" : 0,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "<",
+        "modifiers" : 2,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≤",
+        "modifiers" : 4,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¯",
+        "modifiers" : 6,
+        "usage" : 54
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 0,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ">",
+        "modifiers" : 2,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "≥",
+        "modifiers" : 4,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "˘",
+        "modifiers" : 6,
+        "usage" : 55
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 0,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "?",
+        "modifiers" : 2,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "÷",
+        "modifiers" : 4,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "¿",
+        "modifiers" : 6,
+        "usage" : 56
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 0,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 2,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 4,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "\/",
+        "modifiers" : 6,
+        "usage" : 84
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 0,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 2,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 4,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "*",
+        "modifiers" : 6,
+        "usage" : 85
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 0,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 2,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 4,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "-",
+        "modifiers" : 6,
+        "usage" : 86
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 0,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 2,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 4,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "+",
+        "modifiers" : 6,
+        "usage" : 87
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 0,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 2,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 4,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "1",
+        "modifiers" : 6,
+        "usage" : 89
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 0,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 2,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 4,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "2",
+        "modifiers" : 6,
+        "usage" : 90
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 0,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 2,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 4,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "3",
+        "modifiers" : 6,
+        "usage" : 91
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 0,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 2,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 4,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "4",
+        "modifiers" : 6,
+        "usage" : 92
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 0,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 2,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 4,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "5",
+        "modifiers" : 6,
+        "usage" : 93
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 0,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 2,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 4,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "6",
+        "modifiers" : 6,
+        "usage" : 94
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 0,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 2,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 4,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "7",
+        "modifiers" : 6,
+        "usage" : 95
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 0,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 2,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 4,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "8",
+        "modifiers" : 6,
+        "usage" : 96
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 0,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 2,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 4,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "9",
+        "modifiers" : 6,
+        "usage" : 97
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 0,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 2,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 4,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "0",
+        "modifiers" : 6,
+        "usage" : 98
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 0,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 2,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 4,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : ".",
+        "modifiers" : 6,
+        "usage" : 99
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "§",
+        "modifiers" : 0,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "±",
+        "modifiers" : 2,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "§",
+        "modifiers" : 4,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "±",
+        "modifiers" : 6,
+        "usage" : 100
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 0,
+        "usage" : 103
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 2,
+        "usage" : 103
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 4,
+        "usage" : 103
+      },
+      {
+        "commitVerified" : false,
+        "dead" : false,
+        "glyph" : "=",
+        "modifiers" : 6,
+        "usage" : 103
+      }
+    ]
+  }
+}

@@ -76,6 +76,15 @@ export default class KeysRepo extends Repository<Key> {
     throw new Error("Method not implemented.");
   }
 
+  async getForKeyboard(keyboardId: number): Promise<Key[]> {
+    const query = this.#db(Key.table).where({ keyboardId }).orderBy(["row", "column"]);
+    try {
+      return (await query).map((row) => new Key(row));
+    } catch (error: unknown) {
+      throw new DatabaseError("Could not get physical keyboard keys", query, error as Error);
+    }
+  }
+
   async update(data: Key): Promise<Key> {
     const query = this.#db(Key.table)
       .where({

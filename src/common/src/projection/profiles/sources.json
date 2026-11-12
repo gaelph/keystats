@@ -1,0 +1,26 @@
+{
+  "colemak": {
+    "url": "https://raw.githubusercontent.com/ColemakMods/mod-dh/d9398d57695089658841f3dc62827ae814aef8c4/macOS/Colemak%20DH.bundle/Contents/Resources/Colemak%20DH%20ISO%20-%20Extended.keylayout",
+    "sha256": "7cc10c93ef65f40d87803ce9371eae3c6b696cb9bdda8f96915edc2b20453b65",
+    "attribution": "ColemakMods contributors, Colemak DH ISO - Extended; mapping data extracted without remapping Caps or controls",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://github.com/ColemakMods/mod-dh/blob/d9398d57695089658841f3dc62827ae814aef8c4/LICENSE"
+  },
+  "bepo": {
+    "url": "https://cdn.bepo.fr/macosx/fr-dvorak-bepo-macosx-1.1rc2.dmg",
+    "artifactSha256": "4c0cb9e058a5bdc3de8b6056525046c72976afad9b88298b74a9854cb427d56c",
+    "file": "bepo 1.1.bundle/Contents/Resources/bepo.keylayout",
+    "sha256": "1ae285b4d523e3969474eab01084fdf09145f00cdb4daae1245ac2d52e30b6ba",
+    "attribution": "Bépo community / Ergodis / bepo.fr; plain Bépo 1.1rc2 ISO data extracted into outputs and bounded recipes",
+    "license": "CC-BY-SA-3.0 (Bépo mapping data)",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "noticeUrl": "https://bepo.fr/wiki/Licence"
+  },
+  "isrt": {
+    "url": "https://www.keyboard-design.com/klajson/isrt.en.ansi.json",
+    "sha256": "98b3df21a2cb9a131933d3e4fe5fc6f3179e4bcff43d7cbf1c9d5e858a48b737",
+    "corroborationUrl": "https://github.com/DreymaR/BigBagKbdTrixPKL/blob/ec043250348b3b21b30dc28300fb9dd7de0ae656/Layouts/ISRT/README.md",
+    "attribution": "NotGate original ISRT 2021-01-27; base/Shift arrangement facts corroborated with Keyboard-Design and DreymaR's version history. No website software, scores or artwork redistributed.",
+    "limitation": "No verified Option levels; no hybrid, Angle, Wide or Sym adaptation"
+  }
+}

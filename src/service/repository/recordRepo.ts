@@ -9,6 +9,7 @@ import KeymapRepo from "./keymapRepo.js";
 import { Coordinates, FilterOptions } from "../types.js";
 import Key from "../models/key.js";
 import { todayAsDbDate } from "../../utils/time.js";
+import type { ProjectionGroup, ProjectionPositionGroup } from "../../common/dist/dto/projection.js";
 
 interface AddRecordOptions {
   type: KeymapType;
@@ -506,5 +507,45 @@ export default class RecordRepo extends Repository<Record> {
     }
 
     return results as string[];
+  }
+
+  async getProjectionGroups(keyboardId: number, date?: string): Promise<ProjectionGroup[]> {
+    return (await this.getProjectionData(keyboardId, date)).groups;
+  }
+
+  async getProjectionData(keyboardId: number, date?: string): Promise<{ groups: ProjectionGroup[]; keymapUsage: number[][][]; positions: ProjectionPositionGroup[] }> {
+    const query = this.#db(Record.table)
+      .select("keymaps.keycode", "records.modifiers", "keymaps.type", "keymaps.layer", "keymaps.row", "keymaps.column")
+      .sum("records.counts AS count")
+      .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+      .where("keymaps.keyboardId", keyboardId)
+      .groupBy("keymaps.keycode", "records.modifiers", "keymaps.type", "keymaps.layer", "keymaps.row", "keymaps.column");
+    if (date) {
+      const [year, month, day] = date.split("-");
+      query.whereIn("records.date", [...new Set([date, `${year}-${Number(month)}-${day}`])]);
+    }
+    try {
+      // Canonicalize legacy hexadecimal spellings without changing stored data.
+      const groups = new Map<string, ProjectionGroup>();
+      const keymapUsage: number[][][] = [];
+      const positions: ProjectionPositionGroup[] = [];
+      for (const row of await query as unknown as (ProjectionGroup & Coordinates)[]) {
+        keymapUsage[row.layer] ||= [];
+        keymapUsage[row.layer][row.row] ||= [];
+        keymapUsage[row.layer][row.row][row.column] =
+          (keymapUsage[row.layer][row.row][row.column] || 0) + Number(row.count);
+        const keycode = /^[0-9a-f]{1,4}$/i.test(row.keycode)
+          ? parseInt(row.keycode, 16).toString(16) : row.keycode;
+        positions.push({ keycode, modifiers: row.modifiers, type: row.type, count: Number(row.count),
+          layer: row.layer, row: row.row, column: row.column });
+        const key = `${keycode}/${row.modifiers}/${row.type}`;
+        const existing = groups.get(key);
+        if (existing) existing.count += Number(row.count);
+        else groups.set(key, { keycode, modifiers: row.modifiers, type: row.type, count: Number(row.count) });
+      }
+      return { groups: [...groups.values()].sort((a, b) => a.keycode.localeCompare(b.keycode) || a.modifiers - b.modifiers || a.type.localeCompare(b.type)), keymapUsage, positions };
+    } catch (error) {
+      throw new DatabaseError("Failed to get projection source", query, error as Error);
+    }
   }
 }

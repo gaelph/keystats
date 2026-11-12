@@ -1,0 +1,872 @@
+{
+  "french" : {
+    "inputSourceID" : "com.apple.keylayout.French",
+    "recipes" : [
+      {
+        "glyph" : "é",
+        "steps" : [
+          {
+            "modifiers" : 6,
+            "usage" : 30
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "É",
+        "steps" : [
+          {
+            "modifiers" : 6,
+            "usage" : 30
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "ê",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "Ê",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "î",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "Î",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "ô",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "Ô",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "â",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "Â",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "û",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Û",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "ë",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "Ë",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "ï",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "Ï",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "ö",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "Ö",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "ä",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "Ä",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "ü",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Ü",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "ÿ",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 28
+          }
+        ]
+      },
+      {
+        "glyph" : "Ÿ",
+        "steps" : [
+          {
+            "modifiers" : 2,
+            "usage" : 47
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 28
+          }
+        ]
+      },
+      {
+        "glyph" : "è",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 49
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "È",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 49
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "à",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 49
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "À",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 49
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "ù",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 49
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Ù",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 49
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "è",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 50
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "È",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 50
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "à",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 50
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "À",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 50
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 20
+          }
+        ]
+      },
+      {
+        "glyph" : "ù",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 50
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Ù",
+        "steps" : [
+          {
+            "modifiers" : 0,
+            "usage" : 50
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      }
+    ]
+  },
+  "os" : "Version 27.2 (Build 26B118)",
+  "provenance" : "UCKeyTranslate, key-down, dead-key state reset per probe; dead glyph verified by unmodified Space",
+  "us" : {
+    "inputSourceID" : "com.apple.keylayout.US",
+    "recipes" : [
+      {
+        "glyph" : "é",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 8
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "É",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 8
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "â",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 4
+          }
+        ]
+      },
+      {
+        "glyph" : "Â",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 4
+          }
+        ]
+      },
+      {
+        "glyph" : "ê",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "Ê",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "î",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "Î",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "ô",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "Ô",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "û",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Û",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 12
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "ä",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 4
+          }
+        ]
+      },
+      {
+        "glyph" : "Ä",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 4
+          }
+        ]
+      },
+      {
+        "glyph" : "ë",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "Ë",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "ï",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "Ï",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 12
+          }
+        ]
+      },
+      {
+        "glyph" : "ö",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "Ö",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 18
+          }
+        ]
+      },
+      {
+        "glyph" : "ü",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Ü",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "ÿ",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 28
+          }
+        ]
+      },
+      {
+        "glyph" : "Ÿ",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 24
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 28
+          }
+        ]
+      },
+      {
+        "glyph" : "à",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 53
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 4
+          }
+        ]
+      },
+      {
+        "glyph" : "À",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 53
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 4
+          }
+        ]
+      },
+      {
+        "glyph" : "è",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 53
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "È",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 53
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 8
+          }
+        ]
+      },
+      {
+        "glyph" : "ù",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 53
+          },
+          {
+            "modifiers" : 0,
+            "usage" : 24
+          }
+        ]
+      },
+      {
+        "glyph" : "Ù",
+        "steps" : [
+          {
+            "modifiers" : 4,
+            "usage" : 53
+          },
+          {
+            "modifiers" : 2,
+            "usage" : 24
+          }
+        ]
+      }
+    ]
+  }
+}
