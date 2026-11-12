@@ -26,6 +26,8 @@ export default class HandUsageRepo extends Repository<HandUsage> {
         date: data.date,
         count: data.count || 1,
       })
+      .onConflict(["keyboardId", "hand", "repeats", "date"])
+      .merge()
       .returning("*");
     let result: Awaited<typeof query>[number];
 
@@ -113,41 +115,27 @@ export default class HandUsageRepo extends Repository<HandUsage> {
       return;
     }
 
-    let query;
+    const query = this.#db(HandUsage.table)
+      .insert({
+        keyboardId,
+        hand,
+        repeats,
+        date: todayAsDbDate(),
+        count: 1,
+      })
+      .onConflict(["keyboardId", "hand", "repeats", "date"])
+      .merge({
+        count: this.#db.raw("?? + 1", ["count"]),
+        updatedAt: new Date(),
+      })
+      .returning("*");
 
     try {
-      const exists = await this.getOne({
-        keyboardId: keyboardId,
-        hand: hand,
-        date: todayAsDbDate(),
-        repeats: repeats,
-      });
-
-      query = this.#db(HandUsage.table)
-        .update({ count: exists.count + 1, updatedAt: new Date() })
-        .where({ id: exists.id })
-        .returning("*");
-
       await query;
-
-      return;
     } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        const data = this.build({
-          keyboardId: keyboardId,
-          hand: hand,
-          repeats: repeats,
-          date: todayAsDbDate(),
-          count: 1,
-        });
-
-        await this.create(data);
-        return;
-      }
-
       throw new DatabaseError(
         "Failed to increment hand usage",
-        query!,
+        query,
         error as Error,
       );
     }

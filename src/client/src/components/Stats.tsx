@@ -6,6 +6,7 @@ import { Character } from "keystats-common/dto/keyboard";
 import * as classes from "./Stats.module.css";
 import useCharacters from "~/hooks/useCharacters.js";
 import useCounts from "~/hooks/useCounts.js";
+import { repetitionPresses } from "~/lib/repetitions.js";
 
 const numberFormater = new Intl.NumberFormat("en-US", {});
 function formatNumber(n: number): string {
@@ -57,7 +58,7 @@ export default function StatsComponent(): React.ReactElement {
   const fingerUsageSumPerFinger = useMemo(() => {
     return (
       fingerUsage?.map((counts) => {
-        return counts.reduce((acc: number, usage) => acc + usage, 0);
+        return repetitionPresses(counts);
       }) || []
     );
   }, [fingerUsage]);
@@ -66,7 +67,7 @@ export default function StatsComponent(): React.ReactElement {
   const handUsageSumPerHand = useMemo(() => {
     return (
       handUsage?.map((counts) => {
-        return counts.reduce((acc: number, usage) => acc + usage, 0);
+        return repetitionPresses(counts);
       }) || []
     );
   }, [handUsage]);

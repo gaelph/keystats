@@ -27,9 +27,7 @@ export default class FingerUsageRepo extends Repository<FingerUsage> {
         count: data.count || 1,
       })
       .onConflict(["keyboardId", "finger", "repeats", "date"])
-      .merge({
-        count: data.count,
-      })
+      .merge()
       .returning("*");
     let result: Awaited<typeof query>[number];
 
@@ -189,35 +187,29 @@ export default class FingerUsageRepo extends Repository<FingerUsage> {
       return;
     }
 
-    try {
-      const exists = await this.getOne({
+    const query = this.#db(FingerUsage.table)
+      .insert({
         keyboardId,
         finger,
         repeats,
         date: todayAsDbDate(),
-      });
+        count: 1,
+      })
+      .onConflict(["keyboardId", "finger", "repeats", "date"])
+      .merge({
+        count: this.#db.raw("?? + 1", ["count"]),
+        updatedAt: new Date(),
+      })
+      .returning("*");
 
-      exists.count += 1;
-
-      await this.update(exists);
-
-      return;
+    try {
+      await query;
     } catch (error: unknown) {
-      if (error instanceof NotFoundError) {
-        await this.create(
-          this.build({
-            keyboardId: keyboardId,
-            finger: finger,
-            date: todayAsDbDate(),
-            repeats: repeats,
-            count: 1,
-          }),
-        );
-
-        return;
-      }
-
-      throw error;
+      throw new DatabaseError(
+        "Failed to increment finger usage",
+        query,
+        error as Error,
+      );
     }
   }
 
