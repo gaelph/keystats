@@ -26,12 +26,12 @@ export function createProjectionStore(
   const remembered = readTarget(options.storage);
   let startup = true;
   return createStore<{
-    view: "observed" | "comparison";
+    view: "observed" | "comparison" | "trends";
     scale: "linear" | "log";
     activity: "all" | "printing";
     targetId: TargetId | null;
     request: ProjectionRequest;
-    setView: (view: "observed" | "comparison") => void;
+    setView: (view: "observed" | "comparison" | "trends") => void;
     setScale: (scale: "linear" | "log") => void;
     setActivity: (activity: "all" | "printing") => void;
     setTarget: (id: string) => void;

@@ -8,6 +8,7 @@ import ErrorIcon from "@material-symbols/svg-400/sharp/error.svg";
 import * as classes from "./Header.module.css";
 import { useProjectionStore } from "~/state/projection.js";
 import { useAppState } from "~/state/appState.js";
+import { useTrendsRefresh } from "~/state/trendsRefresh.js";
 
 export default function Header(): React.ReactElement {
   const { loading, errors, refresh } = useFetchStatus();
@@ -16,6 +17,7 @@ export default function Header(): React.ReactElement {
   const projectionRequest = useProjectionStore((state) => state.request);
   const loadProjection = useProjectionStore((state) => state.load);
   const date = useAppState((state) => state.date);
+  const refreshTrends = useTrendsRefresh((state) => state.refresh);
   const busy = loading || (view === "comparison" && projectionRequest.status === "loading");
 
   // Set the first keyboard of the list as the default
@@ -43,6 +45,7 @@ export default function Header(): React.ReactElement {
           onClick={() => {
             refresh();
              if (view === "comparison" && keyboard) void loadProjection({ keyboardId: keyboard.id, date: date?.format("YYYY-MM-DD") || null }, true);
+             if (view === "trends") refreshTrends();
           }}
         >
           {busy ? "Loading…" : "Refresh"}

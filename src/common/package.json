@@ -6,6 +6,7 @@
   "exports": {
     "./projection": "./dist/projection/index.js",
     "./dto/projection": "./dist/dto/projection.js",
+    "./dto/trends": "./dist/dto/trends.js",
     "./dto/keyboard": "./dist/dto/keyboard.js",
     ".": "./dist/index.js"
   },

@@ -4,7 +4,7 @@ const Esbuild = require("esbuild");
  * Main program build
  */
 Esbuild.build({
-  entryPoints: ["./src/index.ts", "./src/dto/keyboard.ts", "./src/dto/projection.ts"],
+  entryPoints: ["./src/index.ts", "./src/dto/keyboard.ts", "./src/dto/projection.ts", "./src/dto/trends.ts"],
   outdir: "dist",
   format: "esm",
   loader: {

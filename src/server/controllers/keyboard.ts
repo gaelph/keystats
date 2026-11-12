@@ -28,6 +28,7 @@ import * as Keycodes from "../../lib/keycodes.js";
 import { formatKeyCode } from "../../lib/formatKeycodes.js";
 import { RecordCount } from "../../service/repository/recordRepo.js";
 import projectionRouter from "./projection.js";
+import trendsRouter from "./trends.js";
 
 type KeyboardRequest = Request<KeyboardIdParam, any, any, FilterQuery>;
 type KeyboardListRequest = Request<{}, any, any, {}>;
@@ -211,6 +212,7 @@ entityRouter.get<KeyboardIdParam>(
 // Validate the raw projection query before the generic middleware can strip
 // unknown fields. This endpoint intentionally supports only All Time / day.
 router.use("/:keyboardId/projection-source", projectionRouter());
+router.use("/:keyboardId/trends", trendsRouter());
 router.use("/:keyboardId", entityRouter);
 
 entityRouter.use(loggerMiddleware(logger));

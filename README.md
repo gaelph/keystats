@@ -143,6 +143,27 @@ their existing modifier and dead-key recipe rules. Both modes come from the same
 aggregate response; switching modes makes no request and does not change the
 initial observed page, capture, or stored data.
 
+### Trends
+
+The **Trends** tab charts volume, selected character actions and physical row,
+hand or finger workload over a chosen date range. Choose a preset or custom dates
+and automatic, daily, Monday-based weekly or monthly grouping. Chart and range
+preferences are remembered in the browser. Hover the charts or use the bucket
+inspector for values and recording-day coverage. Use **Refresh** to load a new
+snapshot; data does not update automatically. Finger workload uses stacked areas;
+the selected categories retain their shares of all uses rather than being
+renormalized when other fingers are hidden.
+
+Days without records are gaps, not confirmed zeroes. Longer buckets show totals
+for recorded days only, with coverage rather than an estimate for missing days.
+The character/key picker includes decoded named keys such as Backspace, Enter and
+arrows, as well as characters. Shares use all decoded characters and named keys
+as their denominator, including Space and shortcuts; they are not a record of
+text actually entered. Named key counts combine modifier combinations. Printing volume excludes shortcuts and modifiers; printing
+physical workload includes estimated Shift/Option participation. Historic
+character interpretation assumes macOS French input and current keyboard and
+finger assignments; changes in historical configuration cannot be reconstructed.
+
 ### Verification
 
 ```sh
@@ -156,6 +177,9 @@ installation or live input-source activation is needed.
 Static layout definitions are captured with a development-only macOS probe;
 see [profile provenance and regeneration](src/common/src/projection/profiles/README.md).
 
+After building, `npm run test:browser` runs an isolated headless Chrome smoke test
+with synthetic intercepted API responses, never live keyboard capture. It needs
+Node 22+ and Chrome (`CHROME_BIN` can override its executable path).
 
 ## Change the server port
 Start by stopping the services if they are running:

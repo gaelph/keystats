@@ -513,6 +513,28 @@ export default class RecordRepo extends Repository<Record> {
     return (await this.getProjectionData(keyboardId, date)).groups;
   }
 
+  // Aggregate in SQLite, rather than transferring individual records or making
+  // one request per day. Dates in older databases have an unpadded month.
+  async getTrendPositions(keyboardId: number, start?: string, end?: string): Promise<(ProjectionPositionGroup & { date: string })[]> {
+    const canonicalDate = "printf('%04d-%02d-%02d', cast(substr(records.date, 1, 4) as integer), cast(substr(records.date, 6, instr(substr(records.date, 6), '-') - 1) as integer), cast(substr(records.date, 6 + instr(substr(records.date, 6), '-')) as integer))";
+    const query = this.#db(Record.table)
+      .select(this.#db.raw(`${canonicalDate} AS date`), "keymaps.keycode", "records.modifiers", "keymaps.type", "keymaps.layer", "keymaps.row", "keymaps.column")
+      .sum("records.counts AS count")
+      .join(Keymap.table, "keymaps.id", "=", "records.keymapId")
+      .where("keymaps.keyboardId", keyboardId)
+      .groupByRaw(`${canonicalDate}, keymaps.keycode, records.modifiers, keymaps.type, keymaps.layer, keymaps.row, keymaps.column`);
+    if (start) query.whereRaw(`${canonicalDate} >= ?`, [start]);
+    if (end) query.whereRaw(`${canonicalDate} <= ?`, [end]);
+    try {
+      return (await query as unknown as (ProjectionPositionGroup & { date: string })[]).map((row) => ({
+        ...row, keycode: /^[0-9a-f]{1,4}$/i.test(row.keycode) ? parseInt(row.keycode, 16).toString(16) : row.keycode,
+        count: Number(row.count),
+      }));
+    } catch (error) {
+      throw new DatabaseError("Failed to get trends", query, error as Error);
+    }
+  }
+
   async getProjectionData(keyboardId: number, date?: string): Promise<{ groups: ProjectionGroup[]; keymapUsage: number[][][]; positions: ProjectionPositionGroup[] }> {
     const query = this.#db(Record.table)
       .select("keymaps.keycode", "records.modifiers", "keymaps.type", "keymaps.layer", "keymaps.row", "keymaps.column")

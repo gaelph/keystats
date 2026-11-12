@@ -10,6 +10,7 @@
   "scripts": {
     "pretest": "npm run build:common",
     "test": "node --test tests/*.test.cjs",
+    "test:browser": "node tests/browserProjection.cjs",
     "pretypecheck": "npm run build:common",
     "typecheck": "tsc --noEmit && tsc -p src/client/tsconfig.json --noEmit",
     "build": "npm run clean && npm run build:dependencies && npm run bundle && npm run pkg",

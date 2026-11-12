@@ -1,5 +1,6 @@
 import { KeyboardDTO } from "keystats-common";
 import { projectionSource, type ProjectionSource } from "keystats-common/dto/projection";
+import type { TrendsResponse } from "keystats-common/dto/trends";
 import type {
   FilterQuery,
   KeyboardListBody,
@@ -58,6 +59,14 @@ export async function getProjectionSource(keyboardId: number, date: string | nul
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Error fetching projection: ${response.status}`);
   return projectionSource.parse(await response.json());
+}
+
+export async function getTrends(keyboardId: number, start: string | null, end: string, grouping: string): Promise<TrendsResponse> {
+  const query: Record<string, string> = { end, grouping };
+  if (start) query.start = start;
+  const response = await fetch(toUrl("/api/keyboards/:keyboardId/trends", { keyboardId }, query));
+  if (!response.ok) throw new Error(`Could not load trends (${response.status})`);
+  return response.json() as Promise<TrendsResponse>;
 }
 
 export async function getDates(keyboardId: number): Promise<Date[]> {

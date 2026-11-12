@@ -15,13 +15,14 @@
     "material-symbols": "^0.14.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "recharts": "^3.10.1",
     "web-vitals": "^2.1.4",
     "zustand": "^4.4.7"
   },
   "scripts": {
     "start": "PORT=6001 node esbuild.js -s",
     "build": "node esbuild.js && npm run post-build",
-    "post-build": "purgecss --css build/static/main.css --content build/static/main.js --output build/static"
+    "post-build": "purgecss --css build/static/main.css --content 'build/static/*.js' --output build/static"
   },
   "browserslist": {
     "production": [
