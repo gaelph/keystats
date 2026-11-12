@@ -11,6 +11,11 @@ export default class KeysService {
     this.#keysRepo = new KeysRepo();
   }
 
+  /**
+   * Create a new key
+   * @param key Key options
+   * @returns Promise<Key | null>
+   */
   async create(key: KeyOptions): Promise<Key | null> {
     try {
       return await this.#keysRepo.create(this.#keysRepo.build(key));
@@ -20,6 +25,12 @@ export default class KeysService {
     }
   }
 
+  /**
+   * Create keys with layout
+   * @param {number} keyboardId Keyboard ID
+   * @param {number[][]} layout Layout
+   * @returns Promise<Key[]>
+   */
   async createKeysWithLayout(
     keyboardId: number,
     layout: number[][],

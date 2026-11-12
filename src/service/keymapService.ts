@@ -18,6 +18,16 @@ export default class KeymapService {
     this.#keysRepo = new KeysRepo();
   }
 
+  /**
+   * Creates a new keymap
+   * @param {number} keyboardId Keyboard ID
+   * @param {number} layer Layer
+   * @param {number} column Column
+   * @param {number} row Row
+   * @param {string} keycode Keycode
+   * @param {KeymapType} type Type
+   * @returns Promise<Keymap | null>
+   */
   async createKeymap(
     keyboardId: number,
     layer: number,
